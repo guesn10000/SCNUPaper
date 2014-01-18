@@ -5,36 +5,48 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>825E6256-AE26-406D-A3B8-6BDFF315A4FC</string>
+	<string>3A883B80-114B-4966-AE05-C2DB94506E50</string>
 	<key>IDESourceControlProjectName</key>
 	<string>SCNUPaper</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>012A6C07-A3A7-4674-A84D-9CB178F74EDD</key>
-		<string>https://github.com/guesn10000/------.git</string>
+		<key>41CDAC3E-86CC-48D3-AFB1-C110C494F5BE</key>
+		<string>https://github.com/guesn10000/SCNUPaper.git</string>
+		<key>43D19E4C-1126-4D09-977C-7454C97B7D8C</key>
+		<string>https://github.com/guesn10000/SCNUPaper.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>SCNUPaper.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>012A6C07-A3A7-4674-A84D-9CB178F74EDD</key>
+		<key>41CDAC3E-86CC-48D3-AFB1-C110C494F5BE</key>
 		<string>../..</string>
+		<key>43D19E4C-1126-4D09-977C-7454C97B7D8C</key>
+		<string>../../SCNUPaper</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/guesn10000/------.git</string>
+	<string>https://github.com/guesn10000/SCNUPaper.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>012A6C07-A3A7-4674-A84D-9CB178F74EDD</string>
+	<string>41CDAC3E-86CC-48D3-AFB1-C110C494F5BE</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>012A6C07-A3A7-4674-A84D-9CB178F74EDD</string>
+			<string>41CDAC3E-86CC-48D3-AFB1-C110C494F5BE</string>
 			<key>IDESourceControlWCCName</key>
-			<string>论文批阅系统</string>
+			<string>SCNUPaper</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>43D19E4C-1126-4D09-977C-7454C97B7D8C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SCNUPaper</string>
 		</dict>
 	</array>
 </dict>

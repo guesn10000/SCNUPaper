@@ -91,6 +91,8 @@ static NSString *kCellIdentifier = @"Cell";
         AppDelegate *appDelegate = APPDELEGATE;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
+        [appDelegate.mainPDFViewController dismissCommentsView:nil];
+        
         /* 删除批注 */
         if (indexPath.section == 0) {
             // 1.获取文件路径，文件名：PageIndex_CommentAnnotationKey_text.plist
@@ -130,24 +132,34 @@ static NSString *kCellIdentifier = @"Cell";
             return;
         }
         
-        if (self.textComments.count + self.voiceComments.count <= 0) {
-            [appDelegate.mainPDFViewController dismissCommentsView:nil];
-            
+        if (self.textComments.count == 0 || self.voiceComments.count == 0) {
             // 删除Comments对应的Strokes
             // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_strokes.plist
             NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.currentPageIndex];
             NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
             NSMutableData *mdata = [appDelegate.filePersistence loadMutableDataFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
             NSMutableArray *strokesArray = [NSKeyedUnarchiver unarchiveObjectWithData:mdata];
+            CommentStroke *stroke;
+            int i = 0;
             if (strokesArray) {
-                for (int i = 0; i < strokesArray.count; i++) {
-                    CommentStroke *stroke = [strokesArray objectAtIndex:i];
+                for (i = 0; i < strokesArray.count; i++) {
+                    stroke = [strokesArray objectAtIndex:i];
                     if (stroke.buttonKey == self.currentButtonKey) {
-                        [strokesArray removeObjectAtIndex:i];
                         break;
                     }
                 }
             }
+            if (self.textComments.count == 0) {
+                stroke.hasTextAnnotation = YES;
+            }
+            if (self.voiceComments.count == 0) {
+                stroke.hasVoiceAnnotation = YES;
+            }
+            if (self.textComments.count + self.voiceComments.count == 0) {
+                [strokesArray removeObjectAtIndex:i];
+            }
+            
+            
             NSData *data = [NSKeyedArchiver archivedDataWithRootObject:strokesArray];
             mdata = [[NSMutableData alloc] initWithData:data];
             [appDelegate.filePersistence saveMutableData:mdata ToFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];

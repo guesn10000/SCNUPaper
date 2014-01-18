@@ -509,6 +509,22 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     self.screenCapture.image = nil;
 }
 
+- (void)saveCommentStrokes {
+    AppDelegate *appDelegate = APPDELEGATE;
+    
+    // 保存笔画和笔画按钮的边界到文件中
+    // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_commentStrokes.plist
+    NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.myPDFPage_.pageIndex];
+    NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
+    
+    NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:self.myPDFPage_.previousStrokesForComments];
+    NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
+    
+    [appDelegate.filePersistence saveMutableData:mdata
+                                          ToFile:strokesFileName
+                         inDocumentWithDirectory:strokesFileDirectory];
+}
+
 /* 退出添加批注状态，还原一些参数，隐藏编辑视图 */
 - (void)quit_addingComments {
     // 解除添加批注状态
@@ -635,17 +651,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
                             PDFAnnotation:self.tempPDFAnnotation_
                                  toFolder:filename];
             
-            // 保存笔画和笔画按钮的边界到文件中
-            // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_commentStrokes.plist
-            NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.myPDFPage_.pageIndex];
-            NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
-            
-            NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:self.myPDFPage_.previousStrokesForComments];
-            NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
-            
-            [appDelegate.filePersistence saveMutableData:mdata
-                                                  ToFile:strokesFileName
-                                 inDocumentWithDirectory:strokesFileDirectory];
+            [self saveCommentStrokes];
             
             // 解锁pdf scroll view
             [self.containerScrollView unlockPDFScrollView];
@@ -655,10 +661,21 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         }
         else if (self.addTextType == kTxtAdd) {
             [self quit_addingComments];
+            
+            for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
+                CommentStroke *stroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
+                if (stroke.buttonKey == appDelegate.mainPDFViewController.allComments.currentButtonKey) {
+                    stroke.hasTextAnnotation = YES;
+                    break;
+                }
+            }
+            
             [TextAnnotation addNewInputText:self.input_textView.text
                                    toFolder:filename
                                        Page:self.myPDFPage_.pageIndex
                                         Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
+            
+            [self saveCommentStrokes];
             [self.containerScrollView unlockPDFScrollView];
             [appDelegate.mainPDFViewController dismissCommentsView:nil];
         }
@@ -771,33 +788,38 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         // 保存录音文件
         [self.recorder saveRecordVoiceForPDFAnnotaton:self.tempPDFAnnotation_ toFolder:appDelegate.cookies.pureFileName];
         
-        // 保存笔画和笔画按钮的边界到文件中
-        // Comments对应的Strokes
-        // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_commentStrokes.plist
-        NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.myPDFPage_.pageIndex];
-        NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
+        [self saveCommentStrokes];
         
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.myPDFPage_.previousStrokesForComments];
-        NSMutableData *mdata = [NSMutableData dataWithData:data];
-        
-        [appDelegate.filePersistence saveMutableData:mdata ToFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
+        // 解锁pdf scroll view
+        [self.containerScrollView unlockPDFScrollView];
         
         // 通知main pdf view controller完成添加批注
         [appDelegate.mainPDFViewController main_finishAddingComments];
     }
     else if (self.addVoiceType == kVocAdd) {
         [self quit_addingComments];
+        
+        for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
+            CommentStroke *stroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
+            if (stroke.buttonKey == appDelegate.mainPDFViewController.allComments.currentButtonKey) {
+                stroke.hasVoiceAnnotation = YES;
+                break;
+            }
+        }
+        
         [self.recorder addNewRecordVoiceToFolder:appDelegate.cookies.pureFileName
                                             Page:self.myPDFPage_.pageIndex
                                              Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
+        
+        [self saveCommentStrokes];
+        [self.containerScrollView unlockPDFScrollView];
         [appDelegate.mainPDFViewController dismissCommentsView:nil];
     }
     
     [self.record_button setTitle:@"开始录音" forState:UIControlStateNormal];
     
     // 解锁pdf scroll view
-    PDFScrollView *tempSuperView = (PDFScrollView *)self.superview;
-    [tempSuperView unlockPDFScrollView];
+    [self.containerScrollView unlockPDFScrollView];
     
     [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:YES];
 }
@@ -820,6 +842,9 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     else if (self.addVoiceType == kVocAdd) {
         [appDelegate.mainPDFViewController dismissCommentsView:nil];
     }
+    
+    // 解锁pdf scroll view
+    [self.containerScrollView unlockPDFScrollView];
     
     [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:YES];
 }

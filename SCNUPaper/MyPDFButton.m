@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import "Cookies.h"
 #import "Constants.h"
+#import "CommentStroke.h"
 #import "JCAlert.h"
 #import "JCFilePersistence.h"
 #import "Comments.h"
