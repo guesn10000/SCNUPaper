@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="3.0" toolsVersion="4510" systemVersion="13A3017" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MainPDFViewController">
+            <connections>
+                <outlet property="addStroke_barButtonItem" destination="cG0-Yf-F9f" id="etv-2S-EyB"/>
+                <outlet property="commentOptions_Toolbar" destination="X5F-G4-hWz" id="VDY-a3-eAD"/>
+                <outlet property="mainOptions_Toolbar" destination="DXp-q6-HC8" id="xcl-Ce-ZbC"/>
+                <outlet property="selectText_barButtonItem" destination="6tw-7e-9S5" id="B2k-tQ-XHH"/>
+                <outlet property="strokeOptions_Toolbar" destination="iXe-Ko-Kw2" id="vzZ-4K-qJm"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="DXp-q6-HC8">
+            <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+            <items>
+                <barButtonItem title="跳转" id="nbK-Rc-kOe">
+                    <connections>
+                        <action selector="turnToPage:" destination="-1" id="h2Y-Xb-Li9"/>
+                    </connections>
+                </barButtonItem>
+                <barButtonItem width="487" style="plain" systemItem="fixedSpace" id="JAG-o5-JUk"/>
+                <barButtonItem title="添加笔注" width="94" id="cG0-Yf-F9f">
+                    <connections>
+                        <action selector="addStrokes:" destination="-1" id="frO-cK-nrx"/>
+                    </connections>
+                </barButtonItem>
+                <barButtonItem width="37" style="plain" systemItem="fixedSpace" id="nR1-DH-mC8"/>
+                <barButtonItem title="选择文字" id="6tw-7e-9S5">
+                    <connections>
+                        <action selector="selectText:" destination="-1" id="LSd-Up-SYD"/>
+                    </connections>
+                </barButtonItem>
+            </items>
+        </toolbar>
+        <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="iXe-Ko-Kw2">
+            <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+            <items>
+                <barButtonItem title="颜色" width="72" id="BhZ-X2-yeL">
+                    <connections>
+                        <action selector="chooseStrokeColor:" destination="-1" id="8QE-EV-yHG"/>
+                    </connections>
+                </barButtonItem>
+                <barButtonItem width="78" style="plain" systemItem="fixedSpace" id="ESn-0J-pNn"/>
+                <barButtonItem title="撤销" id="y4s-nC-cAt">
+                    <connections>
+                        <action selector="undoStrokes:" destination="-1" id="1HY-ZM-KBg"/>
+                    </connections>
+                </barButtonItem>
+                <barButtonItem width="93" style="plain" systemItem="fixedSpace" id="W3K-gg-qV2"/>
+                <barButtonItem title="重做" width="82" id="Yap-lk-n1J">
+                    <connections>
+                        <action selector="redoStrokes:" destination="-1" id="CtV-gg-6L7"/>
+                    </connections>
+                </barButtonItem>
+                <barButtonItem width="124" style="plain" systemItem="fixedSpace" id="m69-sm-8CA"/>
+                <barButtonItem image="Toolbar-Done.png" width="73" id="5r0-HK-trQ">
+                    <connections>
+                        <action selector="finishAddingStrokes:" destination="-1" id="8ZJ-gV-uF3"/>
+                    </connections>
+                </barButtonItem>
+                <barButtonItem width="67" style="plain" systemItem="fixedSpace" id="6uN-dL-AcH"/>
+                <barButtonItem image="Toolbar-Cancel.png" id="8WH-zI-ZYl">
+                    <connections>
+                        <action selector="cancelAddingStrokes:" destination="-1" id="kyT-bv-pVS"/>
+                    </connections>
+                </barButtonItem>
+            </items>
+        </toolbar>
+        <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="X5F-G4-hWz">
+            <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+            <items>
+                <barButtonItem width="668" style="plain" systemItem="fixedSpace" id="32P-Px-k8Q"/>
+                <barButtonItem image="Toolbar-Cancel.png" width="91" id="lID-HT-vtG">
+                    <connections>
+                        <action selector="cancelAddingComments:" destination="-1" id="KYN-Pn-HBa"/>
+                    </connections>
+                </barButtonItem>
+            </items>
+        </toolbar>
+    </objects>
+    <resources>
+        <image name="Toolbar-Cancel.png" width="32" height="32"/>
+        <image name="Toolbar-Done.png" width="32" height="32"/>
+    </resources>
+</document>
