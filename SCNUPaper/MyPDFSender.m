@@ -27,6 +27,12 @@
 
 @implementation MyPDFSender
 
+#define ADD_TEXT_IMG  [UIImage imageNamed:@"addText.png"]
+#define ADD_VOICE_IMG [UIImage imageNamed:@"addVoice.jpg"]
+#define ANNO_SIZE 30.0
+
+CGFloat tempHeight;
+
 #pragma mark - Create PDF file and upload files
 
 - (void)createNewPDFFile {
@@ -43,6 +49,7 @@
     CGFloat myPageWidth = originRect.size.width;
     CGFloat myPageHeight = originRect.size.height;
     CGRect mediaBox = CGRectMake (0, 0, myPageWidth, myPageHeight);
+    tempHeight = mediaBox.size.height;
     
     // 3.设置pdf文档存储的路径
     
@@ -112,9 +119,20 @@
         for (int i = 0; i < pdfScrollView.myPDFPage.previousStrokesForComments.count; i++) {
             CommentStroke *commStroke = [pdfScrollView.myPDFPage.previousStrokesForComments objectAtIndex:i];
             NSMutableArray *frames = commStroke.frames;
-            create_drawCommentFrames(myPDFContext, frames);
+            
+            NSInteger type = 0;
+            if (commStroke.hasTextAnnotation && commStroke.hasVoiceAnnotation) {
+                type = 3;
+            }
+            else if (commStroke.hasVoiceAnnotation) {
+                type = 2;
+            }
+            else if (commStroke.hasTextAnnotation) {
+                type = 1;
+            }
+            
+            create_drawCommentFrames(myPDFContext, frames, type);
         }
-        
         
         CGPDFContextEndPage(myPDFContext);
         CGContextRestoreGState(myPDFContext);
@@ -178,7 +196,7 @@ void create_drawDrawStrokes(CGContextRef context, NSMutableArray *drawStrokes) {
 }
 
 /* draw批注对应的边界 */
-void create_drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
+void create_drawCommentFrames(CGContextRef context, NSMutableArray *frames, NSInteger type) {
     for (int j = 0; j < frames.count; j++) {
         NSString *frame = [frames objectAtIndex:j];
         CGRect rect = CGRectFromString(frame);
@@ -189,6 +207,23 @@ void create_drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         CGContextSetLineCap(context, kCGLineCapRound);
         CGContextSetLineJoin(context, kCGLineJoinRound);
         CGContextDrawPath(context, kCGPathFill);
+        drawAnnotationViews(context, type, rect);
+    }
+}
+
+void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
+    CGRect rect1 = CGRectMake(rect.origin.x, tempHeight - rect.origin.y, ANNO_SIZE, ANNO_SIZE);
+    CGRect rect2 = CGRectMake(rect.origin.x + ANNO_SIZE, tempHeight - rect.origin.y - ANNO_SIZE, ANNO_SIZE, ANNO_SIZE);
+    
+    if (type == 1) {
+        CGContextDrawImage(context, rect1, [ADD_TEXT_IMG CGImage]);
+    }
+    else if (type == 2) {
+        CGContextDrawImage(context, rect1, [ADD_VOICE_IMG CGImage]);
+    }
+    else if (type == 3) {
+        CGContextDrawImage(context, rect1, [ADD_TEXT_IMG CGImage]);
+        CGContextDrawImage(context, rect2, [ADD_VOICE_IMG CGImage]);
     }
 }
 
