@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>825E6256-AE26-406D-A3B8-6BDFF315A4FC</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SCNUPaper</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>012A6C07-A3A7-4674-A84D-9CB178F74EDD</key>
+		<string>https://github.com/guesn10000/------.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>SCNUPaper.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>012A6C07-A3A7-4674-A84D-9CB178F74EDD</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/guesn10000/------.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>012A6C07-A3A7-4674-A84D-9CB178F74EDD</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>012A6C07-A3A7-4674-A84D-9CB178F74EDD</string>
+			<key>IDESourceControlWCCName</key>
+			<string>论文批阅系统</string>
+		</dict>
+	</array>
+</dict>
+</plist>
