@@ -29,8 +29,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    /* 获取基本参数 */
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *tempUsername   = [userDefaults objectForKey:LATEST_USERNAME];
+    NSString *tempPassword   = [userDefaults objectForKey:LATEST_PASSWORD];
+    NSString *tempIsTeacher  = [userDefaults objectForKey:IS_LATESTUSER_TEACHER];
+    NSString *tempRemembPass = [userDefaults objectForKey:SHOULD_REMEMBER_PASSWORD];
+    NSString *tempLoginAuto  = [userDefaults objectForKey:SHOULD_LOGIN_AUTOMATICALLY];
+    
     // 老师或学生的单选框
-    self.isTeacher = YES;
+    self.isTeacher = (tempIsTeacher && [tempIsTeacher isEqualToString:@"YES"]) ? YES : NO;
     if (self.isTeacher) {
         [self.isTeacher_button setImage:SEL_RADIO_IMG forState:UIControlStateNormal];
         [self.isStudent_button setImage:UNSEL_RADIO_IMG forState:UIControlStateNormal];
@@ -46,6 +54,7 @@
     self.input_username_textField.autocorrectionType     = NO;
     self.input_username_textField.returnKeyType          = UIReturnKeyDefault;
     self.input_username_textField.keyboardType           = UIKeyboardTypeAlphabet;
+    self.input_username_textField.text                   = tempUsername;
     
     // 密码输入框
     self.input_password_textField.borderStyle            = UITextBorderStyleRoundedRect;
@@ -54,9 +63,10 @@
     self.input_password_textField.autocorrectionType     = NO;
     self.input_password_textField.returnKeyType          = UIReturnKeyDefault;
     self.input_username_textField.keyboardType           = UIKeyboardTypeAlphabet;
+    self.input_password_textField.text                   = tempPassword;
     
     // 记住密码选项的复选框
-    self.shouldRememberPassword = NO;
+    self.shouldRememberPassword = (tempRemembPass && [tempRemembPass isEqualToString:@"YES"]) ? YES : NO;
     if (self.shouldRememberPassword) {
         [self.remember_button setImage:SEL_CHECKBOX_IMG forState:UIControlStateNormal];
     }
@@ -65,7 +75,7 @@
     }
     
     // 自动登录选项的复选框
-    self.shouldLoginAutomatically = NO;
+    self.shouldLoginAutomatically = (tempLoginAuto && [tempLoginAuto isEqualToString:@"YES"]) ? YES : NO;
     if (self.shouldLoginAutomatically) {
         [self.loginAutomatically_button setImage:SEL_CHECKBOX_IMG forState:UIControlStateNormal];
     }
@@ -76,6 +86,11 @@
     // 添加tap手势
     UITapGestureRecognizer *tapInView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard:)];
     [self.view addGestureRecognizer:tapInView];
+    
+    // 自动登录
+    if (self.shouldLoginAutomatically) {
+        [self loginToServer:nil];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

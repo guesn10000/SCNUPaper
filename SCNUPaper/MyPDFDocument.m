@@ -19,7 +19,6 @@
     self = [super init];
     
     if (self) {
-//        pdfFilePath = [pdfFilePath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         NSURL *pdfFileURL = [NSURL fileURLWithPath:pdfFilePath];
         self.pdfDocumentRef = CGPDFDocumentCreateWithURL((__bridge CFURLRef)(pdfFileURL));
         

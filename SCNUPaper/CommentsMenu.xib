@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="3.0" toolsVersion="4510" systemVersion="13A3017" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="3.0" toolsVersion="4510" systemVersion="13B3116" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
@@ -10,14 +10,15 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="nhW-FK-j8K">
-            <rect key="frame" x="0.0" y="0.0" width="180" height="64"/>
+        <view opaque="NO" alpha="0.74999999999999978" contentMode="scaleToFill" id="nhW-FK-j8K">
+            <rect key="frame" x="0.0" y="0.0" width="180" height="60"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AGZ-qG-QiV">
-                    <rect key="frame" x="20" y="9" width="49" height="47"/>
+                    <rect key="frame" x="0.0" y="14" width="80" height="36"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="Button" image="addText.png">
+                    <state key="normal" title="添加文字">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
                     <connections>
@@ -25,9 +26,9 @@
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PEV-lg-Y0b">
-                    <rect key="frame" x="104" y="6" width="56" height="53"/>
+                    <rect key="frame" x="88" y="14" width="80" height="36"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="Button" image="addVoice.jpg">
+                    <state key="normal" title="添加语音">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
                     <connections>
@@ -35,10 +36,7 @@
                     </connections>
                 </button>
             </subviews>
+            <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
         </view>
     </objects>
-    <resources>
-        <image name="addText.png" width="256" height="256"/>
-        <image name="addVoice.jpg" width="128" height="128"/>
-    </resources>
 </document>

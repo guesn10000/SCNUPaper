@@ -20,6 +20,8 @@
 - (id)initWithUsername:(NSString *)username Password:(NSString *)password NickName:(NSString *)nickname;
 - (id)initWithUsername:(NSString *)username Password:(NSString *)password;
 
+- (void)saveUserInfo;
+
 /* 文件名参数 */
 @property (strong, nonatomic) NSString *docFileName;
 @property (strong, nonatomic) NSString *pdfFileName;

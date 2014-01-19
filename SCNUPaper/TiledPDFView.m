@@ -25,6 +25,8 @@
 #import "PDFScrollView.h"
 #import "MainPDFViewController.h"
 
+#import "JCLog.h"
+
 
 @interface TiledPDFView ()
 
@@ -40,7 +42,8 @@
 
 
 @property (strong, nonatomic) MyPDFAnnotation *tempPDFAnnotation_;
-@property (strong, nonatomic) NSMutableArray *buttonsInView_;
+@property (strong, nonatomic) NSMutableArray  *buttonsInView_;
+@property (strong, nonatomic) NSMutableArray  *annotationsInView_;
 
 /*
  * 批改的类型
@@ -163,6 +166,8 @@ const NSInteger kVocAdd  = 2;
         // 设置添加批注菜单
         NSArray *menu_nibs = [[NSBundle mainBundle] loadNibNamed:@"CommentsMenu" owner:self options:nil];
         self.commentsMenu = [menu_nibs objectAtIndex:0];
+        self.commentsMenu.layer.cornerRadius = 6.0;
+        self.commentsMenu.layer.masksToBounds = YES;
         self.commentsMenu.hidden = YES;
         [self addSubview:self.commentsMenu];
         
@@ -170,6 +175,8 @@ const NSInteger kVocAdd  = 2;
         AppDelegate *appDelegate = APPDELEGATE;
         NSArray *text_nibs = [[NSBundle mainBundle] loadNibNamed:@"InputTextView" owner:self options:nil];
         self.inputTextView = [text_nibs objectAtIndex:0];
+        self.inputTextView.layer.cornerRadius = 6.0;
+        self.inputTextView.layer.masksToBounds = YES;
         self.inputTextView.center = appDelegate.window.center;
         [appDelegate.window addSubview:self.inputTextView];
         self.inputTextView.hidden = YES;
@@ -177,9 +184,11 @@ const NSInteger kVocAdd  = 2;
         // 设置添加语音批注的录音视图
         NSArray *voice_nibs = [[NSBundle mainBundle] loadNibNamed:@"RecorderView" owner:self options:nil];
         self.recorderView = [voice_nibs objectAtIndex:0];
+        self.recorderView.layer.cornerRadius = 6.0;
+        self.recorderView.layer.masksToBounds = YES;
         CGFloat height = self.recorderView.frame.size.height;
         self.recorderView.center = CGPointMake(appDelegate.window.frame.size.width / 2,
-                                               appDelegate.window.frame.size.height - height / 2 - kVolumeView_Height);
+                                               appDelegate.window.frame.size.height - height / 2);
         [appDelegate.window addSubview:self.recorderView];
         
         self.recorder = [[Recorder alloc] init];
@@ -191,15 +200,16 @@ const NSInteger kVocAdd  = 2;
                                                                          kVolumeView_Height
                                                                          )
                            ];
-        self.volumeView.center = CGPointMake(frame.size.width / 2,
+        self.volumeView.center = CGPointMake(appDelegate.window.frame.size.width / 2,
                                              self.recorderView.frame.size.height - kVolumeView_Height / 2);
         [self.volumeView sizeToFit];
         [self.recorderView addSubview:self.volumeView];
         
         self.recorderView.hidden = YES;
         
-        // 当前视图上的所有按钮组成的数组
+        // 当前视图上的所有按钮和标记组成的数组
         self.buttonsInView_ = [[NSMutableArray alloc] init];
+        self.annotationsInView_ = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -382,7 +392,6 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     self.draw_strokePoints_             = nil;
     self.draw_strokePoints_             = [[NSMutableArray alloc] init];
     
-    
     // 刷新视图
     [self updateScreenCapture];
 }
@@ -548,7 +557,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         self.tempPDFAnnotation_ = [[MyPDFAnnotation alloc] initWithFrames:stroke.frames
                                                                       Key:stroke.buttonKey
                                                                 PageIndex:self.myPDFPage_.pageIndex
-                                                                TextAnnotation:stroke.hasTextAnnotation
+                                                           TextAnnotation:stroke.hasTextAnnotation
                                                           VoiceAnnotation:stroke.hasVoiceAnnotation
                                    ];
         [appDelegate.keyGeneration increaseCommentAnnotationKeyinPageIndex:self.myPDFPage_.pageIndex];
@@ -566,16 +575,19 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     if (!self.buttonsInView_) {
         self.buttonsInView_ = [[NSMutableArray alloc] init];
     }
-    
+    if (!self.annotationsInView_) {
+        self.annotationsInView_ = [[NSMutableArray alloc] init];
+    }
     for (MyPDFAnnotation *pdfAnnotation in self.myPDFPage_.previousAnnotationsForComments) {
         for (MyPDFButton *pdfButton in pdfAnnotation.buttonsForComments) {
             // 标记视图的位置
-            scalePoint = CGPointMake(pdfButton.defaultFrame.origin.x + kAnnoView_Width / 2,
-                                     pdfButton.defaultFrame.origin.y + kAnnoView_Height / 2);
+            scalePoint = CGPointMake(pdfButton.defaultFrame.origin.x + pdfAnnotation.annotationView.frame.size.width / 2,
+                                     pdfButton.defaultFrame.origin.y + pdfAnnotation.annotationView.frame.size.height / 2);
             scalePoint.x *= tempWidthScaleFactor;
             scalePoint.y *= tempHeightScaleFactor;
             pdfAnnotation.annotationView.center = scalePoint;
             [self addSubview:pdfAnnotation.annotationView];
+            [self.annotationsInView_ addObject:pdfAnnotation.annotationView];
             
             // button的位置
             scaleRect = pdfButton.defaultFrame;
@@ -596,7 +608,6 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     if (!self.buttonsInView_) {
         self.buttonsInView_ = [[NSMutableArray alloc] init];
     }
-    
     for (UIButton *button in self.buttonsInView_) {
         [button removeFromSuperview];
     }
@@ -604,17 +615,30 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         [self.buttonsInView_ removeAllObjects];
     }
     
+    if (!self.annotationsInView_) {
+        self.annotationsInView_ = [[NSMutableArray alloc] init];
+    }
+    for (UIView *annotations in self.annotationsInView_) {
+        [annotations removeFromSuperview];
+    }
+    if (self.annotationsInView_.count > 0) {
+        [self.annotationsInView_ removeAllObjects];
+    }
+    
+    self.myPDFPage_.previousAnnotationsForComments = nil;
+    self.myPDFPage_.previousAnnotationsForComments = [[NSMutableArray alloc] init];
+    
     [self addAnnotationsInView];
 }
 
 #pragma mark - Add Text Comments
 
-- (void)prepareToAddText:(NSInteger)addTextType {
-    self.addTextType           = addTextType;
-    self.editType_             = kAddEmpty;
-    self.commentsMenu.hidden   = YES;
-    self.input_textView.hidden = NO;
-    self.input_textView.text   = @"";
+- (void)prepareToAddText:(NSInteger)addTextType PreviousText:(NSString *)preText {
+    self.addTextType          = addTextType;
+    self.editType_            = kAddEmpty;
+    self.commentsMenu.hidden  = YES;
+    self.inputTextView.hidden = NO;
+    self.input_textView.text  = preText;
     [self.input_textView becomeFirstResponder];
     
     // 暂时解锁pdf scroll view的滚动，方便用户查看页面内容
@@ -624,17 +648,16 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
 
 /* 点击了菜单中的添加文字选项后的响应方法 */
 - (IBAction)addTextComments:(id)sender {
-    [self prepareToAddText:kTxtNew];
+    [self prepareToAddText:kTxtNew PreviousText:@""];
 }
 
 - (void)addNewTextComments {
-    [self prepareToAddText:kTxtAdd];
+    [self prepareToAddText:kTxtAdd PreviousText:@""];
 }
 
 - (void)editTextComments {
     AppDelegate *appDelegate = APPDELEGATE;
-    self.input_textView.text = appDelegate.mainPDFViewController.allComments.currentText;
-    [self prepareToAddText:kTxtEdit];
+    [self prepareToAddText:kTxtEdit PreviousText:appDelegate.mainPDFViewController.allComments.currentText];
 }
 
 /* 完成并保存输入的文字批注 */
@@ -658,6 +681,8 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
             
             // 通知main pdf view controller完成添加批注
             [appDelegate.mainPDFViewController main_finishAddingComments];
+            
+            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey];
         }
         else if (self.addTextType == kTxtAdd) {
             [self quit_addingComments];
@@ -665,7 +690,10 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
             for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
                 CommentStroke *stroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
                 if (stroke.buttonKey == appDelegate.mainPDFViewController.allComments.currentButtonKey) {
-                    stroke.hasTextAnnotation = YES;
+                    if (!stroke.hasTextAnnotation) {
+                        stroke.hasTextAnnotation = YES;
+                        [self reloadAnnotations];
+                    }
                     break;
                 }
             }
@@ -678,18 +706,21 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
             [self saveCommentStrokes];
             [self.containerScrollView unlockPDFScrollView];
             [appDelegate.mainPDFViewController dismissCommentsView:nil];
+            
+            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
         }
         else if (self.addTextType == kTxtEdit) {
             [self quit_addingComments];
-            [TextAnnotation editInputText:appDelegate.mainPDFViewController.allComments.currentText
+            [TextAnnotation editInputText:self.input_textView.text
                                  toFolder:filename
                                      Page:self.myPDFPage_.pageIndex
                                       Key:appDelegate.mainPDFViewController.allComments.currentButtonKey
                                       Row:appDelegate.mainPDFViewController.allComments.currentRow];
             [self.containerScrollView unlockPDFScrollView];
             [appDelegate.mainPDFViewController dismissCommentsView:nil];
+            
+            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
         }
-        
     }
     else {
         [JCAlert alertWithMessage:@"输入的文字内容为空，请重新输入"];
@@ -795,6 +826,8 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         
         // 通知main pdf view controller完成添加批注
         [appDelegate.mainPDFViewController main_finishAddingComments];
+        
+        [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey];
     }
     else if (self.addVoiceType == kVocAdd) {
         [self quit_addingComments];
@@ -802,7 +835,10 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
             CommentStroke *stroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
             if (stroke.buttonKey == appDelegate.mainPDFViewController.allComments.currentButtonKey) {
-                stroke.hasVoiceAnnotation = YES;
+                if (!stroke.hasVoiceAnnotation) {
+                    stroke.hasVoiceAnnotation = YES;
+                    [self reloadAnnotations];
+                }
                 break;
             }
         }
@@ -814,6 +850,8 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         [self saveCommentStrokes];
         [self.containerScrollView unlockPDFScrollView];
         [appDelegate.mainPDFViewController dismissCommentsView:nil];
+        
+        [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
     }
     
     [self.record_button setTitle:@"开始录音" forState:UIControlStateNormal];

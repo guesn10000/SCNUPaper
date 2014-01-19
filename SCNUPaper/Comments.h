@@ -24,4 +24,6 @@
 
 @property (strong, nonatomic) NSMutableArray *voiceComments;
 
++ (void)showCommentsWithPage:(size_t)pageIndex Key:(NSInteger)buttonKey;
+
 @end

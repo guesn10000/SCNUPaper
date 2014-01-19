@@ -23,13 +23,13 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>ppt</string>
+				<string>pdf</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>PowerPoint</string>
+			<string>PDF</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.microsoft.powerpoint.​ppt</string>
+				<string>com.adobe.pdf</string>
 			</array>
 		</dict>
 	</array>

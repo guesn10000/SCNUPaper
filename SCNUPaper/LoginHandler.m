@@ -51,6 +51,7 @@
             appDelegate.urlConnector.isLoginSucceed = YES;
             appDelegate.cookies = [[Cookies alloc] initWithUsername:self.temp_username_ Password:self.temp_password_];
             appDelegate.cookies.isTeacher = appDelegate.loginViewController.isTeacher;
+            [appDelegate.cookies saveUserInfo];
             
             // push LatestViewController进栈
             [appDelegate.loginViewController.navigationController pushViewController:appDelegate.latestViewController animated:YES];
@@ -63,9 +64,7 @@
                 
                 // Open File URL
                 [appDelegate.latestViewController openFileURL];
-                
             }
-            
         }
         else {
             [JCAlert alertWithMessage:@"登录失败，请检查网络是否连接"];

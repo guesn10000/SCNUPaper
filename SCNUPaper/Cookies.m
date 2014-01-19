@@ -9,6 +9,7 @@
 #import "Cookies.h"
 #import "Constants.h"
 #import "AppDelegate.h"
+#import "LoginViewController.h"
 
 @implementation Cookies
 
@@ -35,6 +36,29 @@
     }
     
     return self;
+}
+
+- (void)saveUserInfo {
+    AppDelegate *appDelegate = APPDELEGATE;
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *isTeacher = (appDelegate.loginViewController.isTeacher) ? @"YES" : @"NO";
+    if (appDelegate.loginViewController.shouldRememberPassword) {
+        NSString *loginAuto = (appDelegate.loginViewController.shouldLoginAutomatically) ? @"YES" : @"NO";
+        [userDefaults setObject:self.username forKey:LATEST_USERNAME];
+        [userDefaults setObject:self.password forKey:LATEST_PASSWORD];
+        [userDefaults setObject:isTeacher     forKey:IS_LATESTUSER_TEACHER];
+        [userDefaults setObject:@"YES"        forKey:SHOULD_REMEMBER_PASSWORD];
+        [userDefaults setObject:loginAuto     forKey:SHOULD_LOGIN_AUTOMATICALLY];
+        [userDefaults synchronize];
+    }
+    else {
+        [userDefaults setObject:self.username forKey:LATEST_USERNAME];
+        [userDefaults setObject:@""           forKey:LATEST_PASSWORD];
+        [userDefaults setObject:isTeacher     forKey:IS_LATESTUSER_TEACHER];
+        [userDefaults setObject:@"NO"         forKey:SHOULD_REMEMBER_PASSWORD];
+        [userDefaults setObject:@"NO"         forKey:SHOULD_LOGIN_AUTOMATICALLY];
+        [userDefaults synchronize];
+    }
 }
 
 #pragma mark - Set file names

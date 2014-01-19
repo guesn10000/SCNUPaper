@@ -127,9 +127,11 @@ const  CGFloat   kStopButtonLoc = 60.0;
     NSString *pageInputNibName = (IS_IPAD) ? @"PageInputView" : @"iPhone_PageInput";
     NSArray *inputNibs = [[NSBundle mainBundle] loadNibNamed:pageInputNibName owner:self options:nil];
     self.pageInputView = [inputNibs objectAtIndex:0];
+    self.pageInputView.layer.cornerRadius = 6.0;
+    self.pageInputView.layer.masksToBounds = YES;
     self.pageInputView.center = appDelegate.window.center;
     self.pageInputView.hidden = YES;
-    [self.view addSubview:self.pageInputView];
+    [appDelegate.window addSubview:self.pageInputView];
 }
 
 /* 建立显示论文内容的视图 */
@@ -178,11 +180,15 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 /* 设置展示批注的视图 */
 - (void)setViewsForCheckComments {
+    AppDelegate *appDelegate = APPDELEGATE;
     
     // 设置展现comments列表视图
     NSString *commNibname = (IS_IPAD) ? @"CommentsTable" : @"CheckCommTable";
     NSArray *commNibs = [[NSBundle mainBundle] loadNibNamed:commNibname owner:self options:nil];
     self.viewForCheckComments = [commNibs objectAtIndex:0];
+    self.viewForCheckComments.layer.cornerRadius = 6.0;
+    self.viewForCheckComments.layer.masksToBounds = YES;
+    self.viewForCheckComments.hidden = YES;
     self.allComments                   = [[Comments alloc] init];
     self.checkCommentsTable.delegate   = self;
     self.checkCommentsTable.dataSource = self.allComments;
@@ -190,11 +196,13 @@ const  CGFloat   kStopButtonLoc = 60.0;
     // 添加批注的菜单
     if (IS_IPAD) {
         self.addNewComments_Menu = [commNibs objectAtIndex:1];
+        self.addNewComments_Menu.layer.cornerRadius = 6.0;
+        self.addNewComments_Menu.layer.masksToBounds = YES;
         CGFloat menuHeight = self.addNewComments_Menu.frame.size.height / 2 + TOOLBAR_HEIGHT;
         self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.frame.size.width / 2,
                                                       self.view.frame.size.height - menuHeight);
         self.addNewComments_Menu.hidden = YES;
-        [self.view addSubview:self.addNewComments_Menu];
+        [appDelegate.window addSubview:self.addNewComments_Menu];
     }
     
     CGFloat height = self.viewForCheckComments.frame.size.height;
@@ -207,7 +215,6 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.stopPlaying_button = [commNibs objectAtIndex:2];
     self.stopPlaying_button.hidden = YES;
     self.stopPlaying_button.center = CGPointMake(center.x, center.y + kStopButtonLoc);
-    AppDelegate *appDelegate = APPDELEGATE;
     [appDelegate.window addSubview:self.stopPlaying_button];
     
     
@@ -215,15 +222,26 @@ const  CGFloat   kStopButtonLoc = 60.0;
     NSString *detailNibname = (IS_IPAD) ? @"CommentDetail" : @"CheckCommDetail";
     NSArray *detailNibs = [[NSBundle mainBundle] loadNibNamed:detailNibname owner:self options:nil];
     self.viewForCommentDetails = [detailNibs objectAtIndex:0];
+    self.viewForCommentDetails.layer.cornerRadius = 6.0;
+    self.viewForCommentDetails.layer.masksToBounds = YES;
     
     height = self.viewForCommentDetails.frame.size.height;
     center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
     self.viewForCommentDetails.center = center;
+    self.viewForCommentDetails.hidden = YES;
     [self.view addSubview:self.viewForCommentDetails];
 }
 
 - (void)didReceiveMemoryWarning{
     [super didReceiveMemoryWarning];
+}
+
+- (void)lockThesisPagesView {
+    self.thesisPagesView.scrollEnabled = NO;
+}
+
+- (void)unlockThesisPagesView {
+    self.thesisPagesView.scrollEnabled = YES;
 }
 
 #pragma mark - Navigation / Toolbar Item Actions
@@ -235,7 +253,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
         self.alertDelegate_ = kSyncronAlert;
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"注意" message:@"是否保存修改？本操作将使用您的流量"
                                                            delegate:self
-                                                  cancelButtonTitle:@"取消" otherButtonTitles:@"保存", nil];
+                                                  cancelButtonTitle:@"返回但不保存" otherButtonTitles:@"保存并返回", nil];
         [alertView show];
     }
     else {
@@ -269,7 +287,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
         [pdfCreator uploadFilesToServer];
         self.hasEdited = NO;
     }
-    NSString *folderDirectory = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME];
+    
+    NSString *folderDirectory = appDelegate.cookies.getPDFFolderDirectory;
     folderDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];
     NSString *pdfFilePath = [folderDirectory stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     NSData *attachmentData = [NSData dataWithContentsOfFile:pdfFilePath];
@@ -308,15 +327,20 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 /* 跳转到指定页 */
 - (IBAction)turnToPage:(id)sender {
+    self.view.userInteractionEnabled = NO;
     self.pageInputView.hidden = NO;
+    self.inputPageIndex_textField.text = @"";
     [self.inputPageIndex_textField becomeFirstResponder];
+    [self lockThesisPagesView];
 }
 
 - (IBAction)turnToPage_Action:(id)sender {
     NSInteger pageIndex = self.inputPageIndex_textField.text.integerValue;
     if (pageIndex > 0 && pageIndex <= self.myPDFDocument.totalPages) {
         [self.inputPageIndex_textField resignFirstResponder];
+        self.view.userInteractionEnabled = YES;
         self.pageInputView.hidden = YES;
+        [self unlockThesisPagesView];
         
         self.myPDFDocument.currentIndex = pageIndex;
         self.navigationItem.title = [NSString stringWithFormat:@"%zu / %zu", self.myPDFDocument.currentIndex, self.myPDFDocument.totalPages];
@@ -330,7 +354,9 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 - (IBAction)cancelTurnPage_Action:(id)sender {
     [self.inputPageIndex_textField resignFirstResponder];
+    self.view.userInteractionEnabled = YES;
     self.pageInputView.hidden = YES;
+    [self unlockThesisPagesView];
 }
 
 #pragma mark - Add Strokes
@@ -423,6 +449,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 - (void)checkComments {
     self.viewForCheckComments.hidden = NO;
+    self.viewForCommentDetails.hidden = YES;
+    [self lockThesisPagesView];
     [self.checkCommentsTable reloadData];
 }
 
@@ -430,6 +458,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.addNewComments_Menu.hidden = YES;
     self.viewForCheckComments.hidden = YES;
     self.viewForCommentDetails.hidden = YES;
+    self.mainOptions_Toolbar.hidden = NO;
+    [self unlockThesisPagesView];
 }
 
 - (IBAction)addNewComments:(id)sender {
@@ -437,12 +467,16 @@ const  CGFloat   kStopButtonLoc = 60.0;
 }
 
 - (IBAction)addNewTextComments:(id)sender {
+    self.viewForCheckComments.hidden = YES;
     self.addNewComments_Menu.hidden = YES;
+    [self lockThesisPagesView];
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewTextComments];
 }
 
 - (IBAction)addNewVoiceComments:(id)sender {
+    self.viewForCheckComments.hidden = YES;
     self.addNewComments_Menu.hidden = YES;
+    [self lockThesisPagesView];
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewVoiceComments];
 }
 
@@ -486,6 +520,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 - (IBAction)editCommentDetails:(id)sender {
     self.viewForCommentDetails.hidden = YES;
+    [self lockThesisPagesView];
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_editTextComments];
 }
 
@@ -529,6 +564,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     else if (self.alertDelegate_ == kRemvStkAlert) {
         if (buttonIndex == 1) { // 删除本页所有笔画
             [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_deleteAllStrokes];
+            [self finishAddingStrokes:nil];
         }
         else { // 取消
             

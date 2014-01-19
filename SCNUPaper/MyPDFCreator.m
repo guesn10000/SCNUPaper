@@ -208,8 +208,12 @@ void create_drawCommentFrames(CGContextRef context, NSMutableArray *frames, NSIn
 }
 
 void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
-    CGRect rect1 = CGRectMake(rect.origin.x, tempHeight - rect.origin.y, ANNO_SIZE, ANNO_SIZE);
-    CGRect rect2 = CGRectMake(rect.origin.x + ANNO_SIZE, tempHeight - rect.origin.y - ANNO_SIZE, ANNO_SIZE, ANNO_SIZE);
+    
+    CGContextSaveGState(context);
+    CGContextTranslateCTM(context, 0.0, -tempHeight);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    CGRect rect1 = CGRectMake(rect.origin.x, rect.origin.y, ANNO_SIZE, ANNO_SIZE);
+    CGRect rect2 = CGRectMake(rect.origin.x + ANNO_SIZE, rect.origin.y, ANNO_SIZE, ANNO_SIZE);
     
     if (type == 1) {
         CGContextDrawImage(context, rect1, [ADD_TEXT_IMG CGImage]);
@@ -221,6 +225,7 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
         CGContextDrawImage(context, rect1, [ADD_TEXT_IMG CGImage]);
         CGContextDrawImage(context, rect2, [ADD_VOICE_IMG CGImage]);
     }
+    CGContextRestoreGState(context);
 }
 
 - (void)uploadFilesToServer {

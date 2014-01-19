@@ -146,13 +146,13 @@ const CGFloat kMinimumZoomScale = 0.5;
 
 /* 设置缩放后的参数 */
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-    self.pageScale *= scale;
-    
-    CGRect pageBoxRect = CGPDFPageGetBoxRect(self.myPDFPage.pdfPageRef, kCGPDFMediaBox);
-    pageBoxRect.size = CGSizeMake(pageBoxRect.size.width  * self.pageScale,
-                                  pageBoxRect.size.height * self.pageScale
-                                  );
-    [self.tiledPDFView_ resetDefaultsWithFrame:pageBoxRect Scale:self.pageScale];
+//    self.pageScale *= scale;
+//    
+//    CGRect pageBoxRect = CGPDFPageGetBoxRect(self.myPDFPage.pdfPageRef, kCGPDFMediaBox);
+//    pageBoxRect.size = CGSizeMake(pageBoxRect.size.width  * self.pageScale,
+//                                  pageBoxRect.size.height * self.pageScale
+//                                  );
+//    [self.tiledPDFView_ resetDefaultsWithFrame:pageBoxRect Scale:self.pageScale];
 }
 
 /* 锁定PDFScrollView：不可滚动，不可缩放 */

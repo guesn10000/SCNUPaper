@@ -57,6 +57,16 @@
 
 #define INPUTTEXTVIEW_XIB @"InputTextView.xib"
 
+
+/* 应用常数 */
+
+#define LATEST_USERNAME            @"kUsername"
+#define LATEST_PASSWORD            @"kPassword"
+#define IS_LATESTUSER_TEACHER      @"kIsTeacher"
+#define SHOULD_REMEMBER_PASSWORD   @"kShouldRememberPassword"
+#define SHOULD_LOGIN_AUTOMATICALLY @"kShouldLoginAutomatically"
+
+
 /* 涂鸦常数 */
 
 #define DRAW_STROKE_WIDTH 5.0
@@ -69,7 +79,6 @@
 
 #define PDF_FOLDER_NAME   @"PDF"
 #define DOC_FOLDER_NAME   @"DOC"
-#define PPT_FOLDER_NAME   @"PPT"
 #define INBOX_FOLDER_NAME @"Inbox"
 
 #define TEXT_FOLDER_NAME            @"Text"

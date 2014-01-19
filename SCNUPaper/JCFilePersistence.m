@@ -186,7 +186,6 @@
             return folderDirectory;
         }
         else {
-//            [JCAlert alertWithMessage:@"目标路径不存在"];
             NSLog(@"目标路径不存在");
             return nil;
         }

@@ -69,26 +69,26 @@
 
 /* 下载文件操作完成 */
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    if (self.responseStatusCode_ != REDIRECT_STATUS_CODE || self.responseStatusCode_ != REQUEST_SUCCEED_STATUS_CODE) {
-        return;
+    if (self.responseStatusCode_ == REDIRECT_STATUS_CODE || self.responseStatusCode_ == REQUEST_SUCCEED_STATUS_CODE) {
+        AppDelegate *appDelegate = APPDELEGATE;
+        if (self.download_data_.length > 0) {
+            // 将下载的数据回传到LatestViewController
+            if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
+                [appDelegate.latestViewController getDownload_ZIP_Data:self.download_data_];
+            }
+            else if ([self.fileType_ isEqualToString:PDF_SUFFIX]) {
+                [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
+            }
+            else if ([self.fileType_ isEqualToString:DOC_SUFFIX]) {
+                [appDelegate.latestViewController getDownload_DOC_Data:self.download_data_];
+            }
+            else {
+                [JCAlert alertWithMessage:@"从服务器下载数据失败"];
+            }
+        }
     }
-    
-    AppDelegate *appDelegate = APPDELEGATE;
-    
-    if (self.download_data_.length > 0) {
-        // 将下载的数据回传到LatestViewController
-        if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
-            [appDelegate.latestViewController getDownload_ZIP_Data:self.download_data_];
-        }
-        else if ([self.fileType_ isEqualToString:PDF_SUFFIX]) {
-            [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
-        }
-        else if ([self.fileType_ isEqualToString:DOC_SUFFIX]) {
-            [appDelegate.latestViewController getDownload_DOC_Data:self.download_data_];
-        }
-        else {
-            [JCAlert alertWithMessage:@"从服务器下载数据失败"];
-        }
+    else {
+        return;
     }
 }
 
