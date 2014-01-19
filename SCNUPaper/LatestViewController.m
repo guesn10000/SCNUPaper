@@ -15,7 +15,7 @@
 #import "URLConnector.h"
 #import "JCAlert.h"
 #import "MyPDFDocument.h"
-#import "MyPDFSender.h"
+#import "MyPDFCreator.h"
 #import "LoginViewController.h"
 #import "MainPDFViewController.h"
 
@@ -121,6 +121,12 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     if (i == self.latestOpenArray.count) {
         // 如果最近打开记录超出最大记录数
         if (self.latestOpenArray.count == Maximum_LatestOpen) {
+            NSDictionary *tempInfo = [self.latestOpenArray lastObject];
+            NSString *tempFileName = [tempInfo objectForKey:kLatest_FileName];
+            tempFileName = [tempFileName substringToIndex:tempFileName.length - 4];
+            AppDelegate *appDelegate = APPDELEGATE;
+            [appDelegate.fileCleaner clearFolder:tempFileName];
+            
             [self.latestOpenArray removeLastObject];
         }
     }
@@ -172,7 +178,10 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
         [appDelegate.cookies setFileNamesWithDOCFileName:filename];
         
         // 上传doc文件到服务器进行转换
-        [self uploadDOCFile];
+        [self uploadFileWithSuffix:DOC_SUFFIX];
+    }
+    else if ([filename hasSuffix:PDF_SUFFIX]) {
+        [self uploadFileWithSuffix:PDF_SUFFIX];
     }
     else {
         [JCAlert alertWithMessage:@"打开文件失败，该文件格式不是doc或pdf"];
@@ -180,11 +189,6 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 }
 
 #pragma mark - Upload Files
-
-/* 上传doc文件到服务器进行转换 */
-- (void)uploadDOCFile {
-    [self uploadFileWithSuffix:DOC_SUFFIX];
-}
 
 /* 上传suffix格式的文件到服务器 */
 - (void)uploadFileWithSuffix:(NSString *)suffix {
@@ -203,49 +207,74 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
         [appDelegate.app_spinner startAnimating];
     });
     
-    
-    // 2.将从邮箱或网页或其它应用下载的doc文件移动到指username/purefilename/suffix目录下
-    // 获取文件的源路径
-    NSString *srcFileDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:INBOX_FOLDER_NAME];
-    NSString *srcFilePath = [srcFileDirectory stringByAppendingPathComponent:postFilename];
-    
-    // 获取文件的目标路径
-    NSString *desFileDirectory;
     if ([suffix isEqualToString:DOC_SUFFIX]) {
-        desFileDirectory = [appDelegate.cookies getDOCFolderDirectory];
+        // 2.将从邮箱或网页或其它应用下载的doc文件移动到指username/purefilename/suffix目录下
+        // 获取文件的源路径
+        NSString *srcFileDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:INBOX_FOLDER_NAME];
+        NSString *srcFilePath = [srcFileDirectory stringByAppendingPathComponent:postFilename];
+        // 获取文件的目标路径
+        NSString *desFileDirectory = [appDelegate.cookies getDOCFolderDirectory];
+        NSString *desFilePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:desFileDirectory];
+        desFilePath = [desFilePath stringByAppendingPathComponent:postFilename];
+        
+        if ([fileManager fileExistsAtPath:srcFilePath isDirectory:NO]) {
+            // 如果文件存在于目标路径中，先将其移除
+            NSError *error = nil;
+            if ([fileManager fileExistsAtPath:desFilePath isDirectory:NO]) {
+                [fileManager removeItemAtPath:desFilePath error:nil];
+            }
+            
+            // 从源路径移动文件到目标路径
+            [fileManager moveItemAtPath:srcFilePath toPath:desFilePath error:&error];
+            if (error) {
+                [JCAlert alertWithMessage:@"移动文件出错" Error:error];
+            }
+        }
+        
+        // 3.将doc文件上传到服务器进行转换
+        if ([fileManager fileExistsAtPath:desFilePath isDirectory:NO]) {
+            [appDelegate.urlConnector convertDocFileInPath:desFilePath toPDFFileInFolder:pureFilename];
+        }
+    }
+    else if ([suffix isEqualToString:PDF_SUFFIX]) {
+        [self downloadDOCFile];
     }
     else {
         [JCAlert alertWithMessage:@"请检查您的文件格式"];
         return;
     }
-    NSString *desFilePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:desFileDirectory];
-    desFilePath = [desFilePath stringByAppendingPathComponent:postFilename];
-    
-    if ([fileManager fileExistsAtPath:srcFilePath isDirectory:NO]) {
-        // 如果文件存在于目标路径中，先将其移除
-        NSError *error = nil;
-        if ([fileManager fileExistsAtPath:desFilePath isDirectory:NO]) {
-            [fileManager removeItemAtPath:desFilePath error:nil];
-        }
-        
-        // 从源路径移动文件到目标路径
-        [fileManager moveItemAtPath:srcFilePath toPath:desFilePath error:&error];
-        if (error) {
-            [JCAlert alertWithMessage:@"移动文件出错" Error:error];
-        }
-    }
-    
-    // 3.将doc文件上传到服务器进行转换
-    if ([fileManager fileExistsAtPath:desFilePath isDirectory:NO]) {
-        [appDelegate.urlConnector convertDocFileInPath:desFilePath toPDFFileInFolder:pureFilename];
-    }
 }
 
 #pragma mark - Download Files
 
+- (void)downloadDOCFile {
+    AppDelegate *appDelegate = APPDELEGATE;
+    [appDelegate.urlConnector downloadFile:appDelegate.cookies.docFileName
+                                      Type:DOC_SUFFIX
+                        FromServerInFolder:appDelegate.cookies.pureFileName];
+}
+
+- (void)getDownload_DOC_Data:(NSMutableData *)docData {
+    // 保存doc文件数据到inbox文件夹中
+    if (docData && docData.length > 0) {
+        AppDelegate *appDelegate = APPDELEGATE;
+        [appDelegate.filePersistence saveMutableData:docData ToFile:appDelegate.cookies.docFileName inDocumentWithDirectory:INBOX_FOLDER_NAME];
+    }
+    else {
+        [JCAlert alertWithMessage:@"打开文件失败，下载的数据为空"];
+    }
+    
+    // 上传doc文件进行转换
+    [self uploadFileWithSuffix:DOC_FOLDER_NAME];
+    
+    // 清除需要直接打开的pdf文件
+    AppDelegate *appDelegate = APPDELEGATE;
+    [appDelegate.fileCleaner clearInboxFiles];
+}
+
 /* 下载该doc文件在服务器对应的zip包（如果已经存在） */
 - (void)downloadZipFile {
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = APPDELEGATE;
     [appDelegate.urlConnector downloadFile:appDelegate.cookies.zipFileName
                                       Type:ZIP_SUFFIX
                         FromServerInFolder:appDelegate.cookies.pureFileName];
@@ -267,8 +296,8 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
             
             // 解压zip包并将zip包中的数据移动到对应位置
             NSString *zipFilePath = [appDelegate.filePersistence getDirectoryOfDocumentFileWithName:appDelegate.cookies.zipFileName];
-            MyPDFSender *pdfSender = [[MyPDFSender alloc] init];
-            [pdfSender unzipFilesInPath:zipFilePath];
+            MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
+            [pdfCreator unzipFilesInPath:zipFilePath];
             
             [appDelegate.fileCleaner clearFilesWithSuffix:ZIP_SUFFIX];
         }
@@ -293,7 +322,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
  * pdfData : 由DownloadHanler回传
  */
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData {
-    if (pdfData) {
+    if (pdfData && pdfData.length > 0) {
         AppDelegate *appDelegate = APPDELEGATE;
         NSString *pdfFileDirectory = [appDelegate.cookies getPDFFolderDirectory];
         [appDelegate.filePersistence saveMutableData:pdfData ToFile:appDelegate.cookies.pdfFileName inDocumentWithDirectory:pdfFileDirectory];

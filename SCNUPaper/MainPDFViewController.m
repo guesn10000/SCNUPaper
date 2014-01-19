@@ -15,7 +15,7 @@
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFDocument.h"
-#import "MyPDFSender.h"
+#import "MyPDFCreator.h"
 #import "Comments.h"
 #import "PDFScrollView.h"
 #import "Comments.h"
@@ -123,6 +123,13 @@ const  CGFloat   kStopButtonLoc = 60.0;
         [self.selectText_barButtonItem setTitle:@""];
         [self.view addSubview:self.mainOptions_Toolbar];
     }
+    
+    NSString *pageInputNibName = (IS_IPAD) ? @"PageInputView" : @"iPhone_PageInput";
+    NSArray *inputNibs = [[NSBundle mainBundle] loadNibNamed:pageInputNibName owner:self options:nil];
+    self.pageInputView = [inputNibs objectAtIndex:0];
+    self.pageInputView.center = appDelegate.window.center;
+    self.pageInputView.hidden = YES;
+    [self.view addSubview:self.pageInputView];
 }
 
 /* 建立显示论文内容的视图 */
@@ -256,12 +263,17 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [mailViewController setMessageBody:@"批改的论文已附在下列附件，如果想查看老师的批注，请使用\"论文批阅系统\"打开查看" isHTML:NO];
     
     // 4.添加附件
-    NSString *fileName = appDelegate.cookies.docFileName;
-    NSString *fileDirectory = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username,appDelegate.cookies.pureFileName, DOC_FOLDER_NAME];
-    fileDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:fileDirectory];
-    NSString *filePath = [fileDirectory stringByAppendingPathComponent:fileName];
-    NSData *attachmentData = [NSData dataWithContentsOfFile:filePath];
-    [mailViewController addAttachmentData:attachmentData mimeType:@"application/msword" fileName:fileName];
+    if (self.hasEdited) {
+        MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
+        [pdfCreator createNewPDFFile];
+        [pdfCreator uploadFilesToServer];
+        self.hasEdited = NO;
+    }
+    NSString *folderDirectory = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME];
+    folderDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];
+    NSString *pdfFilePath = [folderDirectory stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
+    NSData *attachmentData = [NSData dataWithContentsOfFile:pdfFilePath];
+    [mailViewController addAttachmentData:attachmentData mimeType:PDF_MIME_TYPE fileName:appDelegate.cookies.pdfFileName];
     
     // 5.呼出发送视图
     [self presentViewController:mailViewController animated:YES completion:nil];
@@ -269,8 +281,6 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 /// MailComposer Delegate
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
-    MyPDFSender *pdfSender = [[MyPDFSender alloc] init];
-    
     switch (result) {
         case MFMailComposeResultCancelled:
             [JCAlert alertWithMessage:@"取消发送邮件"];
@@ -281,10 +291,6 @@ const  CGFloat   kStopButtonLoc = 60.0;
             break;
             
         case MFMailComposeResultSent:
-            if (self.hasEdited) {
-                [pdfSender createNewPDFFile];
-                [pdfSender uploadFilesToServer];
-            }
             [JCAlert alertWithMessage:@"邮件已发送"];
             break;
             
@@ -301,8 +307,30 @@ const  CGFloat   kStopButtonLoc = 60.0;
 }
 
 /* 跳转到指定页 */
-- (IBAction)turnToPage:(id)sender
-{
+- (IBAction)turnToPage:(id)sender {
+    self.pageInputView.hidden = NO;
+    [self.inputPageIndex_textField becomeFirstResponder];
+}
+
+- (IBAction)turnToPage_Action:(id)sender {
+    NSInteger pageIndex = self.inputPageIndex_textField.text.integerValue;
+    if (pageIndex > 0 && pageIndex <= self.myPDFDocument.totalPages) {
+        [self.inputPageIndex_textField resignFirstResponder];
+        self.pageInputView.hidden = YES;
+        
+        self.myPDFDocument.currentIndex = pageIndex;
+        self.navigationItem.title = [NSString stringWithFormat:@"%zu / %zu", self.myPDFDocument.currentIndex, self.myPDFDocument.totalPages];
+        self.thesisPagesView.contentOffset = CGPointMake((pageIndex - 1) * self.thesisPagesView.frame.size.width,
+                                                         0.0);
+    }
+    else {
+        [JCAlert alertWithMessage:@"您输入的页码出错"];
+    }
+}
+
+- (IBAction)cancelTurnPage_Action:(id)sender {
+    [self.inputPageIndex_textField resignFirstResponder];
+    self.pageInputView.hidden = YES;
 }
 
 #pragma mark - Add Strokes
@@ -318,11 +346,6 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.isEditing_ = YES;
     self.thesisPagesView.scrollEnabled = NO; // 锁住scroll view的滑动
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addStrokes]; // 调用当前视图的add strokes方法
-}
-
-/* 添加笔注：选择画笔颜色 */
-- (IBAction)chooseStrokeColor:(id)sender
-{
 }
 
 /* 添加笔注：撤销当前的一个笔画 */
@@ -493,9 +516,9 @@ const  CGFloat   kStopButtonLoc = 60.0;
             appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
             appDelegate.window.userInteractionEnabled = NO;
             
-            MyPDFSender *pdfSender = [[MyPDFSender alloc] init];
-            [pdfSender createNewPDFFile];
-            [pdfSender uploadFilesToServer];
+            MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
+            [pdfCreator createNewPDFFile];
+            [pdfCreator uploadFilesToServer];
         }
         
         // 返回最近打开列表

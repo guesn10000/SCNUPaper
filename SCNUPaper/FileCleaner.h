@@ -22,4 +22,6 @@
 /* 删除文件夹Username/PureFileName/PDF */
 - (void)clearFilesInPDFFolder:(NSString *)foldername;
 
+- (void)clearFolder:(NSString *)foldername;
+
 @end

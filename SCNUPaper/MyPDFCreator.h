@@ -1,14 +1,14 @@
 //
-//  MyPDFSender.h
-//  论文批阅系统
+//  MyPDFCreator.h
+//  SCNUPaper
 //
-//  Created by Jymn_Chen on 13-11-22.
-//  Copyright (c) 2013年 Jymn_Chen. All rights reserved.
+//  Created by Jymn_Chen on 14-1-19.
+//  Copyright (c) 2014年 Jymn_Chen. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface MyPDFSender : NSObject
+@interface MyPDFCreator : NSObject
 
 /* 创建新的pdf文件，包含批改的涂鸦 */
 - (void)createNewPDFFile;

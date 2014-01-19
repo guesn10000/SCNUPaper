@@ -85,6 +85,9 @@
 #define MP3_SUFFIX @".mp3"
 #define CAF_SUFFIX @".caf"
 
+#define WORD_MIME_TYPE @"application/msword"
+#define PDF_MIME_TYPE  @"application/pdf"
+
 #define ANNOTATION_KEYS_FILENAME @"AnnotationKeys.plist"
 
 // 保存最近打开文件记录的文件

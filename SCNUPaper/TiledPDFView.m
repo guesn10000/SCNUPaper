@@ -352,7 +352,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     
     // 3.初始化画笔的参数
     self.draw_strokeWidth_ = DRAW_STROKE_WIDTH;
-    self.draw_strokeColor_ = [[UIColor alloc] initWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+    self.draw_strokeColor_ = [[UIColor alloc] initWithRed:1.0 green:0.0 blue:0.0 alpha:1.0];
 }
 
 /* 删除之前的笔注 */

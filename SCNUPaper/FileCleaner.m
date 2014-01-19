@@ -83,4 +83,15 @@
     }
 }
 
+- (void)clearFolder:(NSString *)foldername {
+    AppDelegate *appDelegate = APPDELEGATE;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *folderPath = [NSString stringWithFormat:@"%@/%@", appDelegate.cookies.username, foldername];
+    folderPath = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderPath];
+    
+    if ([fileManager fileExistsAtPath:folderPath isDirectory:NO]) {
+        [fileManager removeItemAtPath:folderPath error:NULL];
+    }
+}
+
 @end

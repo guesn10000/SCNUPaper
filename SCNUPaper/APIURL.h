@@ -14,7 +14,8 @@
 
 /* 基本参数 */
 #define REQUEST_SUCCEED_STATUS_CODE 200
-#define REDIRECT_STATUS_CODE 302
+#define REDIRECT_STATUS_CODE        302
+#define FILE_NOT_FOUND_CODE         404
 
 
 /* 登陆 */

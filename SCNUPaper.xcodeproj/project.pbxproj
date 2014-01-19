@@ -10,6 +10,9 @@
 		1808A2171843C0850022717C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1808A2161843C0850022717C /* MessageUI.framework */; };
 		1815F824183941D20007B92B /* Toolbar-Done.png in Resources */ = {isa = PBXBuildFile; fileRef = 1815F821183941D20007B92B /* Toolbar-Done.png */; };
 		1815F826183941D20007B92B /* Toolbar-Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 1815F823183941D20007B92B /* Toolbar-Cancel.png */; };
+		181680FA188B8CDA008DE61F /* MyPDFCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 181680F9188B8CDA008DE61F /* MyPDFCreator.m */; };
+		181680FC188BA6FF008DE61F /* PageInputView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 181680FB188BA6FF008DE61F /* PageInputView.xib */; };
+		181680FE188BA71A008DE61F /* iPhone_PageInput.xib in Resources */ = {isa = PBXBuildFile; fileRef = 181680FD188BA71A008DE61F /* iPhone_PageInput.xib */; };
 		184F3C14183CBFA4006DCAC3 /* MyPDFButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 184F3C13183CBFA4006DCAC3 /* MyPDFButton.m */; };
 		185F2573183898B200347214 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 185F2572183898B200347214 /* Foundation.framework */; };
 		185F2575183898B200347214 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 185F2574183898B200347214 /* CoreGraphics.framework */; };
@@ -58,7 +61,6 @@
 		18904CFA183A71A800F0DF63 /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 18904CF9183A71A800F0DF63 /* Comments.m */; };
 		18904D11183A83D200F0DF63 /* JCFilePersistence.m in Sources */ = {isa = PBXBuildFile; fileRef = 18904D10183A83D200F0DF63 /* JCFilePersistence.m */; };
 		1890D17B1887DEF600462055 /* FileCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1890D17A1887DEF600462055 /* FileCleaner.m */; };
-		1890E9B1183F396300B0699C /* MyPDFSender.m in Sources */ = {isa = PBXBuildFile; fileRef = 1890E9B0183F396300B0699C /* MyPDFSender.m */; };
 		18B4474718473DD20074D669 /* Stroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B4474618473DD20074D669 /* Stroke.m */; };
 		18B4474A184792020074D669 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B44749184792020074D669 /* LoginViewController.m */; };
 		18B44752184793950074D669 /* cb_glossy_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 18B4474C184793950074D669 /* cb_glossy_off.png */; };
@@ -90,7 +92,7 @@
 			containerPortal = 185F2567183898B100347214 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 185F256E183898B100347214;
-			remoteInfo = "SCNUPaper";
+			remoteInfo = SCNUPaper;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -98,6 +100,10 @@
 		1808A2161843C0850022717C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		1815F821183941D20007B92B /* Toolbar-Done.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Toolbar-Done.png"; sourceTree = "<group>"; };
 		1815F823183941D20007B92B /* Toolbar-Cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Toolbar-Cancel.png"; sourceTree = "<group>"; };
+		181680F8188B8CDA008DE61F /* MyPDFCreator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPDFCreator.h; sourceTree = "<group>"; };
+		181680F9188B8CDA008DE61F /* MyPDFCreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyPDFCreator.m; sourceTree = "<group>"; };
+		181680FB188BA6FF008DE61F /* PageInputView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PageInputView.xib; sourceTree = "<group>"; };
+		181680FD188BA71A008DE61F /* iPhone_PageInput.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = iPhone_PageInput.xib; sourceTree = "<group>"; };
 		184F3C12183CBFA4006DCAC3 /* MyPDFButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPDFButton.h; sourceTree = "<group>"; };
 		184F3C13183CBFA4006DCAC3 /* MyPDFButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyPDFButton.m; sourceTree = "<group>"; };
 		185F256F183898B200347214 /* SCNUPaper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCNUPaper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -180,8 +186,6 @@
 		18904D10183A83D200F0DF63 /* JCFilePersistence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCFilePersistence.m; sourceTree = "<group>"; };
 		1890D1791887DEF600462055 /* FileCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileCleaner.h; sourceTree = "<group>"; };
 		1890D17A1887DEF600462055 /* FileCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileCleaner.m; sourceTree = "<group>"; };
-		1890E9AF183F396300B0699C /* MyPDFSender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPDFSender.h; sourceTree = "<group>"; };
-		1890E9B0183F396300B0699C /* MyPDFSender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyPDFSender.m; sourceTree = "<group>"; };
 		18B4474518473DD20074D669 /* Stroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stroke.h; sourceTree = "<group>"; };
 		18B4474618473DD20074D669 /* Stroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Stroke.m; sourceTree = "<group>"; };
 		18B44748184792020074D669 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
@@ -245,7 +249,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1815F80B183925420007B92B /* PDF */ = {
+		1815F80B183925420007B92B /* PDFViews */ = {
 			isa = PBXGroup;
 			children = (
 				185F25BE1838A1C300347214 /* PDFScrollView.h */,
@@ -253,7 +257,7 @@
 				185F25C11838A1D400347214 /* TiledPDFView.h */,
 				185F25C21838A1D400347214 /* TiledPDFView.m */,
 			);
-			name = PDF;
+			name = PDFViews;
 			sourceTree = "<group>";
 		};
 		1815F80D18393A130007B92B /* Storyboard */ = {
@@ -323,7 +327,7 @@
 				185F25AA183898B700347214 /* Sources */,
 				185F2579183898B200347214 /* Supporting Files */,
 			);
-			path = "SCNUPaper";
+			path = SCNUPaper;
 			sourceTree = "<group>";
 		};
 		185F2579183898B200347214 /* Supporting Files */ = {
@@ -345,7 +349,7 @@
 				185F25A0183898B200347214 /* ______Tests.m */,
 				185F259B183898B200347214 /* Supporting Files */,
 			);
-			path = "SCNUPaperTests";
+			path = SCNUPaperTests;
 			sourceTree = "<group>";
 		};
 		185F259B183898B200347214 /* Supporting Files */ = {
@@ -383,7 +387,7 @@
 			children = (
 				1815F80D18393A130007B92B /* Storyboard */,
 				188E33EE1850645A0058AEDB /* XIB */,
-				1815F80B183925420007B92B /* PDF */,
+				1815F80B183925420007B92B /* PDFViews */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -394,7 +398,7 @@
 				185F260B1838AA4800347214 /* Constants.h */,
 				185F26151838B56B00347214 /* JuliaCore */,
 				188E9C69183B8C1A0093FFF3 /* WebService */,
-				185F25B41838A0DD00347214 /* MyPDF */,
+				185F25B41838A0DD00347214 /* PDFModel */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -408,7 +412,7 @@
 			name = Delegate;
 			sourceTree = "<group>";
 		};
-		185F25B41838A0DD00347214 /* MyPDF */ = {
+		185F25B41838A0DD00347214 /* PDFModel */ = {
 			isa = PBXGroup;
 			children = (
 				18F079D0183DCD10008733D7 /* Document */,
@@ -416,7 +420,7 @@
 				18F079CF183DCD02008733D7 /* AddComments */,
 				18900E2E1841EDB300B0DD33 /* Mail */,
 			);
-			name = MyPDF;
+			name = PDFModel;
 			sourceTree = "<group>";
 		};
 		185F26151838B56B00347214 /* JuliaCore */ = {
@@ -512,8 +516,8 @@
 		18900E2E1841EDB300B0DD33 /* Mail */ = {
 			isa = PBXGroup;
 			children = (
-				1890E9AF183F396300B0699C /* MyPDFSender.h */,
-				1890E9B0183F396300B0699C /* MyPDFSender.m */,
+				181680F8188B8CDA008DE61F /* MyPDFCreator.h */,
+				181680F9188B8CDA008DE61F /* MyPDFCreator.m */,
 				1890D1791887DEF600462055 /* FileCleaner.h */,
 				1890D17A1887DEF600462055 /* FileCleaner.m */,
 			);
@@ -584,6 +588,7 @@
 			isa = PBXGroup;
 			children = (
 				188E33EC185055220058AEDB /* iPhone_ToolBars.xib */,
+				181680FD188BA71A008DE61F /* iPhone_PageInput.xib */,
 				18E3CD1A1889642500D02BA2 /* CheckCommTable.xib */,
 				18E3CD1C1889643100D02BA2 /* CheckCommDetail.xib */,
 			);
@@ -594,6 +599,7 @@
 			isa = PBXGroup;
 			children = (
 				18C46FE8184224070093CA29 /* iPad_ToolBars.xib */,
+				181680FB188BA6FF008DE61F /* PageInputView.xib */,
 				18E3CCFA188953B500D02BA2 /* CommentsMenu.xib */,
 				188DE21C188A73D10065F428 /* InputTextView.xib */,
 				18E3CCF5188934DF00D02BA2 /* RecorderView.xib */,
@@ -655,7 +661,7 @@
 			dependencies = (
 			);
 			name = SCNUPaper;
-			productName = "SCNUPaper";
+			productName = SCNUPaper;
 			productReference = 185F256F183898B200347214 /* SCNUPaper.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -673,7 +679,7 @@
 				185F2599183898B200347214 /* PBXTargetDependency */,
 			);
 			name = SCNUPaperTests;
-			productName = "SCNUPaperTests";
+			productName = SCNUPaperTests;
 			productReference = 185F2593183898B200347214 /* SCNUPaperTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -726,6 +732,7 @@
 				18B44757184793950074D669 /* RadioButton-Unselected.png in Resources */,
 				1815F824183941D20007B92B /* Toolbar-Done.png in Resources */,
 				18E3CCF6188934DF00D02BA2 /* RecorderView.xib in Resources */,
+				181680FC188BA6FF008DE61F /* PageInputView.xib in Resources */,
 				18C46FE9184224070093CA29 /* iPad_ToolBars.xib in Resources */,
 				18E3CD0E1889559800D02BA2 /* addVoice.jpg in Resources */,
 				185F258E183898B200347214 /* Images.xcassets in Resources */,
@@ -734,6 +741,7 @@
 				1815F826183941D20007B92B /* Toolbar-Cancel.png in Resources */,
 				18E3CD1B1889642500D02BA2 /* CheckCommTable.xib in Resources */,
 				18B44754184793950074D669 /* cb_glossy_on.png in Resources */,
+				181680FE188BA71A008DE61F /* iPhone_PageInput.xib in Resources */,
 				18E3CD0D1889559800D02BA2 /* addText.png in Resources */,
 				185F2586183898B200347214 /* Main_iPhone.storyboard in Resources */,
 				185F257D183898B200347214 /* InfoPlist.strings in Resources */,
@@ -766,7 +774,6 @@
 				18D070B0183E672E0062F856 /* LatestViewController.m in Sources */,
 				188E3692183CABFF0079CD6D /* KeyGeneraton.m in Sources */,
 				188E368F183C9D850079CD6D /* MyPDFAnnotation.m in Sources */,
-				1890E9B1183F396300B0699C /* MyPDFSender.m in Sources */,
 				18F44CD21844CEAB0078C8C4 /* DownloadHandler.m in Sources */,
 				18E3CCF91889399800D02BA2 /* Recorder.m in Sources */,
 				188E9C68183B8C170093FFF3 /* URLConnector.m in Sources */,
@@ -786,6 +793,7 @@
 				185F25C01838A1C300347214 /* PDFScrollView.m in Sources */,
 				186FD6F3183DEBEC001C0B92 /* unzip.c in Sources */,
 				18904CFA183A71A800F0DF63 /* Comments.m in Sources */,
+				181680FA188B8CDA008DE61F /* MyPDFCreator.m in Sources */,
 				185F25C31838A1D400347214 /* TiledPDFView.m in Sources */,
 				18B4474A184792020074D669 /* LoginViewController.m in Sources */,
 				184F3C14183CBFA4006DCAC3 /* MyPDFButton.m in Sources */,
@@ -933,7 +941,7 @@
 				INFOPLIST_FILE = "SCNUPaper/SCNUPaper-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/apple/Desktop/SCNUPaper/SCNUPaper",
+					/Users/apple/Desktop/SCNUPaper/SCNUPaper,
 				);
 				PRODUCT_NAME = SCNUPaper;
 				WRAPPER_EXTENSION = app;
@@ -950,7 +958,7 @@
 				INFOPLIST_FILE = "SCNUPaper/SCNUPaper-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/apple/Desktop/SCNUPaper/SCNUPaper",
+					/Users/apple/Desktop/SCNUPaper/SCNUPaper,
 				);
 				PRODUCT_NAME = SCNUPaper;
 				WRAPPER_EXTENSION = app;

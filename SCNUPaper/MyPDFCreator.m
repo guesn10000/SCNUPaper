@@ -1,12 +1,12 @@
 //
-//  MyPDFSender.m
-//  论文批阅系统
+//  MyPDFCreator.m
+//  SCNUPaper
 //
-//  Created by Jymn_Chen on 13-11-22.
-//  Copyright (c) 2013年 Jymn_Chen. All rights reserved.
+//  Created by Jymn_Chen on 14-1-19.
+//  Copyright (c) 2014年 Jymn_Chen. All rights reserved.
 //
 
-#import "MyPDFSender.h"
+#import "MyPDFCreator.h"
 #import "ZipArchive/ZipArchive.h"
 #import "AppDelegate.h"
 #import "Constants.h"
@@ -21,11 +21,7 @@
 #import "TiledPDFView.h"
 #import "MainPDFViewController.h"
 
-@interface MyPDFSender ()
-
-@end
-
-@implementation MyPDFSender
+@implementation MyPDFCreator
 
 #define ADD_TEXT_IMG  [UIImage imageNamed:@"addText.png"]
 #define ADD_VOICE_IMG [UIImage imageNamed:@"addVoice.jpg"]
@@ -229,7 +225,7 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
 
 - (void)uploadFilesToServer {
     // 1.初始化各个参数
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    AppDelegate *appDelegate = APPDELEGATE;
     
     
     // 2.定位文件夹路径，所有要上传的文件位于Document / Username / PureFileName / PDF /
@@ -254,7 +250,6 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
     NSString *createdPDFFolder = [appDelegate.cookies.pureFileName stringByAppendingString:@"_created"];
     [appDelegate.urlConnector uploadFileInPath:pdfFilePath toServerInFolder:createdPDFFolder];
 }
-
 
 #pragma mark - Zip files
 
@@ -348,7 +343,7 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
     
     // 2.获取文件夹中所有文件
     NSArray *filesInFolder = [fileManager contentsOfDirectoryAtPath:subPath error:NULL];
-//    NSLog(@"files = %@", filesInFolder);
+    //    NSLog(@"files = %@", filesInFolder);
     
     if (filesInFolder && filesInFolder.count > 0) {
         
@@ -362,7 +357,7 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
         BOOL isSuccessful = [zipArchiver CreateZipFile2:zipFilePath];
         for (NSString *file in filesInFolder) {
             NSString *eachFilePath = [subPath stringByAppendingString:[NSString stringWithFormat:@"/%@", file]];
-//            NSLog(@"eachFilePath = %@", eachFilePath);
+            //            NSLog(@"eachFilePath = %@", eachFilePath);
             NSString *nFileName = [file stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
             if ([fileManager fileExistsAtPath:eachFilePath isDirectory:NO]) {
                 isSuccessful = [zipArchiver addFileToZip:eachFilePath newname:nFileName];
@@ -387,7 +382,6 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
         return nil;
     }
 }
-
 
 #pragma mark - Unzip fils
 

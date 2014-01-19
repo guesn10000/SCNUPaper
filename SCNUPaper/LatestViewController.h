@@ -25,22 +25,13 @@
 
 
 /*
- * 上传文件到服务器
- *
- * doc : 先转换成pdf，再下载转换好的pdf
- * 
- * pdf : 先查看在服务器是否存在zip包，如果存在则说明已经转换过，要下载对应的修改结果并渲染到页面上
- *
- */
-- (void)uploadDOCFile;
-
-
-/*
  * 从服务器下载文件
  * 下载完成后，获取下载的数据
  */
+- (void)downloadDOCFile;
 - (void)downloadZipFile;
 - (void)downloadPDFFile;
+- (void)getDownload_DOC_Data:(NSMutableData *)docData;
 - (void)getDownload_ZIP_Data:(NSMutableData *)zipData;
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData;
 

@@ -61,14 +61,17 @@
 - (IBAction)selectText:(id)sender;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *selectText_barButtonItem;
 
+/* 页面跳转 */
+@property (weak, nonatomic) IBOutlet UIView *pageInputView;
+@property (weak, nonatomic) IBOutlet UITextField *inputPageIndex_textField;
+- (IBAction)turnToPage_Action:(id)sender;
+- (IBAction)cancelTurnPage_Action:(id)sender;
+
 
 /// Add Strokes
 
 /* 添加笔注的工具栏 */
 @property (strong, nonatomic) IBOutlet UIToolbar *strokeOptions_Toolbar;
-
-/* 选择画笔颜色 */
-- (IBAction)chooseStrokeColor:(id)sender;
 
 /* 撤销上一步操作 */
 - (IBAction)undoStrokes:(id)sender;

@@ -41,30 +41,25 @@
             <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
             <items>
-                <barButtonItem title="颜色" width="72" id="BhZ-X2-yeL">
-                    <connections>
-                        <action selector="chooseStrokeColor:" destination="-1" id="8QE-EV-yHG"/>
-                    </connections>
-                </barButtonItem>
-                <barButtonItem width="78" style="plain" systemItem="fixedSpace" id="ESn-0J-pNn"/>
+                <barButtonItem width="103" style="plain" systemItem="fixedSpace" id="ESn-0J-pNn"/>
                 <barButtonItem title="撤销" id="y4s-nC-cAt">
                     <connections>
                         <action selector="undoStrokes:" destination="-1" id="1HY-ZM-KBg"/>
                     </connections>
                 </barButtonItem>
-                <barButtonItem width="93" style="plain" systemItem="fixedSpace" id="W3K-gg-qV2"/>
+                <barButtonItem width="80" style="plain" systemItem="fixedSpace" id="W3K-gg-qV2"/>
                 <barButtonItem title="重做" width="82" id="Yap-lk-n1J">
                     <connections>
                         <action selector="redoStrokes:" destination="-1" id="CtV-gg-6L7"/>
                     </connections>
                 </barButtonItem>
-                <barButtonItem width="124" style="plain" systemItem="fixedSpace" id="m69-sm-8CA"/>
+                <barButtonItem width="99" style="plain" systemItem="fixedSpace" id="m69-sm-8CA"/>
                 <barButtonItem image="Toolbar-Done.png" width="73" id="5r0-HK-trQ">
                     <connections>
                         <action selector="finishAddingStrokes:" destination="-1" id="8ZJ-gV-uF3"/>
                     </connections>
                 </barButtonItem>
-                <barButtonItem width="67" style="plain" systemItem="fixedSpace" id="6uN-dL-AcH"/>
+                <barButtonItem width="97" style="plain" systemItem="fixedSpace" id="6uN-dL-AcH"/>
                 <barButtonItem image="Toolbar-Cancel.png" id="8WH-zI-ZYl">
                     <connections>
                         <action selector="cancelAddingStrokes:" destination="-1" id="kyT-bv-pVS"/>

@@ -12,6 +12,7 @@
 #import "AppDelegate.h"
 #import "Cookies.h"
 #import "JCAlert.h"
+#import "FileCleaner.h"
 #import "LatestViewController.h"
 
 @interface DownloadHandler ()
@@ -21,6 +22,8 @@
 
 /* 下载的数据 */
 @property (strong, nonatomic) NSMutableData *download_data_;
+
+@property (assign, nonatomic) NSUInteger responseStatusCode_;
 
 @end
 
@@ -44,9 +47,14 @@
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     self.download_data_ = [[NSMutableData alloc] initWithLength:0];
     NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
-    NSUInteger responseStatusCode = [httpResponse statusCode];
-    if (responseStatusCode == REDIRECT_STATUS_CODE || responseStatusCode == REQUEST_SUCCEED_STATUS_CODE) {
-//        NSLog(@"发送下载文件请求成功");
+    self.responseStatusCode_ = [httpResponse statusCode];
+    if (self.responseStatusCode_ == REDIRECT_STATUS_CODE || self.responseStatusCode_ == REQUEST_SUCCEED_STATUS_CODE) {
+        
+    }
+    else if (self.responseStatusCode_ == FILE_NOT_FOUND_CODE) {
+        [JCAlert alertWithMessage:@"该文件不曾被老师修改过，找不到任何批改意见"];
+        AppDelegate *appDelegate = APPDELEGATE;
+        [appDelegate.fileCleaner clearInboxFiles];
     }
     else {
         [JCAlert alertWithMessage:@"发送网络请求失败"];
@@ -61,19 +69,13 @@
 
 /* 下载文件操作完成 */
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+    if (self.responseStatusCode_ != REDIRECT_STATUS_CODE || self.responseStatusCode_ != REQUEST_SUCCEED_STATUS_CODE) {
+        return;
+    }
+    
     AppDelegate *appDelegate = APPDELEGATE;
     
-    if (self.download_data_.length == 0) {
-        if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
-//            NSLog(@"该文件尚未上传过，现在下载pdf文件");
-//            [appDelegate.latestViewController downloadPDFFile];
-        }
-        else {
-            [JCAlert alertWithMessage:@"下载文件失败"];
-        }
-    }
-    else {
-//        NSLog(@"下载文件成功");
+    if (self.download_data_.length > 0) {
         // 将下载的数据回传到LatestViewController
         if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
             [appDelegate.latestViewController getDownload_ZIP_Data:self.download_data_];
@@ -81,12 +83,13 @@
         else if ([self.fileType_ isEqualToString:PDF_SUFFIX]) {
             [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
         }
+        else if ([self.fileType_ isEqualToString:DOC_SUFFIX]) {
+            [appDelegate.latestViewController getDownload_DOC_Data:self.download_data_];
+        }
         else {
             [JCAlert alertWithMessage:@"从服务器下载数据失败"];
         }
-        
     }
-    
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {

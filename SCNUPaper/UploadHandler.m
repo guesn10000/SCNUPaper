@@ -63,7 +63,6 @@
             [JCAlert alertWithMessage:@"转换文件失败"];
         }
         else { // 转换成功
-//            NSLog(@"转换成功");
             AppDelegate *appDelegate = APPDELEGATE;
             LatestViewController *latestViewController = appDelegate.latestViewController;
             
@@ -79,7 +78,6 @@
             [JCAlert alertWithMessage:@"上传数据失败"];
         }
         else {
-//            NSLog(@"上传成功");
             AppDelegate *appDelegate = APPDELEGATE;
             
             // 清理本地残留的zip文件
