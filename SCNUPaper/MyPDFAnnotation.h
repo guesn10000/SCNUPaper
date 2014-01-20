@@ -8,22 +8,24 @@
 
 #import <Foundation/Foundation.h>
 
+@class MyPDFButton;
+
 @interface MyPDFAnnotation : NSObject
 
-@property (strong, nonatomic) NSMutableArray *commentAnnotationFrames;
+@property (strong, nonatomic) NSString *commentAnnotationFrame;
 
 @property (assign, nonatomic) NSUInteger commentAnnotationKey;
 
 @property (assign, nonatomic) size_t inPageIndex;
 
-@property (strong, nonatomic) NSMutableArray *buttonsForComments;
+@property (strong, nonatomic) MyPDFButton *pdfButton;
 
 @property (strong, nonatomic) UIView *annotationView;
 
-- (id)initWithFrames:(NSMutableArray *)frames
-                 Key:(NSUInteger)keyNumber
-           PageIndex:(size_t)pageIndex
-      TextAnnotation:(BOOL)textAnno
-     VoiceAnnotation:(BOOL)voiceAnno;
+- (id)initWithFrame:(NSString *)frame
+                Key:(NSUInteger)keyNumber
+          PageIndex:(size_t)pageIndex
+     TextAnnotation:(BOOL)textAnno
+    VoiceAnnotation:(BOOL)voiceAnno;
 
 @end

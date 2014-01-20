@@ -10,8 +10,8 @@
 
 @interface CommentStroke : NSObject <NSCoding>
 
-/* 文字上的按钮的frames */
-@property (strong, nonatomic) NSMutableArray *frames;
+/* 文字上的按钮的frame */
+@property (strong, nonatomic) NSString *frame;
 
 /* 标记的key */
 @property (assign, nonatomic) NSInteger buttonKey;
@@ -23,7 +23,7 @@
 @property (assign, nonatomic) BOOL hasVoiceAnnotation;
 
 /* 初始化 */
-- (id)initWithFrames:(NSMutableArray *)frames Key:(NSInteger)key;
+- (id)initWithFrame:(NSString *)frame Key:(NSInteger)key;
 
 - (void)setAnnotationType:(NSInteger)type;
 

@@ -12,7 +12,7 @@
 
 #pragma mark - Constants
 
-static NSString *kStrkFrames   = @"ButtonFrames";
+static NSString *kStrkFrame    = @"ButtonFrame";
 static NSString *kStrkBtnKey   = @"ButtonKey";
 static NSString *kHasTextAnno  = @"HasTextAnnotation";
 static NSString *kHasVoiceAnno = @"HasVoiceAnnotation";
@@ -27,7 +27,7 @@ static NSInteger kVoiceType = 4;
     self = [super init];
     
     if (self) {
-        self.frames             = (NSMutableArray *)[aDecoder decodeObjectForKey:kStrkFrames];
+        self.frame              = (NSString *)[aDecoder decodeObjectForKey:kStrkFrame];
         self.buttonKey          = (NSInteger)[aDecoder decodeIntegerForKey:kStrkBtnKey];
         self.hasTextAnnotation  = (BOOL)[aDecoder decodeBoolForKey:kHasTextAnno];
         self.hasVoiceAnnotation = (BOOL)[aDecoder decodeBoolForKey:kHasVoiceAnno];
@@ -38,7 +38,7 @@ static NSInteger kVoiceType = 4;
 
 /* 序列化编码 */
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-    [aCoder encodeObject:self.frames           forKey:kStrkFrames];
+    [aCoder encodeObject:self.frame            forKey:kStrkFrame];
     [aCoder encodeInteger:self.buttonKey       forKey:kStrkBtnKey];
     [aCoder encodeBool:self.hasTextAnnotation  forKey:kHasTextAnno];
     [aCoder encodeBool:self.hasVoiceAnnotation forKey:kHasVoiceAnno];
@@ -46,11 +46,11 @@ static NSInteger kVoiceType = 4;
 
 #pragma mark - Initialization
 
-- (id)initWithFrames:(NSMutableArray *)frames Key:(NSInteger)key {
+- (id)initWithFrame:(NSString *)frame Key:(NSInteger)key {
     self = [super init];
     
     if (self) {
-        self.frames = [[NSMutableArray alloc] initWithArray:[frames mutableCopy]];
+        self.frame = frame;
         self.buttonKey = key;
         self.hasTextAnnotation  = NO;
         self.hasVoiceAnnotation = NO;

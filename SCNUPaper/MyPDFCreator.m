@@ -114,7 +114,6 @@ CGFloat tempHeight;
         // 批注部分
         for (int i = 0; i < pdfScrollView.myPDFPage.previousStrokesForComments.count; i++) {
             CommentStroke *commStroke = [pdfScrollView.myPDFPage.previousStrokesForComments objectAtIndex:i];
-            NSMutableArray *frames = commStroke.frames;
             
             NSInteger type = 0;
             if (commStroke.hasTextAnnotation && commStroke.hasVoiceAnnotation) {
@@ -127,7 +126,7 @@ CGFloat tempHeight;
                 type = 1;
             }
             
-            create_drawCommentFrames(myPDFContext, frames, type);
+            create_drawCommentFrame(myPDFContext, commStroke.frame, type);
         }
         
         CGPDFContextEndPage(myPDFContext);
@@ -192,23 +191,19 @@ void create_drawDrawStrokes(CGContextRef context, NSMutableArray *drawStrokes) {
 }
 
 /* draw批注对应的边界 */
-void create_drawCommentFrames(CGContextRef context, NSMutableArray *frames, NSInteger type) {
-    for (int j = 0; j < frames.count; j++) {
-        NSString *frame = [frames objectAtIndex:j];
-        CGRect rect = CGRectFromString(frame);
-        CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
-        CGContextAddRect(context, rect);
-        CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
-        CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
-        CGContextSetLineCap(context, kCGLineCapRound);
-        CGContextSetLineJoin(context, kCGLineJoinRound);
-        CGContextDrawPath(context, kCGPathFill);
-        drawAnnotationViews(context, type, rect);
-    }
+void create_drawCommentFrame(CGContextRef context, NSString *frame, NSInteger type) {
+    CGRect rect = CGRectFromString(frame);
+    CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
+    CGContextAddRect(context, rect);
+    CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
+    CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+    CGContextDrawPath(context, kCGPathFill);
+    drawAnnotationViews(context, type, rect);
 }
 
 void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
-    
     CGContextSaveGState(context);
     CGContextTranslateCTM(context, 0.0, -tempHeight);
     CGContextScaleCTM(context, 1.0, -1.0);

@@ -22,16 +22,17 @@
 
 #pragma mark - Initialization
 
-- (id)initWithFrames:(NSMutableArray *)frames
-                 Key:(NSUInteger)keyNumber
-           PageIndex:(size_t)pageIndex
-      TextAnnotation:(BOOL)textAnno
-     VoiceAnnotation:(BOOL)voiceAnno {
+- (id)initWithFrame:(NSString *)frame
+                Key:(NSUInteger)keyNumber
+          PageIndex:(size_t)pageIndex
+     TextAnnotation:(BOOL)textAnno
+    VoiceAnnotation:(BOOL)voiceAnno {
+    
     self = [super init];
     
     if (self) {
         AppDelegate *appDelegate = APPDELEGATE;
-        self.commentAnnotationFrames = [[NSMutableArray alloc] initWithArray:[frames mutableCopy]];
+        self.commentAnnotationFrame = frame;
         self.commentAnnotationKey = keyNumber;
         self.inPageIndex = pageIndex;
         
@@ -47,15 +48,12 @@
         }
         self.annotationView = [appDelegate.annoViewsProvider getAnnotationViewWithType:type];
         
-        self.buttonsForComments = [[NSMutableArray alloc] init];
-        for (NSString *rectString in self.commentAnnotationFrames) {
-            CGRect rect = CGRectFromString(rectString);
-            MyPDFButton *button = [[MyPDFButton alloc] initWithFrame:rect ButtonKey:keyNumber PageIndex:pageIndex];
-            [self.buttonsForComments addObject:button];
-        }
+        CGRect rect = CGRectFromString(frame);
+        self.pdfButton = [[MyPDFButton alloc] initWithFrame:rect ButtonKey:keyNumber PageIndex:pageIndex];
     }
     
     return self;
+    
 }
 
 @end

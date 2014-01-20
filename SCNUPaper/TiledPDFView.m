@@ -39,6 +39,7 @@
 
 
 @property (strong, nonatomic) MyPDFAnnotation *tempPDFAnnotation_;
+@property (strong, nonatomic) NSString        *tempCommentFrame_;
 @property (strong, nonatomic) NSMutableArray  *buttonsInView_;
 @property (strong, nonatomic) NSMutableArray  *annotationsInView_;
 
@@ -70,9 +71,6 @@
 @property (strong, nonatomic) NSMutableArray *draw_strokePoints_; // 笔画中的点集
 @property (strong, nonatomic) UIColor        *draw_strokeColor_;  // 笔画的颜色
 @property (assign, nonatomic) CGFloat         draw_strokeWidth_;  // 笔画的粗细
-
-/* 添加批注时的参数 */
-@property (strong, nonatomic) NSMutableArray *commStrkFrames_; // 矩形
 
 @end
 
@@ -142,7 +140,7 @@ const NSInteger kVocAdd  = 2;
         
         /* 3.初始化添加批注参数 */
         
-        self.commStrkFrames_ = [[NSMutableArray alloc] init];
+        self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
         self.addTextType  = kTxtNone;
         self.addVoiceType = kVocNone;
         
@@ -260,10 +258,8 @@ const NSInteger kVocAdd  = 2;
     // 批注部分
     for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
         CommentStroke *commStroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
-        NSMutableArray *frames = commStroke.frames;
-        drawCommentFrames(context, frames);
+        drawCommentFrame(context, commStroke.frame);
     }
-    drawCommentFrames(context, self.commStrkFrames_);
     
     CGContextRestoreGState(context);
 }
@@ -286,14 +282,7 @@ const NSInteger kVocAdd  = 2;
     drawDrawStrokes(context, self.myPDFPage_.currentDrawStrokes);
     
     // 批注部分
-    CGRect rect = CGRectFromString([self.commStrkFrames_ lastObject]);
-    CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
-    CGContextAddRect(context, rect);
-    CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
-    CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
-    CGContextSetLineCap(context, kCGLineCapRound);
-    CGContextSetLineJoin(context, kCGLineJoinRound);
-    CGContextDrawPath(context, kCGPathFill);
+    drawCommentFrame(context, self.tempCommentFrame_);
     
     CGContextRestoreGState(context);
     
@@ -332,18 +321,15 @@ void drawDrawStrokes(CGContextRef context, NSMutableArray *drawStrokes) {
 }
 
 /* draw批注对应的边界 */
-void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
-    for (int j = 0; j < frames.count; j++) {
-        NSString *frame = [frames objectAtIndex:j];
-        CGRect rect = CGRectFromString(frame);
-        CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
-        CGContextAddRect(context, rect);
-        CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
-        CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
-        CGContextSetLineCap(context, kCGLineCapRound);
-        CGContextSetLineJoin(context, kCGLineJoinRound);
-        CGContextDrawPath(context, kCGPathFill);
-    }
+void drawCommentFrame(CGContextRef context, NSString *frame) {
+    CGRect rect = CGRectFromString(frame);
+    CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
+    CGContextAddRect(context, rect);
+    CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
+    CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+    CGContextDrawPath(context, kCGPathFill);
 }
 
 #pragma mark - Add Strokes
@@ -481,11 +467,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
 
 /* 进入添加批注的状态 */
 - (void)addCommentsToPDFView {
-    // 进入添加批注状态
     self.editType_ = kAddComments;
-    
-    self.commStrkFrames_ = nil;
-    self.commStrkFrames_ = [[NSMutableArray alloc] init];
 }
 
 /* 完成并保存本次添加的批注 */
@@ -496,12 +478,9 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     /* 2.保存本次添加的所有批注 */
     AppDelegate *appDelegate = APPDELEGATE;
     NSInteger key = [appDelegate.keyGeneration getCommentAnnotationKeyWithPageIndex:self.myPDFPage_.pageIndex];
-    for (int i = 0; i < self.commStrkFrames_.count; i++) {
-        CommentStroke *stroke = [[CommentStroke alloc] initWithFrames:self.commStrkFrames_ Key:key];
-        [stroke setAnnotationType:commentType];
-        [self.myPDFPage_.previousStrokesForComments addObject:stroke];
-    }
-    self.commStrkFrames_ = nil;
+    CommentStroke *stroke = [[CommentStroke alloc] initWithFrame:self.tempCommentFrame_ Key:key];
+    [stroke setAnnotationType:commentType];
+    [self.myPDFPage_.previousStrokesForComments addObject:stroke];
     
     /* 3.刷新页面 */
     self.screenCapture.image = nil;
@@ -515,11 +494,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
 
 /* 取消本次添加的批注 */
 - (void)cancelAddingCommentsToPDFView {
-    // 1.退出添加批注状态
     [self quit_addingComments];
-    
-    // 2.刷新页面
-    self.commStrkFrames_ = nil;
     
     self.screenCapture.image = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -555,6 +530,8 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     self.commentsMenu.hidden = YES;
     self.inputTextView.hidden = YES;
     self.recorderView.hidden = YES;
+    
+    self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
 }
 
 #pragma mark - Comments Annotations
@@ -563,14 +540,21 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
 - (void)addAnnotationsInView {
     AppDelegate *appDelegate = APPDELEGATE;
     for (CommentStroke *stroke in self.myPDFPage_.previousStrokesForComments) {
-        self.tempPDFAnnotation_ = [[MyPDFAnnotation alloc] initWithFrames:stroke.frames
-                                                                      Key:stroke.buttonKey
-                                                                PageIndex:self.myPDFPage_.pageIndex
-                                                           TextAnnotation:stroke.hasTextAnnotation
-                                                          VoiceAnnotation:stroke.hasVoiceAnnotation
+        self.tempPDFAnnotation_ = [[MyPDFAnnotation alloc] initWithFrame:stroke.frame
+                                                                     Key:stroke.buttonKey
+                                                               PageIndex:self.myPDFPage_.pageIndex
+                                                          TextAnnotation:stroke.hasTextAnnotation
+                                                         VoiceAnnotation:stroke.hasVoiceAnnotation
                                    ];
         [appDelegate.keyGeneration increaseCommentAnnotationKeyinPageIndex:self.myPDFPage_.pageIndex];
         [self.myPDFPage_.previousAnnotationsForComments addObject:self.tempPDFAnnotation_];
+    }
+    
+    if (!self.buttonsInView_) {
+        self.buttonsInView_ = [[NSMutableArray alloc] init];
+    }
+    if (!self.annotationsInView_) {
+        self.annotationsInView_ = [[NSMutableArray alloc] init];
     }
     
     CGRect  scaleRect;
@@ -580,35 +564,26 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     
     tempWidthScaleFactor  *= self.iPhone_iPad_Scale;
     tempHeightScaleFactor *= self.iPhone_iPad_Scale;
-    
-    if (!self.buttonsInView_) {
-        self.buttonsInView_ = [[NSMutableArray alloc] init];
-    }
-    if (!self.annotationsInView_) {
-        self.annotationsInView_ = [[NSMutableArray alloc] init];
-    }
     for (MyPDFAnnotation *pdfAnnotation in self.myPDFPage_.previousAnnotationsForComments) {
-        for (MyPDFButton *pdfButton in pdfAnnotation.buttonsForComments) {
-            // 标记视图的位置
-            scalePoint = CGPointMake(pdfButton.defaultFrame.origin.x + pdfAnnotation.annotationView.frame.size.width / 2,
-                                     pdfButton.defaultFrame.origin.y + pdfAnnotation.annotationView.frame.size.height / 2);
-            scalePoint.x *= tempWidthScaleFactor;
-            scalePoint.y *= tempHeightScaleFactor;
-            pdfAnnotation.annotationView.center = scalePoint;
-            [self addSubview:pdfAnnotation.annotationView];
-            [self.annotationsInView_ addObject:pdfAnnotation.annotationView];
-            
-            // button的位置
-            scaleRect = pdfButton.defaultFrame;
-            scaleRect.origin.x    *= tempWidthScaleFactor;
-            scaleRect.origin.y    *= tempHeightScaleFactor;
-            scaleRect.size.width  *= tempWidthScaleFactor;
-            scaleRect.size.height *= tempHeightScaleFactor;
-            pdfButton.myButton.frame = scaleRect;
-            [self addSubview:pdfButton.myButton];
-            [pdfButton addTargetForButton];
-            [self.buttonsInView_ addObject:pdfButton.myButton];
-        }
+        // 标记视图的位置
+        scalePoint = CGPointMake(pdfAnnotation.pdfButton.defaultFrame.origin.x + pdfAnnotation.annotationView.frame.size.width / 2,
+                                 pdfAnnotation.pdfButton.defaultFrame.origin.y + pdfAnnotation.annotationView.frame.size.height / 2);
+        scalePoint.x *= tempWidthScaleFactor;
+        scalePoint.y *= tempHeightScaleFactor;
+        pdfAnnotation.annotationView.center = scalePoint;
+        [self addSubview:pdfAnnotation.annotationView];
+        [self.annotationsInView_ addObject:pdfAnnotation.annotationView];
+        
+        // button的位置
+        scaleRect = pdfAnnotation.pdfButton.defaultFrame;
+        scaleRect.origin.x    *= tempWidthScaleFactor;
+        scaleRect.origin.y    *= tempHeightScaleFactor;
+        scaleRect.size.width  *= tempWidthScaleFactor;
+        scaleRect.size.height *= tempHeightScaleFactor;
+        pdfAnnotation.pdfButton.myButton.frame = scaleRect;
+        [self addSubview:pdfAnnotation.pdfButton.myButton];
+        [pdfAnnotation.pdfButton addTargetForButton];
+        [self.buttonsInView_ addObject:pdfAnnotation.pdfButton.myButton];
     }
 }
 
@@ -920,13 +895,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     }
     else if (self.editType_ == kAddComments) {
         self.beginPoint_ = [[touches anyObject] locationInView:self];
-        if (!self.commStrkFrames_) {
-            self.commStrkFrames_ = [[NSMutableArray alloc] init];
-        }
-        if (self.commStrkFrames_.count > 0) {
-            [self.commStrkFrames_ removeAllObjects];
-        }
-        [self.commStrkFrames_ addObject:NSStringFromCGRect(CGRectZero)];
+        self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
     }
     else {
         return;
@@ -965,8 +934,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         defaultRect.origin.y    *= self.heightScaleFactor_;
         defaultRect.size.width  *= self.widthScaleFactor_;
         defaultRect.size.height *= self.heightScaleFactor_;
-        [self.commStrkFrames_ removeLastObject];
-        [self.commStrkFrames_ addObject:NSStringFromCGRect(defaultRect)];
+        self.tempCommentFrame_   = NSStringFromCGRect(defaultRect);
     }
     else {
         return;
