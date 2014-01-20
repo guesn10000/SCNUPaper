@@ -37,12 +37,6 @@
 @property (assign, nonatomic) CGPoint beginPoint_;
 @property (assign, nonatomic) CGPoint endPoint_;
 
-
-@property (strong, nonatomic) MyPDFAnnotation *tempPDFAnnotation_;
-@property (strong, nonatomic) NSString        *tempCommentFrame_;
-@property (strong, nonatomic) NSMutableArray  *buttonsInView_;
-@property (strong, nonatomic) NSMutableArray  *annotationsInView_;
-
 /*
  * 批改的类型
  * 0: 无
@@ -51,22 +45,15 @@
  */
 @property (assign, nonatomic) NSInteger editType_;
 
-/* 
- * 笔注的数据结构
- * previousDrawStrokes / currentDrawStrokes : (Array) [
- 
-        draw_Stroke0 : (Stroke) (
-            draw_strokePoints : (Array)
-            draw_strokeWidth  : (CGFloat)
-            draw_strokeColor  : (UIColor)
-        )
-        
-        draw_Stroke1 : (Stroke) (
-            ...
-        )
- 
- * ]
- */
+/* 当前视图上的所有按钮和标记视图 */
+@property (strong, nonatomic) NSMutableArray  *buttonsInView_;
+@property (strong, nonatomic) NSMutableArray  *annoViewsInView_;
+
+/* 保存临时生成的PDFAnnotation或Comment的frame */
+@property (strong, nonatomic) MyPDFAnnotation *tempPDFAnnotation_;
+@property (strong, nonatomic) NSString        *tempCommentFrame_;
+
+/* 保存笔注的参数 */
 @property (strong, nonatomic) Stroke         *draw_Stroke_;       // 一个包含属性的笔画
 @property (strong, nonatomic) NSMutableArray *draw_strokePoints_; // 笔画中的点集
 @property (strong, nonatomic) UIColor        *draw_strokeColor_;  // 笔画的颜色
@@ -204,7 +191,7 @@ const NSInteger kVocAdd  = 2;
         
         // 当前视图上的所有按钮和标记组成的数组
         self.buttonsInView_ = [[NSMutableArray alloc] init];
-        self.annotationsInView_ = [[NSMutableArray alloc] init];
+        self.annoViewsInView_ = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -350,6 +337,10 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     // 3.初始化画笔的参数
     self.draw_strokeWidth_ = DRAW_STROKE_WIDTH;
     self.draw_strokeColor_ = [[UIColor alloc] initWithRed:1.0 green:0.0 blue:0.0 alpha:1.0];
+    
+    
+    // 4.隐藏当前页面的按钮，防止干扰添加笔注
+    [self hidePDFButtonsInView];
 }
 
 /* 删除之前的笔注 */
@@ -442,6 +433,9 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self setNeedsDisplay];
     });
+    
+    // 6.恢复页面中的按钮
+    [self showPDFButtonsInView];
 }
 
 /* 取消添加笔注 */
@@ -461,6 +455,9 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     
     self.myPDFPage_.currentDrawStrokes = nil;
     self.myPDFPage_.currentDrawStrokes = [[NSMutableArray alloc] init];
+    
+    // 4.恢复页面中的按钮
+    [self showPDFButtonsInView];
 }
 
 #pragma mark - Add Comments
@@ -468,6 +465,7 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
 /* 进入添加批注的状态 */
 - (void)addCommentsToPDFView {
     self.editType_ = kAddComments;
+    [self hidePDFButtonsInView];
 }
 
 /* 完成并保存本次添加的批注 */
@@ -475,7 +473,7 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     /* 1.退出添加批注状态 */
     [self quit_addingComments];
     
-    /* 2.保存本次添加的所有批注 */
+    /* 2.添加本次添加的所有批注到数组中 */
     AppDelegate *appDelegate = APPDELEGATE;
     NSInteger key = [appDelegate.keyGeneration getCommentAnnotationKeyWithPageIndex:self.myPDFPage_.pageIndex];
     CommentStroke *stroke = [[CommentStroke alloc] initWithFrame:self.tempCommentFrame_ Key:key];
@@ -495,27 +493,7 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
 /* 取消本次添加的批注 */
 - (void)cancelAddingCommentsToPDFView {
     [self quit_addingComments];
-    
     self.screenCapture.image = nil;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self setNeedsDisplay];
-    });
-}
-
-- (void)saveCommentStrokes {
-    AppDelegate *appDelegate = APPDELEGATE;
-    
-    // 保存笔画和笔画按钮的边界到文件中
-    // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_commentStrokes.plist
-    NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.myPDFPage_.pageIndex];
-    NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
-    
-    NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:self.myPDFPage_.previousStrokesForComments];
-    NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
-    
-    [appDelegate.filePersistence saveMutableData:mdata
-                                          ToFile:strokesFileName
-                         inDocumentWithDirectory:strokesFileDirectory];
 }
 
 /* 退出添加批注状态，还原一些参数，隐藏编辑视图 */
@@ -532,13 +510,50 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     self.recorderView.hidden = YES;
     
     self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
+    
+    // 显示页面上隐藏的按钮
+    [self showPDFButtonsInView];
+}
+
+/* 保存批注到文件中 */
+- (void)saveCommentStrokes {
+    AppDelegate *appDelegate = APPDELEGATE;
+    
+    // 保存笔画和笔画按钮的边界到文件中
+    // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_commentStrokes.plist
+    NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.myPDFPage_.pageIndex];
+    NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
+    
+    NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:self.myPDFPage_.previousStrokesForComments];
+    NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
+    
+    [appDelegate.filePersistence saveMutableData:mdata
+                                          ToFile:strokesFileName
+                         inDocumentWithDirectory:strokesFileDirectory];
 }
 
 #pragma mark - Comments Annotations
 
-/* 添加annotatons到视图上 */
-- (void)addAnnotationsInView {
+/* 重新加载本页的标记 */
+- (void)reloadAnnotations {
+    // 清空页面上的按钮
+    for (UIButton *button in self.buttonsInView_) {
+        [button removeFromSuperview];
+    }
+    self.buttonsInView_ = nil;
+    self.buttonsInView_ = [[NSMutableArray alloc] init];
+    
+    // 清空页面上的标记视图
+    for (UIView *annoView in self.annoViewsInView_) {
+        [annoView removeFromSuperview];
+    }
+    self.annoViewsInView_ = nil;
+    self.annoViewsInView_ = [[NSMutableArray alloc] init];
+    
+    // 清空之前的PDFAnnotation数组，然后遍历本页的CommentStroke，在本页添加更新后的所有标记
     AppDelegate *appDelegate = APPDELEGATE;
+    self.myPDFPage_.previousAnnotationsForComments = nil;
+    self.myPDFPage_.previousAnnotationsForComments = [[NSMutableArray alloc] init];
     for (CommentStroke *stroke in self.myPDFPage_.previousStrokesForComments) {
         self.tempPDFAnnotation_ = [[MyPDFAnnotation alloc] initWithFrame:stroke.frame
                                                                      Key:stroke.buttonKey
@@ -549,33 +564,29 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
         [appDelegate.keyGeneration increaseCommentAnnotationKeyinPageIndex:self.myPDFPage_.pageIndex];
         [self.myPDFPage_.previousAnnotationsForComments addObject:self.tempPDFAnnotation_];
     }
+}
+
+/* 添加annotatons到视图上 */
+- (void)addAnnotationsInView {
+    /* 1.重新加载本页之前的所有标记和按钮 */
+    [self reloadAnnotations];
     
-    if (!self.buttonsInView_) {
-        self.buttonsInView_ = [[NSMutableArray alloc] init];
-    }
-    if (!self.annotationsInView_) {
-        self.annotationsInView_ = [[NSMutableArray alloc] init];
-    }
+    /* 2.添加按钮和标记的视图到页面上 */
+    CGFloat tempWidthScaleFactor  = self.frame.size.width  / self.defaultSize.width  * self.iPhone_iPad_Scale;
+    CGFloat tempHeightScaleFactor = self.frame.size.height / self.defaultSize.height * self.iPhone_iPad_Scale;
     
-    CGRect  scaleRect;
-    CGPoint scalePoint;
-    CGFloat tempWidthScaleFactor  = self.frame.size.width  / self.defaultSize.width;
-    CGFloat tempHeightScaleFactor = self.frame.size.height / self.defaultSize.height;
-    
-    tempWidthScaleFactor  *= self.iPhone_iPad_Scale;
-    tempHeightScaleFactor *= self.iPhone_iPad_Scale;
     for (MyPDFAnnotation *pdfAnnotation in self.myPDFPage_.previousAnnotationsForComments) {
-        // 标记视图的位置
-        scalePoint = CGPointMake(pdfAnnotation.pdfButton.defaultFrame.origin.x + pdfAnnotation.annotationView.frame.size.width / 2,
-                                 pdfAnnotation.pdfButton.defaultFrame.origin.y + pdfAnnotation.annotationView.frame.size.height / 2);
+        // 设置标记视图的位置，并添加该视图
+        CGPoint scalePoint = CGPointMake(pdfAnnotation.pdfButton.defaultFrame.origin.x + pdfAnnotation.annotationView.frame.size.width  / 2,
+                                         pdfAnnotation.pdfButton.defaultFrame.origin.y + pdfAnnotation.annotationView.frame.size.height / 2);
         scalePoint.x *= tempWidthScaleFactor;
         scalePoint.y *= tempHeightScaleFactor;
         pdfAnnotation.annotationView.center = scalePoint;
         [self addSubview:pdfAnnotation.annotationView];
-        [self.annotationsInView_ addObject:pdfAnnotation.annotationView];
+        [self.annoViewsInView_ addObject:pdfAnnotation.annotationView];
         
-        // button的位置
-        scaleRect = pdfAnnotation.pdfButton.defaultFrame;
+        // 设置button的位置，并添加该按钮
+        CGRect  scaleRect = pdfAnnotation.pdfButton.defaultFrame;
         scaleRect.origin.x    *= tempWidthScaleFactor;
         scaleRect.origin.y    *= tempHeightScaleFactor;
         scaleRect.size.width  *= tempWidthScaleFactor;
@@ -587,32 +598,20 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     }
 }
 
-/* 重新加载本页的标记 */
-- (void)reloadAnnotations {
-    if (!self.buttonsInView_) {
-        self.buttonsInView_ = [[NSMutableArray alloc] init];
+- (void)showPDFButtonsInView {
+    if (self.buttonsInView_) {
+        for (UIButton *button in self.buttonsInView_) {
+            button.hidden = NO;
+        }
     }
-    for (UIButton *button in self.buttonsInView_) {
-        [button removeFromSuperview];
+}
+
+- (void)hidePDFButtonsInView {
+    if (self.buttonsInView_) {
+        for (UIButton *button in self.buttonsInView_) {
+            button.hidden = YES;
+        }
     }
-    if (self.buttonsInView_.count > 0) {
-        [self.buttonsInView_ removeAllObjects];
-    }
-    
-    if (!self.annotationsInView_) {
-        self.annotationsInView_ = [[NSMutableArray alloc] init];
-    }
-    for (UIView *annotations in self.annotationsInView_) {
-        [annotations removeFromSuperview];
-    }
-    if (self.annotationsInView_.count > 0) {
-        [self.annotationsInView_ removeAllObjects];
-    }
-    
-    self.myPDFPage_.previousAnnotationsForComments = nil;
-    self.myPDFPage_.previousAnnotationsForComments = [[NSMutableArray alloc] init];
-    
-    [self addAnnotationsInView];
 }
 
 #pragma mark - Add Text Comments
@@ -649,61 +648,54 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     if (self.input_textView.text && ![self.input_textView.text isEqualToString:@""]) {
         AppDelegate *appDelegate = APPDELEGATE;
         NSString *filename = appDelegate.cookies.pureFileName;
-        if (self.addTextType == kTxtNew) {
-            // 保存批注并添加批注到页面上
-            [self finishAddingCommentsToPDFView:kAddTextComments];
-            
-            // 保存文字批注内容到文件中
+        
+        if (self.addTextType == kTxtNew) { // 添加新的文字批注
+            [self finishAddingCommentsToPDFView:kAddTextComments]; // 添加批注到页面上和当前批注数组
+            [self saveCommentStrokes];                             // 保存批注到文件
             [TextAnnotation saveInputText:self.input_textView.text
                             PDFAnnotation:self.tempPDFAnnotation_
-                                 toFolder:filename];
-            
-            [self saveCommentStrokes];
-            
-            // 解锁pdf scroll view
-            [self.containerScrollView unlockPDFScrollView];
-            
-            // 通知main pdf view controller完成添加批注
-            [appDelegate.mainPDFViewController main_finishAddingComments];
-            
-            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey];
+                                 toFolder:filename];               // 保存文字批注内容到文件中
+            [self.containerScrollView unlockPDFScrollView];        // 解锁pdf scroll view
+            [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
+            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey]; // 显示批注表格
         }
-        else if (self.addTextType == kTxtAdd) {
-            [self quit_addingComments];
+        else if (self.addTextType == kTxtAdd) { // 在当前文字批注的基础上添加新的文字批注
+            [self quit_addingComments]; // 退出添加批注状态
             
+            // 刷新页面的标记
             for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
                 CommentStroke *stroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
                 if (stroke.buttonKey == appDelegate.mainPDFViewController.allComments.currentButtonKey) {
                     if (!stroke.hasTextAnnotation) {
                         stroke.hasTextAnnotation = YES;
-                        [self reloadAnnotations];
+                        [self.myPDFPage_.previousStrokesForComments removeObjectAtIndex:i];
+                        [self.myPDFPage_.previousStrokesForComments insertObject:stroke atIndex:i];
+                        [self addAnnotationsInView];
                     }
                     break;
                 }
             }
-            
+            [self saveCommentStrokes]; // 保存批注到文件
             [TextAnnotation addNewInputText:self.input_textView.text
                                    toFolder:filename
                                        Page:self.myPDFPage_.pageIndex
-                                        Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
-            
-            [self saveCommentStrokes];
-            [self.containerScrollView unlockPDFScrollView];
-            [appDelegate.mainPDFViewController dismissCommentsView:nil];
-            
-            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
+                                        Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 保存文字批注内容到文件中
+            [self.containerScrollView unlockPDFScrollView]; // 解锁pdf scroll view
+            [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
+            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
+                                       Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
         }
-        else if (self.addTextType == kTxtEdit) {
-            [self quit_addingComments];
+        else if (self.addTextType == kTxtEdit) { // 编辑现存的某个文字批注内容
+            [self quit_addingComments]; // 退出添加批注状态
             [TextAnnotation editInputText:self.input_textView.text
                                  toFolder:filename
                                      Page:self.myPDFPage_.pageIndex
                                       Key:appDelegate.mainPDFViewController.allComments.currentButtonKey
-                                      Row:appDelegate.mainPDFViewController.allComments.currentRow];
-            [self.containerScrollView unlockPDFScrollView];
-            [appDelegate.mainPDFViewController dismissCommentsView:nil];
-            
-            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
+                                      Row:appDelegate.mainPDFViewController.allComments.currentRow]; // 保存修改结果到文件
+            [self.containerScrollView unlockPDFScrollView]; // 解锁pdf scroll view
+            [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
+            [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
+                                       Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
         }
     }
     else {
@@ -716,26 +708,13 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
 - (IBAction)cancel_inputText:(id)sender {
     AppDelegate *appDelegate = APPDELEGATE;
     
-    if (self.addTextType == kTxtNew) {
-        // 1.取消添加批注到页面上
-        [self cancelAddingCommentsToPDFView];
-        
-        // 2.解锁pdf scroll view
-        [self.containerScrollView unlockPDFScrollView];
-        
-        // 3.通知main pdf view controller完成添加批注
-        [appDelegate.mainPDFViewController main_finishAddingComments];
-    }
-    else if (self.addTextType == kTxtAdd) {
-        [self quit_addingComments];
-        [self.containerScrollView unlockPDFScrollView];
-        [appDelegate.mainPDFViewController dismissCommentsView:nil];
-        
-    }
-    else if (self.addTextType == kTxtEdit) {
-        [self quit_addingComments];
-        [self.containerScrollView unlockPDFScrollView];
-        [appDelegate.mainPDFViewController dismissCommentsView:nil];
+    [self cancelAddingCommentsToPDFView];
+    [self.containerScrollView unlockPDFScrollView];
+    [appDelegate.mainPDFViewController main_finishAddingComments];
+    
+    if (self.addTextType == kTxtAdd || self.addTextType == kTxtEdit) {
+        [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
+                                   Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
     }
 }
 
@@ -797,76 +776,57 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     AppDelegate *appDelegate = APPDELEGATE;
     
     if (self.addVoiceType == kVocNew) {
-        // 保存批注并添加批注到页面上
-        [self finishAddingCommentsToPDFView:kAddVoiceComments];
-        
-        // 保存录音文件
-        [self.recorder saveRecordVoiceForPDFAnnotaton:self.tempPDFAnnotation_ toFolder:appDelegate.cookies.pureFileName];
-        
-        [self saveCommentStrokes];
-        
-        // 解锁pdf scroll view
-        [self.containerScrollView unlockPDFScrollView];
-        
-        // 通知main pdf view controller完成添加批注
-        [appDelegate.mainPDFViewController main_finishAddingComments];
-        
-        [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey];
+        [self finishAddingCommentsToPDFView:kAddVoiceComments]; // 保存批注并添加批注到页面上
+        [self saveCommentStrokes]; // 保存批注到文件
+        [self.recorder saveRecordVoiceForPDFAnnotaton:self.tempPDFAnnotation_ toFolder:appDelegate.cookies.pureFileName]; // 保存录音文件
+        [self.containerScrollView unlockPDFScrollView]; // 解锁pdf scroll view
+        [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
+        [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey]; // 显示批注表格
     }
     else if (self.addVoiceType == kVocAdd) {
-        [self quit_addingComments];
+        [self quit_addingComments]; // 退出添加批注状态
         
+        // 刷新页面的标记
         for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
             CommentStroke *stroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
             if (stroke.buttonKey == appDelegate.mainPDFViewController.allComments.currentButtonKey) {
                 if (!stroke.hasVoiceAnnotation) {
                     stroke.hasVoiceAnnotation = YES;
-                    [self reloadAnnotations];
+                    [self.myPDFPage_.previousStrokesForComments removeObjectAtIndex:i];
+                    [self.myPDFPage_.previousStrokesForComments insertObject:stroke atIndex:i];
+                    [self addAnnotationsInView];
                 }
                 break;
             }
         }
-        
+        [self saveCommentStrokes]; // 保存批注到文件
         [self.recorder addNewRecordVoiceToFolder:appDelegate.cookies.pureFileName
                                             Page:self.myPDFPage_.pageIndex
                                              Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
-        
-        [self saveCommentStrokes];
         [self.containerScrollView unlockPDFScrollView];
-        [appDelegate.mainPDFViewController dismissCommentsView:nil];
-        
+        [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
         [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:appDelegate.mainPDFViewController.allComments.currentButtonKey];
     }
     
     [self.record_button setTitle:@"开始录音" forState:UIControlStateNormal];
-    
-    // 解锁pdf scroll view
-    [self.containerScrollView unlockPDFScrollView];
     
     [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:YES];
 }
 
 /* 取消录音 */
 - (IBAction)cancel_record:(id)sender {
+    // 删除录音文件
     [self.recorder unsaveRecordVoice];
     
-    // 1.取消添加批注到页面上
     [self cancelAddingCommentsToPDFView];
-    
-    // 2.解锁pdf scroll view
     [self.containerScrollView unlockPDFScrollView];
-    
-    // 3.通知main pdf view controller完成添加批注
     AppDelegate *appDelegate = APPDELEGATE;
-    if (self.addVoiceType == kVocNew) {
-        [appDelegate.mainPDFViewController main_finishAddingComments];
-    }
-    else if (self.addVoiceType == kVocAdd) {
-        [appDelegate.mainPDFViewController dismissCommentsView:nil];
-    }
+    [appDelegate.mainPDFViewController main_finishAddingComments];
     
-    // 解锁pdf scroll view
-    [self.containerScrollView unlockPDFScrollView];
+    if (self.addVoiceType == kVocAdd) {
+        [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
+                                   Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
+    }
     
     [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:YES];
 }

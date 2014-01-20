@@ -10,6 +10,23 @@
 
 @interface Stroke : NSObject <NSCoding>
 
+/*
+ * 笔注的数据结构
+ * previousDrawStrokes / currentDrawStrokes : (Array) [
+ 
+ draw_Stroke0 : (Stroke) (
+ draw_strokePoints : (Array)
+ draw_strokeColor  : (UIColor)
+ draw_strokeWidth  : (CGFloat)
+ )
+ 
+ draw_Stroke1 : (Stroke) (
+ ...
+ )
+ 
+ * ]
+ */
+
 @property (strong, nonatomic) NSMutableArray *points;
 
 @property (strong, nonatomic) UIColor *color;

@@ -103,12 +103,13 @@
 /* 在视图中加载pdf标记 */
 - (void)addAnnotationsInView;
 
-/* 重新加载pdf标记 */
-- (void)reloadAnnotations;
-
 /* 打开表格时添加新的批注 */
 - (void)addNewTextComments;
 - (void)editTextComments;
 - (void)addNewVoiceComments;
+
+/* 显示或隐藏页面上的按钮 */
+- (void)showPDFButtonsInView;
+- (void)hidePDFButtonsInView;
 
 @end

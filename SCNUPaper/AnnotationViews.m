@@ -27,15 +27,17 @@ const NSInteger kTxtAnno    = 1;
 const NSInteger kVocAnno    = 2;
 const NSInteger kTxtVocAnno = 3;
 
+const CGFloat ANNO_SIZE = 30.0;
+
 #pragma mark - Initialization
 
 - (id)init {
     self = [super init];
     
     if (self) {
-        CGRect rect0 = CGRectMake(0.0, 0.0, 60.0, 30.0);
-        CGRect rect1 = CGRectMake(0.0, 0.0, 30.0, 30.0);
-        CGRect rect2 = CGRectMake(30.0, 0.0, 30.0, 30.0);
+        CGRect rect0 = CGRectMake(0.0, 0.0, ANNO_SIZE * 2, ANNO_SIZE);
+        CGRect rect1 = CGRectMake(0.0, 0.0, ANNO_SIZE, ANNO_SIZE);
+        CGRect rect2 = CGRectMake(ANNO_SIZE, 0.0, ANNO_SIZE, ANNO_SIZE);
         
         UIImage *textImage  = [UIImage imageNamed:@"addText.png"];
         UIImage *voiceImage = [UIImage imageNamed:@"addVoice.jpg"];

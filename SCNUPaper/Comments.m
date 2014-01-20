@@ -87,14 +87,11 @@ static NSString *kCellIdentifier = @"Cell";
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
+    if (editingStyle == UITableViewCellEditingStyleDelete) { // 删除批注
         AppDelegate *appDelegate = APPDELEGATE;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL showComments = YES;
         
-        [appDelegate.mainPDFViewController dismissCommentsView:nil];
-        
-        /* 删除批注 */
         if (indexPath.section == 0) {
             // 1.获取文件路径，文件名：PageIndex_CommentAnnotationKey_text.plist
             NSString *fileName = [NSString stringWithFormat:@"%zu_%d_text.plist", self.currentPageIndex, self.currentButtonKey];
@@ -150,37 +147,38 @@ static NSString *kCellIdentifier = @"Cell";
                     }
                 }
             }
-            if (self.textComments.count == 0) {
-                stroke.hasTextAnnotation = NO;
-            }
-            if (self.voiceComments.count == 0) {
-                stroke.hasVoiceAnnotation = NO;
-            }
             
-            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:strokesArray];
-            mdata = [[NSMutableData alloc] initWithData:data];
-            [appDelegate.filePersistence saveMutableData:mdata ToFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
-            
+            // 如果当前批注内容为空，就移除该批注
             if (self.textComments.count + self.voiceComments.count == 0) {
                 [strokesArray removeObjectAtIndex:i];
-                
-                // 保存笔画和笔画按钮的边界到文件中
-                NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:strokesArray];
-                NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
-                
-                [appDelegate.filePersistence saveMutableData:mdata
-                                                      ToFile:strokesFileName
-                                     inDocumentWithDirectory:strokesFileDirectory];
                 
                 // 刷新tiledPDFScrollView，取消文字的高亮状态，并移除按钮
                 [appDelegate.mainPDFViewController.viewsForThesisPages[self.currentPageIndex - 1] refreshTiledPDFView];
                 
                 showComments = NO;
             }
+            else { // 否则修改批注状态
+                if (self.textComments.count == 0) {
+                    stroke.hasTextAnnotation = NO;
+                }
+                if (self.voiceComments.count == 0) {
+                    stroke.hasVoiceAnnotation = NO;
+                }
+                [strokesArray removeObjectAtIndex:i];
+                [strokesArray insertObject:stroke atIndex:i];
+            }
+            
+            // 保存CommentStroke数据到文件中
+            NSData *data  = [NSKeyedArchiver archivedDataWithRootObject:strokesArray];
+            mdata = [[NSMutableData alloc] initWithData:data];
+            [appDelegate.filePersistence saveMutableData:mdata
+                                                  ToFile:strokesFileName
+                                 inDocumentWithDirectory:strokesFileDirectory];
             
             appDelegate.mainPDFViewController.hasEdited = YES;
         }
         
+        // 如果批注内容还没被清空，就显示批注列表
         if (showComments) {
             [Comments showCommentsWithPage:self.currentPageIndex Key:self.currentButtonKey];
         }

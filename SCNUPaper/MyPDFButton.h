@@ -22,4 +22,6 @@
 
 - (void)addTargetForButton;
 
+- (void)removeTargetFromButton;
+
 @end

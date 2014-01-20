@@ -204,9 +204,6 @@ void create_drawCommentFrame(CGContextRef context, NSString *frame, NSInteger ty
 }
 
 void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
-    CGContextSaveGState(context);
-    CGContextTranslateCTM(context, 0.0, -tempHeight);
-    CGContextScaleCTM(context, 1.0, -1.0);
     CGRect rect1 = CGRectMake(rect.origin.x, rect.origin.y, ANNO_SIZE, ANNO_SIZE);
     CGRect rect2 = CGRectMake(rect.origin.x + ANNO_SIZE, rect.origin.y, ANNO_SIZE, ANNO_SIZE);
     
@@ -220,7 +217,6 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
         CGContextDrawImage(context, rect1, [ADD_TEXT_IMG CGImage]);
         CGContextDrawImage(context, rect2, [ADD_VOICE_IMG CGImage]);
     }
-    CGContextRestoreGState(context);
 }
 
 - (void)uploadFilesToServer {

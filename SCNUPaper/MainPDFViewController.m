@@ -445,10 +445,11 @@ const  CGFloat   kStopButtonLoc = 60.0;
 #pragma mark - Check Comments
 
 - (void)checkComments {
-    self.viewForCheckComments.hidden = NO;
-    self.viewForCommentDetails.hidden = YES;
     [self lockThesisPagesView];
     [self.checkCommentsTable reloadData];
+    self.viewForCheckComments.hidden = NO;
+    self.viewForCommentDetails.hidden = YES;
+    self.addNewComments_Menu.hidden = YES;
 }
 
 - (IBAction)dismissCommentsView:(id)sender {
@@ -464,16 +465,16 @@ const  CGFloat   kStopButtonLoc = 60.0;
 }
 
 - (IBAction)addNewTextComments:(id)sender {
+    [self lockThesisPagesView];
     self.viewForCheckComments.hidden = YES;
     self.addNewComments_Menu.hidden = YES;
-    [self lockThesisPagesView];
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewTextComments];
 }
 
 - (IBAction)addNewVoiceComments:(id)sender {
+    [self lockThesisPagesView];
     self.viewForCheckComments.hidden = YES;
     self.addNewComments_Menu.hidden = YES;
-    [self lockThesisPagesView];
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewVoiceComments];
 }
 

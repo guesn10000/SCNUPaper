@@ -37,6 +37,10 @@
     [self.myButton addTarget:self action:@selector(showComments) forControlEvents:UIControlEventTouchUpInside];
 }
 
+- (void)removeTargetFromButton {
+    [self.myButton removeTarget:self action:@selector(showComments) forControlEvents:UIControlEventTouchUpInside];
+}
+
 - (void)showComments {
     [Comments showCommentsWithPage:self.pageIndex Key:self.buttonKey];
 }
