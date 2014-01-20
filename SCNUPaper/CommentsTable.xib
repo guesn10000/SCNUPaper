@@ -14,7 +14,7 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view alpha="0.74999999999999978" contentMode="scaleToFill" id="AQA-y4-9dF">
+        <view alpha="0.90000000000000002" contentMode="scaleToFill" id="AQA-y4-9dF">
             <rect key="frame" x="0.0" y="0.0" width="768" height="404"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>

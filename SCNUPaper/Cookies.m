@@ -61,6 +61,13 @@
     }
 }
 
+- (void)cookiesQuitLogin {
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@"NO" forKey:SHOULD_LOGIN_AUTOMATICALLY];
+    [userDefaults synchronize];
+    
+}
+
 #pragma mark - Set file names
 
 - (void)setFileNamesWithDOCFileName:(NSString *)docFileName {

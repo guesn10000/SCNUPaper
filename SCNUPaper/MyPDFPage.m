@@ -97,16 +97,28 @@
     
     NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.pageIndex];
     NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
-    self.previousStrokesForComments = [appDelegate.filePersistence loadMutableArrayFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
-    self.previousAnnotationsForComments = nil;
-    self.previousAnnotationsForComments = [[NSMutableArray alloc] init];
-    for (CommentStroke *stroke in self.previousStrokesForComments) {
-        MyPDFAnnotation *tempPDFAnnotation = [[MyPDFAnnotation alloc] initWithFrames:stroke.frames
-                                                                                 Key:stroke.buttonKey
-                                                                           PageIndex:self.pageIndex
-                                                                      TextAnnotation:stroke.hasTextAnnotation
-                                                                     VoiceAnnotation:stroke.hasVoiceAnnotation];
-        [self.previousAnnotationsForComments addObject:tempPDFAnnotation];
+    NSMutableData *mcdata = [appDelegate.filePersistence loadMutableDataFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
+    if (mcdata) {
+        @try {
+            self.previousStrokesForComments = [NSKeyedUnarchiver unarchiveObjectWithData:mcdata];
+            if (!self.previousAnnotationsForComments) {
+                self.previousAnnotationsForComments = [[NSMutableArray alloc] init];
+            }
+            for (CommentStroke *stroke in self.previousStrokesForComments) {
+                MyPDFAnnotation *tempPDFAnnotation = [[MyPDFAnnotation alloc] initWithFrames:stroke.frames
+                                                                                         Key:stroke.buttonKey
+                                                                                   PageIndex:self.pageIndex
+                                                                              TextAnnotation:stroke.hasVoiceAnnotation
+                                                                             VoiceAnnotation:stroke.hasVoiceAnnotation];
+                [self.previousAnnotationsForComments addObject:tempPDFAnnotation];
+            }
+        }
+        @catch (NSException *exception) {
+            NSLog(@"%@", exception);
+        }
+        @finally {
+            
+        }
     }
 }
 

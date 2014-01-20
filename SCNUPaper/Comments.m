@@ -90,6 +90,7 @@ static NSString *kCellIdentifier = @"Cell";
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         AppDelegate *appDelegate = APPDELEGATE;
         NSFileManager *fileManager = [NSFileManager defaultManager];
+        BOOL showComments = YES;
         
         [appDelegate.mainPDFViewController dismissCommentsView:nil];
         
@@ -163,11 +164,25 @@ static NSString *kCellIdentifier = @"Cell";
             if (self.textComments.count + self.voiceComments.count == 0) {
                 [strokesArray removeObjectAtIndex:i];
                 
+                // 保存笔画和笔画按钮的边界到文件中
+                NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:strokesArray];
+                NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
+                
+                [appDelegate.filePersistence saveMutableData:mdata
+                                                      ToFile:strokesFileName
+                                     inDocumentWithDirectory:strokesFileDirectory];
+                
                 // 刷新tiledPDFScrollView，取消文字的高亮状态，并移除按钮
                 [appDelegate.mainPDFViewController.viewsForThesisPages[self.currentPageIndex - 1] refreshTiledPDFView];
+                
+                showComments = NO;
             }
             
             appDelegate.mainPDFViewController.hasEdited = YES;
+        }
+        
+        if (showComments) {
+            [Comments showCommentsWithPage:self.currentPageIndex Key:self.currentButtonKey];
         }
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {

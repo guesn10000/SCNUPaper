@@ -281,12 +281,9 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [mailViewController setMessageBody:@"批改的论文已附在下列附件，如果想查看老师的批注，请使用\"论文批阅系统\"打开查看" isHTML:NO];
     
     // 4.添加附件
-    if (self.hasEdited) {
-        MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
-        [pdfCreator createNewPDFFile];
-        [pdfCreator uploadFilesToServer];
-        self.hasEdited = NO;
-    }
+    MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
+    [pdfCreator createNewPDFFile];
+    [pdfCreator uploadFilesToServer];
     
     NSString *folderDirectory = appDelegate.cookies.getPDFFolderDirectory;
     folderDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];

@@ -387,6 +387,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 
 - (IBAction)quitLogin:(id)sender {
     AppDelegate *appDelegate = APPDELEGATE;
+    [appDelegate.cookies cookiesQuitLogin];
     appDelegate.cookies = nil;
     appDelegate.urlConnector = nil;
     appDelegate.urlConnector = [[URLConnector alloc] init];

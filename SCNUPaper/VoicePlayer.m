@@ -80,6 +80,7 @@
     self.player = nil;  // 释放player
     
     AppDelegate *appDelegate = APPDELEGATE;
+    appDelegate.mainPDFViewController.stopPlaying_button.hidden = YES;
     appDelegate.mainPDFViewController.view.userInteractionEnabled = YES;
     appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
 }

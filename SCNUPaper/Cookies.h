@@ -21,6 +21,7 @@
 - (id)initWithUsername:(NSString *)username Password:(NSString *)password;
 
 - (void)saveUserInfo;
+- (void)cookiesQuitLogin;
 
 /* 文件名参数 */
 @property (strong, nonatomic) NSString *docFileName;

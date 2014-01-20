@@ -25,9 +25,6 @@
 #import "PDFScrollView.h"
 #import "MainPDFViewController.h"
 
-#import "JCLog.h"
-
-
 @interface TiledPDFView ()
 
 /* PDF页面参数 */
@@ -159,8 +156,8 @@ const NSInteger kVocAdd  = 2;
         tiledLayer.tileSize           = (IS_IPAD) ? CGSizeMake(1024.0, 1024.0) : CGSizeMake(512.0, 512.0);
         
         // 为了解决涂鸦卡顿问题而引入的一个图片视图
-        self.screenCapture = [[UIImageView alloc] initWithFrame:self.bounds];
-        [self.screenCapture setImage:nil];
+        self.screenCapture = [[UIImageView alloc] initWithImage:nil];
+        self.screenCapture.frame = self.bounds;
         [self addSubview:self.screenCapture];
         
         // 设置添加批注菜单
@@ -286,27 +283,7 @@ const NSInteger kVocAdd  = 2;
     CGContextSaveGState(context);
     
     // 笔注部分
-    Stroke *stroke = [self.myPDFPage_.currentDrawStrokes lastObject];
-    NSMutableArray *points = stroke.points;
-    UIColor        *color  = stroke.color;
-    CGFloat         width  = stroke.width;
-    if (points && points.count > 0) {
-        UIBezierPath *linesPath = [UIBezierPath bezierPath];
-        CGPoint startPoint = CGPointFromString(points[0]);
-        [linesPath moveToPoint:startPoint];
-        
-        for (int i = 1; i < points.count; i++) {
-            CGPoint nextPoint = CGPointFromString(points[i]);
-            [linesPath addLineToPoint:nextPoint];
-        }
-        
-        CGContextAddPath(context, linesPath.CGPath);
-        CGContextSetStrokeColorWithColor(context, color.CGColor);
-        CGContextSetLineWidth(context, width);
-        CGContextSetLineCap(context, kCGLineCapRound);
-        CGContextSetLineJoin(context, kCGLineJoinRound);
-        CGContextDrawPath(context, kCGPathStroke);
-    }
+    drawDrawStrokes(context, self.myPDFPage_.currentDrawStrokes);
     
     // 批注部分
     CGRect rect = CGRectFromString([self.commStrkFrames_ lastObject]);
@@ -923,7 +900,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     if (!self.commentsMenu.hidden) {
-        self.commentsMenu.hidden = YES;
+        return;
     }
     
     if (self.editType_ == kAddStrokes) {
@@ -945,6 +922,9 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         self.beginPoint_ = [[touches anyObject] locationInView:self];
         if (!self.commStrkFrames_) {
             self.commStrkFrames_ = [[NSMutableArray alloc] init];
+        }
+        if (self.commStrkFrames_.count > 0) {
+            [self.commStrkFrames_ removeAllObjects];
         }
         [self.commStrkFrames_ addObject:NSStringFromCGRect(CGRectZero)];
     }
@@ -1008,7 +988,7 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     if (self.editType_ == kAddStrokes) { // 添加笔注状态
         return;
     }
-    else if (self.editType_ == kAddComments && ![JCPoint isPoint:self.beginPoint_ EqualsToPoint:self.endPoint_]) {
+    else if (self.editType_ == kAddComments) {
         // 记录手势终点
         self.endPoint_ = [[touches anyObject] locationInView:self];
         
