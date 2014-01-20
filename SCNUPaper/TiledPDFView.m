@@ -145,7 +145,7 @@ const NSInteger kVocAdd  = 2;
         
         /* 3.初始化添加批注参数 */
         
-        self.commStrkFrames_                      = [[NSMutableArray alloc] init];
+        self.commStrkFrames_ = [[NSMutableArray alloc] init];
         self.addTextType  = kTxtNone;
         self.addVoiceType = kVocNone;
         
@@ -273,6 +273,8 @@ const NSInteger kVocAdd  = 2;
 
 /* 刷新屏幕截图 */
 - (void)updateScreenCapture {
+    self.screenCapture.image = nil;
+    
     // 获取屏幕截图
     UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 1.5f);
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -284,15 +286,37 @@ const NSInteger kVocAdd  = 2;
     CGContextSaveGState(context);
     
     // 笔注部分
-    drawDrawStrokes(context, self.myPDFPage_.currentDrawStrokes);
+    Stroke *stroke = [self.myPDFPage_.currentDrawStrokes lastObject];
+    NSMutableArray *points = stroke.points;
+    UIColor        *color  = stroke.color;
+    CGFloat         width  = stroke.width;
+    if (points && points.count > 0) {
+        UIBezierPath *linesPath = [UIBezierPath bezierPath];
+        CGPoint startPoint = CGPointFromString(points[0]);
+        [linesPath moveToPoint:startPoint];
+        
+        for (int i = 1; i < points.count; i++) {
+            CGPoint nextPoint = CGPointFromString(points[i]);
+            [linesPath addLineToPoint:nextPoint];
+        }
+        
+        CGContextAddPath(context, linesPath.CGPath);
+        CGContextSetStrokeColorWithColor(context, color.CGColor);
+        CGContextSetLineWidth(context, width);
+        CGContextSetLineCap(context, kCGLineCapRound);
+        CGContextSetLineJoin(context, kCGLineJoinRound);
+        CGContextDrawPath(context, kCGPathStroke);
+    }
     
     // 批注部分
-    for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
-        CommentStroke *commStroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
-        NSMutableArray *frames = commStroke.frames;
-        drawCommentFrames(context, frames);
-    }
-    drawCommentFrames(context, self.commStrkFrames_);
+    CGRect rect = CGRectFromString([self.commStrkFrames_ lastObject]);
+    CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
+    CGContextAddRect(context, rect);
+    CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
+    CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+    CGContextDrawPath(context, kCGPathFill);
     
     CGContextRestoreGState(context);
     
@@ -452,13 +476,18 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     
     // 5.更新视图
     self.screenCapture.image = nil;
-    [self setNeedsDisplay];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setNeedsDisplay];
+    });
 }
 
 /* 取消添加笔注 */
 - (void)cancelAddingStrokesToPDFView {
     // 1.刷新当前页面
     self.screenCapture.image = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setNeedsDisplay];
+    });
     
     // 2.取消添加笔注状态
     self.editType_ = kAddEmpty;
@@ -516,6 +545,9 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
     self.commStrkFrames_ = nil;
     
     self.screenCapture.image = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setNeedsDisplay];
+    });
 }
 
 - (void)saveCommentStrokes {
@@ -937,9 +969,6 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
                                                      Width:self.draw_strokeWidth_];
         [self.myPDFPage_.currentDrawStrokes removeLastObject];
         [self.myPDFPage_.currentDrawStrokes addObject:self.draw_Stroke_];
-        
-        // 刷新屏幕截图
-        [self updateScreenCapture];
     }
     else if (self.editType_ == kAddComments) {
         // 记录当前的移动点
@@ -958,13 +987,13 @@ void drawCommentFrames(CGContextRef context, NSMutableArray *frames) {
         defaultRect.size.height *= self.heightScaleFactor_;
         [self.commStrkFrames_ removeLastObject];
         [self.commStrkFrames_ addObject:NSStringFromCGRect(defaultRect)];
-        
-        // 刷新页面
-        [self updateScreenCapture];
     }
     else {
         return;
     }
+    
+    // 刷新屏幕截图
+    [self updateScreenCapture];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
