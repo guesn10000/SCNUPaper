@@ -68,15 +68,14 @@ const CGFloat kMinimumZoomScale = 0.5;
                                          (CGFloat)pageBoxRect.size.height / (IPAD_SCREEN_HEIGHT - STATUS_NAVIGATIONBAR_HEIGHT - TOOLBAR_HEIGHT)
                                          );
         }
+        self.myPDFPage.convertScale = self.iPhone_iPad_Scale;
         
         
         /* 添加TiledPDFView */
         
         self.tiledPDFView_ = [[TiledPDFView alloc] initWithFrame:pageBoxRect MyPDFPage:self.myPDFPage];
         self.tiledPDFView_.containerScrollView  = self;
-        [self.tiledPDFView_ setDefaultScalesWithScale:self.defaultScale_
-                                                 Size:self.defaultSize_
-                                         ConvertScale:self.iPhone_iPad_Scale];
+        [self.tiledPDFView_ setDefaultScalesWithScale:self.defaultScale_ ConvertScale:self.iPhone_iPad_Scale];
         [self addSubview:self.tiledPDFView_];
         [self.tiledPDFView_ addAnnotationsInView];
     }

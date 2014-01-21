@@ -16,6 +16,8 @@
 
 @property (assign, nonatomic) size_t pageIndex;
 
+@property (assign, nonatomic) CGFloat convertScale;
+
 - (id)initWithDocument:(CGPDFDocumentRef)pdfDocument PageIndex:(size_t)pageIndex;
 
 - (void)reloadPDFPage;

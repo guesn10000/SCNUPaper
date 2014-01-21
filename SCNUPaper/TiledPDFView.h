@@ -25,14 +25,13 @@
 
 /* pdf页面的默认参数 */
 @property (assign, nonatomic) CGFloat defaultScale;      // 默认缩放比例
-@property (assign, nonatomic) CGSize  defaultSize;       // 默认尺寸
 @property (assign, nonatomic) CGFloat iPhone_iPad_Scale; // 从iPad视图过渡到iPhone或iPad视图的缩放比例
 
 /* 指向上层视图 */
 @property (weak, nonatomic) PDFScrollView *containerScrollView;
 
 /* 设置视图横向和纵向缩放的比例 */
-- (void)setDefaultScalesWithScale:(CGFloat)defaultScale Size:(CGSize)defaultSize ConvertScale:(CGFloat)convertScale;
+- (void)setDefaultScalesWithScale:(CGFloat)defaultScale ConvertScale:(CGFloat)convertScale;
 
 
 /// Base Views

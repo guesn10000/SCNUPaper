@@ -86,6 +86,7 @@
             }
             for (CommentStroke *stroke in self.previousStrokesForComments) {
                 MyPDFAnnotation *tempPDFAnnotation = [[MyPDFAnnotation alloc] initWithFrame:stroke.frame
+                                                                                      Scale:self.convertScale
                                                                                         Key:stroke.buttonKey
                                                                                   PageIndex:self.pageIndex
                                                                              TextAnnotation:stroke.hasVoiceAnnotation

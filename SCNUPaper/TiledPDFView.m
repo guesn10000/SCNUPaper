@@ -182,9 +182,8 @@ const NSInteger kVocAdd  = 2;
     return [CATiledLayer class];
 }
 
-- (void)setDefaultScalesWithScale:(CGFloat)defaultScale Size:(CGSize)defaultSize ConvertScale:(CGFloat)convertScale {
+- (void)setDefaultScalesWithScale:(CGFloat)defaultScale ConvertScale:(CGFloat)convertScale {
     self.defaultScale = defaultScale;
-    self.defaultSize = defaultSize;
     self.iPhone_iPad_Scale = convertScale;
 }
 
@@ -420,6 +419,7 @@ const NSInteger kVocAdd  = 2;
     self.myPDFPage_.previousAnnotationsForComments = [[NSMutableArray alloc] init];
     for (CommentStroke *stroke in self.myPDFPage_.previousStrokesForComments) {
         self.tempPDFAnnotation_ = [[MyPDFAnnotation alloc] initWithFrame:stroke.frame
+                                                                   Scale:self.iPhone_iPad_Scale
                                                                      Key:stroke.buttonKey
                                                                PageIndex:self.myPDFPage_.pageIndex
                                                           TextAnnotation:stroke.hasTextAnnotation

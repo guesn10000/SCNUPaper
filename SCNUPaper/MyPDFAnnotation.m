@@ -22,6 +22,7 @@
 #pragma mark - Initialization
 
 - (id)initWithFrame:(NSString *)frame
+              Scale:(CGFloat)convertScale
                 Key:(NSUInteger)keyNumber
           PageIndex:(size_t)pageIndex
      TextAnnotation:(BOOL)textAnno
@@ -34,6 +35,12 @@
         self.commentAnnotationKey = keyNumber;
         self.inPageIndex = pageIndex;
         CGRect rect = CGRectFromString(frame);
+        if (IS_IPHONE) {
+            rect.origin.x    *= convertScale;
+            rect.origin.y    *= convertScale;
+            rect.size.width  *= convertScale;
+            rect.size.height *= convertScale;
+        }
         
         NSInteger type = 0;
         if (textAnno && voiceAnno) {

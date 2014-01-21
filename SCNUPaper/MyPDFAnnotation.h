@@ -24,6 +24,7 @@
 @property (strong, nonatomic) AnnotationView *annotationView;
 
 - (id)initWithFrame:(NSString *)frame
+              Scale:(CGFloat)convertScale
                 Key:(NSUInteger)keyNumber
           PageIndex:(size_t)pageIndex
      TextAnnotation:(BOOL)textAnno
