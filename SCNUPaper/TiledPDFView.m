@@ -863,6 +863,10 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (!self.commentsMenu.hidden) {
+        return;
+    }
+    
     if (self.editType_ == kAddStrokes) {
         // 记录当前的移动点
         CGPoint currentPoint = [[touches anyObject] locationInView:self];
@@ -913,6 +917,10 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
 }
 
 - (void)touchesEnded_Cancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (!self.commentsMenu.hidden) {
+        return;
+    }
+    
     if (self.editType_ == kAddStrokes) { // 添加笔注状态
         return;
     }
