@@ -178,22 +178,29 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 - (void)openFileURL {
     // 1.获取文件名
     AppDelegate *appDelegate = APPDELEGATE;
-    NSString *filename = [appDelegate.fileURL lastPathComponent];
     
-    // 2.打开下载的文件
-    if ([filename hasSuffix:DOC_SUFFIX]) {
-        [appDelegate.cookies setFileNamesWithDOCFileName:filename];
-        
-        // 上传doc文件到服务器进行转换
-        [self uploadFileWithSuffix:DOC_SUFFIX];
-    }
-    else if ([filename hasSuffix:PDF_SUFFIX]) {
-        [appDelegate.cookies setFileNamesWithPDFFileName:filename];
-        [self uploadFileWithSuffix:PDF_SUFFIX];
-    }
-    else {
-        [JCAlert alertWithMessage:@"打开文件失败，该文件格式不是doc或pdf"];
-    }
+    /***********************************************************************/
+    NSString *filename = @"中国的绘画精神.pdf";
+    [appDelegate.cookies setFileNamesWithPDFFileName:filename];
+    [self openPDFFile];
+    /***********************************************************************/
+    
+//    NSString *filename = [appDelegate.fileURL lastPathComponent];
+//    
+//    // 2.打开下载的文件
+//    if ([filename hasSuffix:DOC_SUFFIX]) {
+//        [appDelegate.cookies setFileNamesWithDOCFileName:filename];
+//        
+//        // 上传doc文件到服务器进行转换
+//        [self uploadFileWithSuffix:DOC_SUFFIX];
+//    }
+//    else if ([filename hasSuffix:PDF_SUFFIX]) {
+//        [appDelegate.cookies setFileNamesWithPDFFileName:filename];
+//        [self uploadFileWithSuffix:PDF_SUFFIX];
+//    }
+//    else {
+//        [JCAlert alertWithMessage:@"打开文件失败，该文件格式不是doc或pdf"];
+//    }
 }
 
 #pragma mark - Upload Files
@@ -289,11 +296,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
                         FromServerInFolder:appDelegate.cookies.pureFileName];
 }
 
-/* 获取下载成功的zip数据
- *
- * 参数
- * zipData : 由DownloadHanler回传
- */
+/* 获取下载成功的zip数据，zipData : 由DownloadHanler回传 */
 - (void)getDownload_ZIP_Data:(NSMutableData *)zipData {
     if (zipData && zipData.length > 0) {
         AppDelegate *appDelegate = APPDELEGATE;
@@ -325,11 +328,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
                         FromServerInFolder:appDelegate.cookies.pureFileName];
 }
 
-/* 获取下载成功的pdf数据
- *
- * 参数
- * pdfData : 由DownloadHanler回传
- */
+/* 获取下载成功的pdf数据，pdfData : 由DownloadHanler回传 */
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData {
     if (pdfData && pdfData.length > 0) {
         AppDelegate *appDelegate = APPDELEGATE;
@@ -353,7 +352,20 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     NSMutableDictionary *openInfo = [[NSMutableDictionary alloc] init];
     
     // 文件名
-    NSString *filename = appDelegate.fileURL.lastPathComponent;
+//    NSString *filename = appDelegate.fileURL.lastPathComponent;
+    
+    
+    
+    
+    /****************************************************************/
+    NSString *filename = appDelegate.cookies.pdfFileName;
+    /****************************************************************/
+    
+    
+    
+    
+    
+    
     [openInfo setObject:filename forKey:kLatest_FileName];
     
     // 生成时间戳
@@ -386,12 +398,19 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 #pragma mark - Quit Login
 
 - (IBAction)quitLogin:(id)sender {
-    AppDelegate *appDelegate = APPDELEGATE;
-    [appDelegate.cookies cookiesQuitLogin];
-    appDelegate.cookies = nil;
-    appDelegate.urlConnector = nil;
-    appDelegate.urlConnector = [[URLConnector alloc] init];
-    [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
+//    AppDelegate *appDelegate = APPDELEGATE;
+//    [appDelegate.cookies cookiesQuitLogin];
+//    appDelegate.cookies = nil;
+//    appDelegate.urlConnector = nil;
+//    appDelegate.urlConnector = [[URLConnector alloc] init];
+//    [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
+    
+    
+    
+    
+    /************************************************************/
+    [self openFileURL];
+    /************************************************************/
 }
 
 @end

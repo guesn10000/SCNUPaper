@@ -13,6 +13,10 @@
 #import "Cookies.h"
 #import "JCAlert.h"
 
+/***********************************************************************/
+#import "LatestViewController.h"
+/***********************************************************************/
+
 #define SEL_RADIO_IMG      [UIImage imageNamed:@"RadioButton-Selected.png"]
 #define UNSEL_RADIO_IMG    [UIImage imageNamed:@"RadioButton-Unselected.png"]
 #define SEL_CHECKBOX_IMG   [UIImage imageNamed:@"cb_glossy_on.png"]
@@ -138,7 +142,19 @@
     if ([self.input_username_textField.text isEqual:TEMP_USERNAME] &&
         [self.input_password_textField.text isEqual:TEMP_PASSWORD]) {
         AppDelegate *appDelegate = APPDELEGATE;
-        [appDelegate.urlConnector loginWithUsername:self.input_username_textField.text Password:self.input_password_textField.text];
+//        [appDelegate.urlConnector loginWithUsername:self.input_username_textField.text Password:self.input_password_textField.text];
+        
+        
+        /***********************************************************************/
+        // 设置好参数并保存用户的临时信息
+        appDelegate.urlConnector.isLoginSucceed = YES;
+        appDelegate.cookies = [[Cookies alloc] initWithUsername:TEMP_USERNAME Password:TEMP_PASSWORD];
+        appDelegate.cookies.isTeacher = appDelegate.loginViewController.isTeacher;
+        [appDelegate.cookies saveUserInfo];
+        
+        // push LatestViewController进栈
+        [appDelegate.loginViewController.navigationController pushViewController:appDelegate.latestViewController animated:YES];
+        /***********************************************************************/
     }
     else {
         [JCAlert alertWithMessage:@"登陆失败，请检查您的用户名密码是否正确"];
