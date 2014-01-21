@@ -19,9 +19,6 @@
 
 @property (strong, nonatomic) MyPDFPage *myPDFPage;
 
-/* 当前页面的缩放倍数 */
-@property (assign, nonatomic) CGFloat pageScale;
-
 /* iPhone视图到iPad视图之间的转换参数 */
 @property (assign, nonatomic) CGFloat iPhone_iPad_Scale;
 

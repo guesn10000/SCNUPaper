@@ -51,14 +51,12 @@ const CGFloat kMinimumZoomScale = 0.5;
         CGRect pageBoxRect = CGPDFPageGetBoxRect(self.myPDFPage.pdfPageRef, kCGPDFMediaBox);
         
         // 设置默认的页面比例
-        self.pageScale     = MIN(self.frame.size.width  / pageBoxRect.size.width,
-                                 self.frame.size.height / pageBoxRect.size.height
-                                 );
-        self.defaultScale_ = self.pageScale;
+        self.defaultScale_ = MIN(self.frame.size.width  / pageBoxRect.size.width,
+                                 self.frame.size.height / pageBoxRect.size.height);
         
         // 设置默认的页面尺寸
-        pageBoxRect.size  = CGSizeMake(pageBoxRect.size.width  * self.pageScale,
-                                       pageBoxRect.size.height * self.pageScale);
+        pageBoxRect.size  = CGSizeMake(pageBoxRect.size.width  * self.defaultScale_,
+                                       pageBoxRect.size.height * self.defaultScale_);
         self.defaultSize_ = pageBoxRect.size;
         
         // 设置iPhone到iPad视图之间的转换参数
@@ -75,7 +73,7 @@ const CGFloat kMinimumZoomScale = 0.5;
         /* 添加TiledPDFView */
         
         self.tiledPDFView_ = [[TiledPDFView alloc] initWithFrame:pageBoxRect
-                                                           Scale:self.pageScale
+                                                           Scale:self.defaultScale_
                                                        MyPDFPage:self.myPDFPage];
         
         [self addSubview:self.tiledPDFView_];
@@ -145,14 +143,8 @@ const CGFloat kMinimumZoomScale = 0.5;
 }
 
 /* 设置缩放后的参数 */
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-    self.pageScale *= scale;
-    
-    CGRect pageBoxRect = CGPDFPageGetBoxRect(self.myPDFPage.pdfPageRef, kCGPDFMediaBox);
-    pageBoxRect.size = CGSizeMake(pageBoxRect.size.width  * self.pageScale,
-                                  pageBoxRect.size.height * self.pageScale
-                                  );
-    [self.tiledPDFView_ resetDefaultsWithFrame:pageBoxRect Scale:self.pageScale];
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
+{
 }
 
 /* 锁定PDFScrollView：不可滚动，不可缩放 */

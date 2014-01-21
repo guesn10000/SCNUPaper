@@ -107,7 +107,6 @@ const NSInteger kVocAdd  = 2;
     
     if (self) {
         /* 1.设置基本参数 */
-        
         // pdf页面相关
         self.tiledScale_ = scale;
         self.myPDFPage_  = myPDFPage;
@@ -118,7 +117,6 @@ const NSInteger kVocAdd  = 2;
         
         
         /* 2.初始化添加笔注参数 */
-        
         self.editType_ = kAddEmpty;
         self.draw_strokePoints_ = [[NSMutableArray alloc] init];
         self.draw_strokeColor_  = [UIColor blackColor];
@@ -204,14 +202,6 @@ const NSInteger kVocAdd  = 2;
 
 /* 重置一些基本属性 */
 - (void)setScales {
-    self.widthScaleFactor_  = self.defaultSize.width  / self.frame.size.width;
-    self.heightScaleFactor_ = self.defaultSize.height / self.frame.size.height;
-}
-
-/* 重置指定参数 */
-- (void)resetDefaultsWithFrame:(CGRect)frame Scale:(CGFloat)scale {
-    self.frame              = frame;
-    self.tiledScale_        = scale;
     self.widthScaleFactor_  = self.defaultSize.width  / self.frame.size.width;
     self.heightScaleFactor_ = self.defaultSize.height / self.frame.size.height;
 }
@@ -494,6 +484,8 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
 - (void)cancelAddingCommentsToPDFView {
     [self quit_addingComments];
     self.screenCapture.image = nil;
+    self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
+    self.tempPDFAnnotation_ = nil;
 }
 
 /* 退出添加批注状态，还原一些参数，隐藏编辑视图 */
@@ -508,8 +500,6 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     self.commentsMenu.hidden = YES;
     self.inputTextView.hidden = YES;
     self.recorderView.hidden = YES;
-    
-    self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
     
     // 显示页面上隐藏的按钮
     [self showPDFButtonsInView];
@@ -658,6 +648,8 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
             [self.containerScrollView unlockPDFScrollView];        // 解锁pdf scroll view
             [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
             [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey]; // 显示批注表格
+            self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
+            self.tempPDFAnnotation_ = nil;
         }
         else if (self.addTextType == kTxtAdd) { // 在当前文字批注的基础上添加新的文字批注
             [self quit_addingComments]; // 退出添加批注状态
@@ -782,6 +774,8 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
         [self.containerScrollView unlockPDFScrollView]; // 解锁pdf scroll view
         [appDelegate.mainPDFViewController main_finishAddingComments]; // 通知main pdf view controller完成添加批注
         [Comments showCommentsWithPage:self.myPDFPage_.pageIndex Key:self.tempPDFAnnotation_.commentAnnotationKey]; // 显示批注表格
+        self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
+        self.tempPDFAnnotation_ = nil;
     }
     else if (self.addVoiceType == kVocAdd) {
         [self quit_addingComments]; // 退出添加批注状态

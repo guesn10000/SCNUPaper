@@ -35,9 +35,6 @@
 /* 设置视图横向和纵向缩放的比例 */
 - (void)setScales;
 
-/* 在视图缩放后，重新设置边界和缩放比例参数 */
-- (void)resetDefaultsWithFrame:(CGRect)frame Scale:(CGFloat)scale;
-
 /* 指向上层视图 */
 @property (weak, nonatomic) PDFScrollView *containerScrollView;
 
