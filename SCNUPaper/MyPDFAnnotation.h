@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class MyPDFButton;
+@class AnnotationView;
 
 @interface MyPDFAnnotation : NSObject
 
@@ -20,7 +21,7 @@
 
 @property (strong, nonatomic) MyPDFButton *pdfButton;
 
-@property (strong, nonatomic) UIView *annotationView;
+@property (strong, nonatomic) AnnotationView *annotationView;
 
 - (id)initWithFrame:(NSString *)frame
                 Key:(NSUInteger)keyNumber

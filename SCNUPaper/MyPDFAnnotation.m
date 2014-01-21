@@ -8,9 +8,8 @@
 
 #import "MyPDFAnnotation.h"
 #import "Constants.h"
-#import "AppDelegate.h"
 #import "MyPDFButton.h"
-#import "AnnotationViews.h"
+#import "AnnotationView.h"
 
 @implementation MyPDFAnnotation
 
@@ -31,10 +30,10 @@
     self = [super init];
     
     if (self) {
-        AppDelegate *appDelegate = APPDELEGATE;
         self.commentAnnotationFrame = frame;
         self.commentAnnotationKey = keyNumber;
         self.inPageIndex = pageIndex;
+        CGRect rect = CGRectFromString(frame);
         
         NSInteger type = 0;
         if (textAnno && voiceAnno) {
@@ -46,9 +45,8 @@
         else if (textAnno) {
             type = 1;
         }
-        self.annotationView = [appDelegate.annoViewsProvider getAnnotationViewWithType:type];
+        self.annotationView = [[AnnotationView alloc] initWithFrame:rect AnnotationType:type];
         
-        CGRect rect = CGRectFromString(frame);
         self.pdfButton = [[MyPDFButton alloc] initWithFrame:rect ButtonKey:keyNumber PageIndex:pageIndex];
     }
     

@@ -13,7 +13,6 @@
 #import "URLConnector.h"
 #import "JCFilePersistence.h"
 #import "FileCleaner.h"
-#import "AnnotationViews.h"
 #import "LoginViewController.h"
 #import "LatestViewController.h"
 #import "MainPDFViewController.h"
@@ -94,7 +93,6 @@
     self.filePersistence = [[JCFilePersistence alloc] init];
     self.fileCleaner = [[FileCleaner alloc] init];
     [self.fileCleaner clearDocumentFiles]; // 清除本地残留的zip, mp3, caf等文件
-    self.annoViewsProvider = [[AnnotationViews alloc] init];
     
     return YES;
 }

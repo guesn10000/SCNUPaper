@@ -10,12 +10,12 @@
 #import "AppDelegate.h"
 #import "Constants.h"
 #import "Cookies.h"
-#import "JCPoint.h"
 #import "JCAlert.h"
 #import "JCFilePersistence.h"
 #import "Comments.h"
 #import "MyPDFPage.h"
 #import "MyPDFAnnotation.h"
+#import "AnnotationView.h"
 #import "Stroke.h"
 #import "CommentStroke.h"
 #import "MyPDFButton.h"
@@ -29,9 +29,6 @@
 
 /* PDF页面参数 */
 @property (strong, nonatomic) MyPDFPage *myPDFPage_;
-@property (assign, nonatomic) CGFloat    tiledScale_;        // 缩放后的倍数
-@property (assign, nonatomic) CGFloat    widthScaleFactor_;  // 视图缩放的横向比例
-@property (assign, nonatomic) CGFloat    heightScaleFactor_; // 视图缩放的纵向比例
 
 /* 手势的起点和终点 */
 @property (assign, nonatomic) CGPoint beginPoint_;
@@ -93,25 +90,13 @@ const NSInteger kVocAdd  = 2;
 
 #pragma mark - Initailization
 
-/*
- * 初始化
- *
- * frame : 视图的矩形范围
- * scale : 当前视图的缩放倍数
- * myPDFPage : 当前视图要呈现的pdf页面内容
- *
- * 返回值 : 初始化成功后的self
- */
-- (id)initWithFrame:(CGRect)frame Scale:(CGFloat)scale MyPDFPage:(MyPDFPage *)myPDFPage {
+/* 初始化 */
+- (id)initWithFrame:(CGRect)frame MyPDFPage:(MyPDFPage *)myPDFPage {
     self = [super initWithFrame:frame];
     
     if (self) {
         /* 1.设置基本参数 */
-        // pdf页面相关
-        self.tiledScale_ = scale;
         self.myPDFPage_  = myPDFPage;
-        
-        // 起点和终点
         self.beginPoint_ = CGPointZero;
         self.endPoint_   = CGPointZero;
         
@@ -124,7 +109,6 @@ const NSInteger kVocAdd  = 2;
         
         
         /* 3.初始化添加批注参数 */
-        
         self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
         self.addTextType  = kTxtNone;
         self.addVoiceType = kVocNone;
@@ -177,9 +161,7 @@ const NSInteger kVocAdd  = 2;
         self.volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(0.0,
                                                                          0.0,
                                                                          kVolumeView_Width,
-                                                                         kVolumeView_Height
-                                                                         )
-                           ];
+                                                                         kVolumeView_Height)];
         self.volumeView.center = CGPointMake(appDelegate.window.frame.size.width / 2,
                                              self.recorderView.frame.size.height - kVolumeView_Height / 2);
         [self.volumeView sizeToFit];
@@ -188,7 +170,7 @@ const NSInteger kVocAdd  = 2;
         self.recorderView.hidden = YES;
         
         // 当前视图上的所有按钮和标记组成的数组
-        self.buttonsInView_ = [[NSMutableArray alloc] init];
+        self.buttonsInView_   = [[NSMutableArray alloc] init];
         self.annoViewsInView_ = [[NSMutableArray alloc] init];
     }
     
@@ -200,121 +182,15 @@ const NSInteger kVocAdd  = 2;
     return [CATiledLayer class];
 }
 
-/* 重置一些基本属性 */
-- (void)setScales {
-    self.widthScaleFactor_  = self.defaultSize.width  / self.frame.size.width;
-    self.heightScaleFactor_ = self.defaultSize.height / self.frame.size.height;
-}
-
-#pragma mark - Draw
-
-- (void)drawRect:(CGRect)rect
-{
-}
-
-// Draw the CGPDFPageRef into the layer at the correct scale.
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context {
-    /* 1.Draw pdf page */
-    CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
-    CGContextFillRect(context, self.bounds);
-    CGContextSaveGState(context);
-    CGContextTranslateCTM(context, 0.0, self.bounds.size.height);
-    CGContextScaleCTM(context, 1.0, -1.0);
-    CGContextScaleCTM(context, self.tiledScale_, self.tiledScale_);
-    CGContextDrawPDFPage(context, self.myPDFPage_.pdfPageRef);
-    CGContextRestoreGState(context);
-    
-    /* 2.Draw停留在本页上的点集 */
-    CGContextSaveGState(context);
-    CGContextScaleCTM(context, self.tiledScale_ / self.defaultScale, self.tiledScale_ / self.defaultScale);
-    CGContextScaleCTM(context, self.iPhone_iPad_Scale, self.iPhone_iPad_Scale);
-    
-    // 笔注部分
-    drawDrawStrokes(context, self.myPDFPage_.previousDrawStrokes);
-    
-    // 批注部分
-    for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
-        CommentStroke *commStroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
-        drawCommentFrame(context, commStroke.frame);
-    }
-    
-    CGContextRestoreGState(context);
-}
-
-/* 刷新屏幕截图 */
-- (void)updateScreenCapture {
-    self.screenCapture.image = nil;
-    
-    // 获取屏幕截图
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 1.5f);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    // 设置抗锯齿属性
-    CGContextSetShouldAntialias(context, YES);
-    
-    /* 新画上去的笔注或批注 */
-    CGContextSaveGState(context);
-    
-    // 笔注部分
-    drawDrawStrokes(context, self.myPDFPage_.currentDrawStrokes);
-    
-    // 批注部分
-    drawCommentFrame(context, self.tempCommentFrame_);
-    
-    CGContextRestoreGState(context);
-    
-    // 更新截图
-    self.screenCapture.image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-}
-
-/* draw笔注的所有笔画 */
-void drawDrawStrokes(CGContextRef context, NSMutableArray *drawStrokes) {
-    if (drawStrokes && drawStrokes.count > 0) {
-        for (Stroke *stroke in drawStrokes) {
-            NSMutableArray *points = stroke.points;
-            UIColor        *color  = stroke.color;
-            CGFloat         width  = stroke.width;
-            
-            if (points && points.count > 0) {
-                UIBezierPath *linesPath = [UIBezierPath bezierPath];
-                CGPoint startPoint = CGPointFromString(points[0]);
-                [linesPath moveToPoint:startPoint];
-                
-                for (int i = 1; i < points.count; i++) {
-                    CGPoint nextPoint = CGPointFromString(points[i]);
-                    [linesPath addLineToPoint:nextPoint];
-                }
-                
-                CGContextAddPath(context, linesPath.CGPath);
-                CGContextSetStrokeColorWithColor(context, color.CGColor);
-                CGContextSetLineWidth(context, width);
-                CGContextSetLineCap(context, kCGLineCapRound);
-                CGContextSetLineJoin(context, kCGLineJoinRound);
-                CGContextDrawPath(context, kCGPathStroke);
-            }
-        }
-    }
-}
-
-/* draw批注对应的边界 */
-void drawCommentFrame(CGContextRef context, NSString *frame) {
-    CGRect rect = CGRectFromString(frame);
-    CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
-    CGContextAddRect(context, rect);
-    CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
-    CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
-    CGContextSetLineCap(context, kCGLineCapRound);
-    CGContextSetLineJoin(context, kCGLineJoinRound);
-    CGContextDrawPath(context, kCGPathFill);
+- (void)setDefaultScalesWithScale:(CGFloat)defaultScale Size:(CGSize)defaultSize ConvertScale:(CGFloat)convertScale {
+    self.defaultScale = defaultScale;
+    self.defaultSize = defaultSize;
+    self.iPhone_iPad_Scale = convertScale;
 }
 
 #pragma mark - Add Strokes
 
-/*
- * 开始添加笔注
- * 这里进行一些初始化操作
- */
+/* 开始添加笔注，这里进行一些初始化操作 */
 - (void)addStrokesToPDFView {
     // 1.进入添加笔注状态
     self.editType_ = kAddStrokes;
@@ -379,8 +255,6 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
             NSMutableArray *scalePoints = [[NSMutableArray alloc] init];
             for (NSString *pointString in stroke.points) {
                 CGPoint point = CGPointFromString(pointString);
-                point.x *= self.widthScaleFactor_;
-                point.y *= self.heightScaleFactor_;
                 
                 // scalePoints为初始页面尺寸下所记录的点集
                 [scalePoints addObject:NSStringFromCGPoint(point)];
@@ -534,7 +408,7 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     self.buttonsInView_ = [[NSMutableArray alloc] init];
     
     // 清空页面上的标记视图
-    for (UIView *annoView in self.annoViewsInView_) {
+    for (AnnotationView *annoView in self.annoViewsInView_) {
         [annoView removeFromSuperview];
     }
     self.annoViewsInView_ = nil;
@@ -562,26 +436,12 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     [self reloadAnnotations];
     
     /* 2.添加按钮和标记的视图到页面上 */
-    CGFloat tempWidthScaleFactor  = self.frame.size.width  / self.defaultSize.width  * self.iPhone_iPad_Scale;
-    CGFloat tempHeightScaleFactor = self.frame.size.height / self.defaultSize.height * self.iPhone_iPad_Scale;
-    
     for (MyPDFAnnotation *pdfAnnotation in self.myPDFPage_.previousAnnotationsForComments) {
-        // 设置标记视图的位置，并添加该视图
-        CGPoint scalePoint = CGPointMake(pdfAnnotation.pdfButton.defaultFrame.origin.x + pdfAnnotation.annotationView.frame.size.width  / 2,
-                                         pdfAnnotation.pdfButton.defaultFrame.origin.y + pdfAnnotation.annotationView.frame.size.height / 2);
-        scalePoint.x *= tempWidthScaleFactor;
-        scalePoint.y *= tempHeightScaleFactor;
-        pdfAnnotation.annotationView.center = scalePoint;
+        // 添加标记视图
         [self addSubview:pdfAnnotation.annotationView];
         [self.annoViewsInView_ addObject:pdfAnnotation.annotationView];
         
-        // 设置button的位置，并添加该按钮
-        CGRect  scaleRect = pdfAnnotation.pdfButton.defaultFrame;
-        scaleRect.origin.x    *= tempWidthScaleFactor;
-        scaleRect.origin.y    *= tempHeightScaleFactor;
-        scaleRect.size.width  *= tempWidthScaleFactor;
-        scaleRect.size.height *= tempHeightScaleFactor;
-        pdfAnnotation.pdfButton.myButton.frame = scaleRect;
+        // 添加按钮
         [self addSubview:pdfAnnotation.pdfButton.myButton];
         [pdfAnnotation.pdfButton addTargetForButton];
         [self.buttonsInView_ addObject:pdfAnnotation.pdfButton.myButton];
@@ -886,13 +746,7 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
         CGFloat y = MIN(self.beginPoint_.y, self.endPoint_.y);
         CGFloat w = fabsf(self.endPoint_.x - self.beginPoint_.x);
         CGFloat h = fabsf(self.endPoint_.y - self.beginPoint_.y);
-        CGRect defaultRect;
-        defaultRect = CGRectMake(x, y, w, h);
-        defaultRect.origin.x    *= self.widthScaleFactor_;
-        defaultRect.origin.y    *= self.heightScaleFactor_;
-        defaultRect.size.width  *= self.widthScaleFactor_;
-        defaultRect.size.height *= self.heightScaleFactor_;
-        self.tempCommentFrame_   = NSStringFromCGRect(defaultRect);
+        self.tempCommentFrame_ = NSStringFromCGRect(CGRectMake(x, y, w, h));
     }
     else {
         return;
@@ -931,6 +785,100 @@ void drawCommentFrame(CGContextRef context, NSString *frame) {
     else {
         return;
     }
+}
+
+#pragma mark - Draw
+
+- (void)drawRect:(CGRect)rect
+{
+}
+
+// Draw the CGPDFPageRef into the layer at the correct scale.
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context {
+    /* 1.Draw pdf page */
+    CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
+    CGContextFillRect(context, self.bounds);
+    CGContextSaveGState(context);
+    CGContextTranslateCTM(context, 0.0, self.bounds.size.height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    CGContextScaleCTM(context, self.defaultScale, self.defaultScale);
+    CGContextDrawPDFPage(context, self.myPDFPage_.pdfPageRef);
+    CGContextRestoreGState(context);
+    
+    /* 2.Draw停留在本页上的点集 */
+    CGContextSaveGState(context);
+    CGContextScaleCTM(context, self.iPhone_iPad_Scale, self.iPhone_iPad_Scale);
+    
+    // 笔注部分
+    drawDrawStrokes(context, self.myPDFPage_.previousDrawStrokes);
+    
+    // 批注部分
+    for (int i = 0; i < self.myPDFPage_.previousStrokesForComments.count; i++) {
+        CommentStroke *commStroke = [self.myPDFPage_.previousStrokesForComments objectAtIndex:i];
+        drawCommentFrame(context, commStroke.frame);
+    }
+    
+    CGContextRestoreGState(context);
+}
+
+/* 刷新屏幕截图 */
+- (void)updateScreenCapture {
+    /* 获取屏幕截图 */
+    self.screenCapture.image = nil;
+    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 1.5f);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetShouldAntialias(context, YES); // 设置抗锯齿属性
+    
+    /* 新画上去的笔注或批注 */
+    CGContextSaveGState(context);
+    drawDrawStrokes(context, self.myPDFPage_.currentDrawStrokes); // 笔注部分
+    drawCommentFrame(context, self.tempCommentFrame_); // 批注部分
+    CGContextRestoreGState(context);
+    
+    /* 更新截图 */
+    self.screenCapture.image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+}
+
+/* draw笔注的所有笔画 */
+void drawDrawStrokes(CGContextRef context, NSMutableArray *drawStrokes) {
+    if (drawStrokes && drawStrokes.count > 0) {
+        for (Stroke *stroke in drawStrokes) {
+            NSMutableArray *points = stroke.points;
+            UIColor        *color  = stroke.color;
+            CGFloat         width  = stroke.width;
+            
+            if (points && points.count > 0) {
+                UIBezierPath *linesPath = [UIBezierPath bezierPath];
+                CGPoint startPoint = CGPointFromString(points[0]);
+                [linesPath moveToPoint:startPoint];
+                
+                for (int i = 1; i < points.count; i++) {
+                    CGPoint nextPoint = CGPointFromString(points[i]);
+                    [linesPath addLineToPoint:nextPoint];
+                }
+                
+                CGContextAddPath(context, linesPath.CGPath);
+                CGContextSetStrokeColorWithColor(context, color.CGColor);
+                CGContextSetLineWidth(context, width);
+                CGContextSetLineCap(context, kCGLineCapRound);
+                CGContextSetLineJoin(context, kCGLineJoinRound);
+                CGContextDrawPath(context, kCGPathStroke);
+            }
+        }
+    }
+}
+
+/* draw批注对应的边界 */
+void drawCommentFrame(CGContextRef context, NSString *frame) {
+    CGRect rect = CGRectFromString(frame);
+    CGContextMoveToPoint(context, rect.origin.x, rect.origin.y);
+    CGContextAddRect(context, rect);
+    CGContextSetFillColorWithColor(context, COMMENT_STROKE_COLOR.CGColor);
+    CGContextSetLineWidth(context, COMMENT_STROKE_WIDTH);
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+    CGContextDrawPath(context, kCGPathFill);
 }
 
 @end

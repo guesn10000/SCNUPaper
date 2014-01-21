@@ -72,16 +72,12 @@ const CGFloat kMinimumZoomScale = 0.5;
         
         /* 添加TiledPDFView */
         
-        self.tiledPDFView_ = [[TiledPDFView alloc] initWithFrame:pageBoxRect
-                                                           Scale:self.defaultScale_
-                                                       MyPDFPage:self.myPDFPage];
-        
-        [self addSubview:self.tiledPDFView_];
-        self.tiledPDFView_.defaultScale         = self.defaultScale_;
-        self.tiledPDFView_.defaultSize          = self.defaultSize_;
-        self.tiledPDFView_.iPhone_iPad_Scale    = self.iPhone_iPad_Scale;
+        self.tiledPDFView_ = [[TiledPDFView alloc] initWithFrame:pageBoxRect MyPDFPage:self.myPDFPage];
         self.tiledPDFView_.containerScrollView  = self;
-        [self.tiledPDFView_ setScales];
+        [self.tiledPDFView_ setDefaultScalesWithScale:self.defaultScale_
+                                                 Size:self.defaultSize_
+                                         ConvertScale:self.iPhone_iPad_Scale];
+        [self addSubview:self.tiledPDFView_];
         [self.tiledPDFView_ addAnnotationsInView];
     }
     
@@ -142,7 +138,6 @@ const CGFloat kMinimumZoomScale = 0.5;
     return self.tiledPDFView_;
 }
 
-/* 设置缩放后的参数 */
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
 {
 }

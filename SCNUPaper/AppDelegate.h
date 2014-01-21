@@ -14,7 +14,6 @@
 @class KeyGeneraton;
 @class JCFilePersistence;
 @class FileCleaner;
-@class AnnotationViews;
 @class LoginViewController;
 @class LatestViewController;
 @class MainPDFViewController;
@@ -43,9 +42,6 @@
 
 /* 清理文件 */
 @property (strong, nonatomic) FileCleaner *fileCleaner;
-
-/* 提供批注的标记视图 */
-@property (strong, nonatomic) AnnotationViews *annoViewsProvider;
 
 /* 全局的spinner，用于指示正在进行数据处理 */
 @property (strong, nonatomic) UIActivityIndicatorView *app_spinner;

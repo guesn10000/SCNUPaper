@@ -102,6 +102,10 @@
 // 保存最近打开文件记录的文件
 #define LATEST_OPEN_FILENAME @"LatestOpen.plist"
 
+// 常用图片
+#define TEXT_ANNOTATION_IMAGE  [UIImage imageNamed:@"addText.png"]
+#define VOICE_ANNOTATION_IMAGE [UIImage imageNamed:@"addVoice.jpg"]
+
 
 /* 临时信息 */
 #define TEMP_USERNAME @"qwe"

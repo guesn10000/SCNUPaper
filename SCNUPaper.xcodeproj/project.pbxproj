@@ -13,6 +13,7 @@
 		181680FA188B8CDA008DE61F /* MyPDFCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 181680F9188B8CDA008DE61F /* MyPDFCreator.m */; };
 		181680FC188BA6FF008DE61F /* PageInputView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 181680FB188BA6FF008DE61F /* PageInputView.xib */; };
 		181680FE188BA71A008DE61F /* iPhone_PageInput.xib in Resources */ = {isa = PBXBuildFile; fileRef = 181680FD188BA71A008DE61F /* iPhone_PageInput.xib */; };
+		1839856A188E9F770097FB3C /* AnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18398569188E9F770097FB3C /* AnnotationView.m */; };
 		184F3C14183CBFA4006DCAC3 /* MyPDFButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 184F3C13183CBFA4006DCAC3 /* MyPDFButton.m */; };
 		185F2573183898B200347214 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 185F2572183898B200347214 /* Foundation.framework */; };
 		185F2575183898B200347214 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 185F2574183898B200347214 /* CoreGraphics.framework */; };
@@ -42,7 +43,6 @@
 		186FD6F5183DEBEC001C0B92 /* ZipArchive.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186FD6EF183DEBEC001C0B92 /* ZipArchive.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		186FD6FE183DF138001C0B92 /* AppDocument.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 186FD6FD183DF138001C0B92 /* AppDocument.rtf */; };
 		188DE21D188A73D10065F428 /* InputTextView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 188DE21C188A73D10065F428 /* InputTextView.xib */; };
-		188DE239188ABF870065F428 /* AnnotationViews.m in Sources */ = {isa = PBXBuildFile; fileRef = 188DE238188ABF870065F428 /* AnnotationViews.m */; };
 		188E33ED185055220058AEDB /* iPhone_ToolBars.xib in Resources */ = {isa = PBXBuildFile; fileRef = 188E33EC185055220058AEDB /* iPhone_ToolBars.xib */; };
 		188E33F41850E7780058AEDB /* CommentStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 188E33F31850E7780058AEDB /* CommentStroke.m */; };
 		188E368F183C9D850079CD6D /* MyPDFAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 188E368E183C9D850079CD6D /* MyPDFAnnotation.m */; };
@@ -104,6 +104,8 @@
 		181680F9188B8CDA008DE61F /* MyPDFCreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyPDFCreator.m; sourceTree = "<group>"; };
 		181680FB188BA6FF008DE61F /* PageInputView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PageInputView.xib; sourceTree = "<group>"; };
 		181680FD188BA71A008DE61F /* iPhone_PageInput.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = iPhone_PageInput.xib; sourceTree = "<group>"; };
+		18398568188E9F770097FB3C /* AnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnnotationView.h; sourceTree = "<group>"; };
+		18398569188E9F770097FB3C /* AnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnnotationView.m; sourceTree = "<group>"; };
 		184F3C12183CBFA4006DCAC3 /* MyPDFButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPDFButton.h; sourceTree = "<group>"; };
 		184F3C13183CBFA4006DCAC3 /* MyPDFButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyPDFButton.m; sourceTree = "<group>"; };
 		185F256F183898B200347214 /* SCNUPaper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCNUPaper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,8 +156,6 @@
 		186FD6EF183DEBEC001C0B92 /* ZipArchive.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ZipArchive.mm; sourceTree = "<group>"; };
 		186FD6FD183DF138001C0B92 /* AppDocument.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = AppDocument.rtf; sourceTree = "<group>"; };
 		188DE21C188A73D10065F428 /* InputTextView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InputTextView.xib; sourceTree = "<group>"; };
-		188DE237188ABF870065F428 /* AnnotationViews.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnnotationViews.h; sourceTree = "<group>"; };
-		188DE238188ABF870065F428 /* AnnotationViews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnnotationViews.m; sourceTree = "<group>"; };
 		188E33EC185055220058AEDB /* iPhone_ToolBars.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = iPhone_ToolBars.xib; sourceTree = "<group>"; };
 		188E33F21850E7780058AEDB /* CommentStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommentStroke.h; sourceTree = "<group>"; };
 		188E33F31850E7780058AEDB /* CommentStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommentStroke.m; sourceTree = "<group>"; };
@@ -618,8 +618,8 @@
 				188E3691183CABFF0079CD6D /* KeyGeneraton.m */,
 				188E368D183C9D850079CD6D /* MyPDFAnnotation.h */,
 				188E368E183C9D850079CD6D /* MyPDFAnnotation.m */,
-				188DE237188ABF870065F428 /* AnnotationViews.h */,
-				188DE238188ABF870065F428 /* AnnotationViews.m */,
+				18398568188E9F770097FB3C /* AnnotationView.h */,
+				18398569188E9F770097FB3C /* AnnotationView.m */,
 				184F3C12183CBFA4006DCAC3 /* MyPDFButton.h */,
 				184F3C13183CBFA4006DCAC3 /* MyPDFButton.m */,
 				18F079CC183DCCFD008733D7 /* TextAnnotation.h */,
@@ -790,6 +790,7 @@
 				188E33F41850E7780058AEDB /* CommentStroke.m in Sources */,
 				185F257F183898B200347214 /* main.m in Sources */,
 				18B4474718473DD20074D669 /* Stroke.m in Sources */,
+				1839856A188E9F770097FB3C /* AnnotationView.m in Sources */,
 				185F25C01838A1C300347214 /* PDFScrollView.m in Sources */,
 				186FD6F3183DEBEC001C0B92 /* unzip.c in Sources */,
 				18904CFA183A71A800F0DF63 /* Comments.m in Sources */,
@@ -799,7 +800,6 @@
 				184F3C14183CBFA4006DCAC3 /* MyPDFButton.m in Sources */,
 				18F079CE183DCCFD008733D7 /* TextAnnotation.m in Sources */,
 				18904CD5183A1F3A00F0DF63 /* JCPoint.m in Sources */,
-				188DE239188ABF870065F428 /* AnnotationViews.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
