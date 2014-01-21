@@ -418,7 +418,7 @@
 				18F079D0183DCD10008733D7 /* Document */,
 				18B4474418473D770074D669 /* AddStrokes */,
 				18F079CF183DCD02008733D7 /* AddComments */,
-				18900E2E1841EDB300B0DD33 /* Mail */,
+				18900E2E1841EDB300B0DD33 /* Create */,
 			);
 			name = PDFModel;
 			sourceTree = "<group>";
@@ -513,7 +513,7 @@
 			name = WebService;
 			sourceTree = "<group>";
 		};
-		18900E2E1841EDB300B0DD33 /* Mail */ = {
+		18900E2E1841EDB300B0DD33 /* Create */ = {
 			isa = PBXGroup;
 			children = (
 				181680F8188B8CDA008DE61F /* MyPDFCreator.h */,
@@ -521,7 +521,7 @@
 				1890D1791887DEF600462055 /* FileCleaner.h */,
 				1890D17A1887DEF600462055 /* FileCleaner.m */,
 			);
-			name = Mail;
+			name = Create;
 			sourceTree = "<group>";
 		};
 		18904D0D183A839D00F0DF63 /* Support */ = {

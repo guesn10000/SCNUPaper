@@ -142,8 +142,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
                                                      self.view.bounds.size.width,
                                                      self.view.bounds.size.height -\
                                                      STATUS_NAVIGATIONBAR_HEIGHT  -\
-                                                     TOOLBAR_HEIGHT)
-                            ];
+                                                     TOOLBAR_HEIGHT)];
     [self.view addSubview:self.thesisPagesView];
     self.thesisPagesView.backgroundColor                = [UIColor lightGrayColor];
     self.thesisPagesView.delegate                       = self;

@@ -27,7 +27,6 @@
 #define ADD_VOICE_IMG [UIImage imageNamed:@"addVoice.jpg"]
 #define ANNO_SIZE 30.0
 
-CGFloat tempHeight;
 
 #pragma mark - Create PDF file and upload files
 
@@ -36,16 +35,13 @@ CGFloat tempHeight;
     AppDelegate *appDelegate = APPDELEGATE;
     
     // 2.创建media box
-    MyPDFPage *tempPDFPage;
-    PDFScrollView *tempPDFScrollView;
-    NSArray *viewsForPDFScrollView = appDelegate.mainPDFViewController.viewsForThesisPages;
-    tempPDFScrollView = viewsForPDFScrollView[0];
-    tempPDFPage = tempPDFScrollView.myPDFPage;
-    CGRect originRect = CGPDFPageGetBoxRect(tempPDFPage.pdfPageRef, kCGPDFMediaBox);
-    CGFloat myPageWidth = originRect.size.width;
+    NSArray       *viewsForPDFScrollView = appDelegate.mainPDFViewController.viewsForThesisPages;
+    PDFScrollView *tempPDFScrollView     = [viewsForPDFScrollView objectAtIndex:0];
+    MyPDFPage     *tempPDFPage           = tempPDFScrollView.myPDFPage;
+    CGRect  originRect   = CGPDFPageGetBoxRect(tempPDFPage.pdfPageRef, kCGPDFMediaBox);
+    CGFloat myPageWidth  = originRect.size.width;
     CGFloat myPageHeight = originRect.size.height;
-    CGRect mediaBox = CGRectMake (0, 0, myPageWidth, myPageHeight);
-    tempHeight = mediaBox.size.height;
+    CGRect  mediaBox     = CGRectMake(0, 0, myPageWidth, myPageHeight);
     
     // 3.设置pdf文档存储的路径
     
@@ -58,7 +54,6 @@ CGFloat tempHeight;
     const char *cPDFFilePath = [pdfFilePath UTF8String];
     CFStringRef pathRef = CFStringCreateWithCString(NULL, cPDFFilePath, kCFStringEncodingUTF8);
     
-    
     // 生成时间戳
     NSDateFormatter *fileNameFormatter = [[NSDateFormatter alloc] init];
     [fileNameFormatter setDateFormat:@"yyyyMMddhhmmss"];
@@ -68,7 +63,7 @@ CGFloat tempHeight;
     // 4.设置当前pdf页面的属性
     CFStringRef myKeys[3];
     CFTypeRef myValues[3];
-    myKeys[0] = kCGPDFContextMediaBox;
+    myKeys[0]   = kCGPDFContextMediaBox;
     myValues[0] = (CFTypeRef) CFDataCreate(NULL,(const UInt8 *)&mediaBox, sizeof (CGRect));
     // 用时间戳给context title签名，用于文件名同名的情况下进行配对
     myKeys[1] = kCGPDFContextTitle;
@@ -76,9 +71,9 @@ CGFloat tempHeight;
     myKeys[2] = kCGPDFContextCreator;
     myValues[2] = CFSTR("Jymn_Chen");
     CFDictionaryRef pageDictionary;
-    CGFloat widthScale  = mediaBox.size.width / tempPDFScrollView.frame.size.width;
+    CGFloat widthScale  = mediaBox.size.width  / tempPDFScrollView.frame.size.width;
     CGFloat heightScale = mediaBox.size.height / tempPDFScrollView.frame.size.height;
-    CGFloat pageScale   = MIN(widthScale, heightScale);
+    CGFloat pageScale   = MAX(widthScale, heightScale); // 注意这里是maximum
     
     
     // 5.获取pdf绘图上下文
@@ -114,7 +109,6 @@ CGFloat tempHeight;
         // 批注部分
         for (int i = 0; i < pdfScrollView.myPDFPage.previousStrokesForComments.count; i++) {
             CommentStroke *commStroke = [pdfScrollView.myPDFPage.previousStrokesForComments objectAtIndex:i];
-            
             NSInteger type = 0;
             if (commStroke.hasTextAnnotation && commStroke.hasVoiceAnnotation) {
                 type = 3;
@@ -200,10 +194,17 @@ void create_drawCommentFrame(CGContextRef context, NSString *frame, NSInteger ty
     CGContextSetLineCap(context, kCGLineCapRound);
     CGContextSetLineJoin(context, kCGLineJoinRound);
     CGContextDrawPath(context, kCGPathFill);
-    drawAnnotationViews(context, type, rect);
+    drawAnnotationViews(context, rect, type);
 }
 
-void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
+void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
+    
+    CGContextSaveGState(context);
+    CGContextTranslateCTM(context, rect.origin.x, rect.origin.y);
+    CGContextTranslateCTM(context, 0.0, ANNO_SIZE);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    CGContextTranslateCTM(context, -rect.origin.x, -rect.origin.y);
+    
     CGRect rect1 = CGRectMake(rect.origin.x, rect.origin.y, ANNO_SIZE, ANNO_SIZE);
     CGRect rect2 = CGRectMake(rect.origin.x + ANNO_SIZE, rect.origin.y, ANNO_SIZE, ANNO_SIZE);
     
@@ -217,6 +218,8 @@ void drawAnnotationViews(CGContextRef context, NSInteger type, CGRect rect) {
         CGContextDrawImage(context, rect1, [ADD_TEXT_IMG CGImage]);
         CGContextDrawImage(context, rect2, [ADD_VOICE_IMG CGImage]);
     }
+    
+    CGContextRestoreGState(context);
 }
 
 - (void)uploadFilesToServer {

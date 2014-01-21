@@ -68,7 +68,7 @@ const CGFloat kMinimumZoomScale = 0.5;
                                          (CGFloat)pageBoxRect.size.height / (IPAD_SCREEN_HEIGHT - STATUS_NAVIGATIONBAR_HEIGHT - TOOLBAR_HEIGHT)
                                          );
         }
-        self.myPDFPage.convertScale = self.iPhone_iPad_Scale;
+        self.myPDFPage.convertScale = self.iPhone_iPad_Scale; // 顺序不可颠倒
         
         
         /* 添加TiledPDFView */
