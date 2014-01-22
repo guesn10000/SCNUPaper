@@ -37,6 +37,7 @@ const CGFloat kMinimumZoomScale = 0.5;
 
 #pragma mark - Initialization
 
+
 - (id)initWithFrame:(CGRect)frame Document:(CGPDFDocumentRef)document PageIndex:(size_t)pageIndex {
     self = [super initWithFrame:frame];
     
@@ -45,6 +46,8 @@ const CGFloat kMinimumZoomScale = 0.5;
         /* 设置基本参数 */
         
         [self basicSettings];
+        
+        self.pageIndex = pageIndex;
         
         // PDF Page
         self.myPDFPage     = [[MyPDFPage alloc] initWithDocument:document PageIndex:pageIndex];

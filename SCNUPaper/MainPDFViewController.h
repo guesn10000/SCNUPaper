@@ -26,7 +26,9 @@
 @property (strong, nonatomic) UIScrollView *thesisPagesView;
 
 /* 一个视图数组，用于呈现各个PDF页面的内容 */
-@property (strong, nonatomic) NSMutableArray *viewsForThesisPages;
+@property (strong, nonatomic) NSMutableDictionary *viewsForThesisPages;
+
+@property (strong, nonatomic) NSMutableArray *tempViews;
 
 #pragma mark - NavigationBar
 

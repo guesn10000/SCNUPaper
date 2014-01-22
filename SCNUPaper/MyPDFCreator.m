@@ -16,6 +16,7 @@
 #import "URLConnector.h"
 #import "Stroke.h"
 #import "CommentStroke.h"
+#import "MyPDFDocument.h"
 #import "MyPDFPage.h"
 #import "PDFScrollView.h"
 #import "TiledPDFView.h"
@@ -35,9 +36,10 @@
     AppDelegate *appDelegate = APPDELEGATE;
     
     // 2.创建media box
-    NSArray       *viewsForPDFScrollView = appDelegate.mainPDFViewController.viewsForThesisPages;
-    PDFScrollView *tempPDFScrollView     = [viewsForPDFScrollView objectAtIndex:0];
-    MyPDFPage     *tempPDFPage           = tempPDFScrollView.myPDFPage;
+    PDFScrollView *tempPDFScrollView = [appDelegate.mainPDFViewController.viewsForThesisPages objectForKey:@"cur"];
+    CGRect tempFrame = tempPDFScrollView.bounds;
+    MyPDFDocument *tempDocument = appDelegate.mainPDFViewController.myPDFDocument;
+    MyPDFPage *tempPDFPage = tempPDFScrollView.myPDFPage;
     CGRect  originRect   = CGPDFPageGetBoxRect(tempPDFPage.pdfPageRef, kCGPDFMediaBox);
     CGFloat myPageWidth  = originRect.size.width;
     CGFloat myPageHeight = originRect.size.height;
@@ -81,7 +83,14 @@
     
     
     // 6.开始绘图
-    for (PDFScrollView *pdfScrollView in viewsForPDFScrollView) {
+    // 设置scroll view中的内容s
+    for (int j = 1; j <= tempDocument.totalPages; j++) {
+        CGRect tempRect = tempFrame;
+        tempRect.origin.x = (j - 1) * tempFrame.size.width;
+        PDFScrollView *pdfScrollView = [[PDFScrollView alloc]
+                                        initWithFrame:tempRect
+                                        Document:tempDocument.pdfDocumentRef
+                                        PageIndex:j];
         pageDictionary = NULL;
         CFDictionaryRef pageDictionary = CFDictionaryCreate(NULL, (const void **) myKeys, (const void **) myValues, 3,
                                                             &kCFTypeDictionaryKeyCallBacks, & kCFTypeDictionaryValueCallBacks);

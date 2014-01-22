@@ -31,11 +31,17 @@
 /* 该参数决定执行alertview delegate时的动作 */
 @property (assign, nonatomic) NSInteger alertDelegate_;
 
+@property (assign, nonatomic) CGRect tempFrame_;
+
 @end
 
 @implementation MainPDFViewController
 
 #pragma mark - Constants
+
+const NSString *kPrePage = @"pre";
+const NSString *kCurPage = @"cur";
+const NSString *kNxtPage = @"nxt";
 
 static NSInteger kDefaultAlert  = 0;
 static NSInteger kRemvStkAlert  = 1;
@@ -153,22 +159,31 @@ const  CGFloat   kStopButtonLoc = 60.0;
                                                   self.thesisPagesView.bounds.size.height);
     
     if (!self.viewsForThesisPages) {
-        self.viewsForThesisPages = [[NSMutableArray alloc] init];
+        self.viewsForThesisPages = [[NSMutableDictionary alloc] init];
     }
     else {
         [self.viewsForThesisPages removeAllObjects];
     }
     
-    for (int i = 1; i <= self.myPDFDocument.totalPages; i++) {
-        PDFScrollView *pdfScrollView = [[PDFScrollView alloc]
-                                        initWithFrame:CGRectMake((i - 1) * self.thesisPagesView.bounds.size.width,
-                                                                 0,
-                                                                 self.thesisPagesView.bounds.size.width,
-                                                                 self.thesisPagesView.bounds.size.height)
-                                        Document:self.myPDFDocument.pdfDocumentRef
-                                        PageIndex:i];
-        [self.viewsForThesisPages addObject:pdfScrollView];
+    if (!self.tempViews) {
+        self.tempViews = [[NSMutableArray alloc] init];
+    }
+    
+    self.tempFrame_ = CGRectMake(0, 0, self.thesisPagesView.bounds.size.width, self.thesisPagesView.bounds.size.height);
+    for (int i = 1; i <= 2; i++) {
+        CGRect rect = self.tempFrame_;
+        rect.origin.x = (i - 1) * self.thesisPagesView.bounds.size.width;
+        PDFScrollView *pdfScrollView = [[PDFScrollView alloc] initWithFrame:rect
+                                                                   Document:self.myPDFDocument.pdfDocumentRef
+                                                                  PageIndex:i];
+        if (i == 1) {
+            [self.viewsForThesisPages setObject:pdfScrollView forKey:kCurPage];
+        }
+        else if (i == 2) {
+            [self.viewsForThesisPages setObject:pdfScrollView forKey:kNxtPage];
+        }
         [self.thesisPagesView addSubview:pdfScrollView];
+        [self.tempViews addObject:pdfScrollView];
         [pdfScrollView setNeedsLayout]; // 立即刷新pdfScrollView的位置
     }
 }
@@ -335,9 +350,26 @@ const  CGFloat   kStopButtonLoc = 60.0;
     if (pageIndex > 0 && pageIndex <= self.myPDFDocument.totalPages) {
         [self.inputPageIndex_textField resignFirstResponder];
         self.pageInputView.hidden = YES;
-
+        
+        int temp = pageIndex - self.myPDFDocument.currentIndex;
         self.myPDFDocument.currentIndex = pageIndex;
+        if (temp == 0) {
+            self.view.userInteractionEnabled = YES;
+            return;
+        }
+        else if (temp == 1) {
+            [self scrollToNextPage:pageIndex];
+        }
+        else if (temp == -1) {
+            [self scrollToPreviousPage:pageIndex];
+        }
+        else {
+            [self jumpToPage:pageIndex];
+        }
+        
         self.navigationItem.title = [NSString stringWithFormat:@"%zu / %zu", self.myPDFDocument.currentIndex, self.myPDFDocument.totalPages];
+        
+        
         self.thesisPagesView.contentOffset = CGPointMake((pageIndex - 1) * self.thesisPagesView.frame.size.width, 0.0);
         self.view.userInteractionEnabled = YES;
     }
@@ -366,12 +398,12 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     // 2.开始选择文字
     self.isEditing_ = YES;
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addStrokes]; // 调用当前视图的add strokes方法
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_addStrokes];
 }
 
 /* 添加笔注：撤销当前的一个笔画 */
 - (IBAction)undoStrokes:(id)sender {
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_undoStroke]; // 通知对应视图撤销当前笔注
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_undoStroke];
 }
 
 /* 添加笔注：撤销当前页面所有笔画 */
@@ -391,7 +423,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     self.isEditing_ = NO; // 解除编辑状态
     self.hasEdited  = YES;
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_finishAddingStrokes]; // 通知对应视图完成添加批注
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_finishAddingStrokes]; // 通知对应视图完成添加批注
     [self unlockThesisPagesView];
 }
 
@@ -402,7 +434,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.mainOptions_Toolbar.hidden   = NO;
     
     self.isEditing_ = NO; // 解除编辑状态
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_cancelAddingStrokes]; // 通知对应视图取消添加批注
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_cancelAddingStrokes]; // 通知对应视图取消添加批注
     [self unlockThesisPagesView];
 }
 
@@ -418,7 +450,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     // 2.开始选择文字
     self.isEditing_ = YES; // 进入编辑状态
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addComments];
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_addComments];
 }
 
 /* 取消添加当前批注 */
@@ -427,7 +459,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.mainOptions_Toolbar.hidden    = NO;
     
     self.isEditing_ = NO;
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_cancelAddingComments];
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_cancelAddingComments];
     [self unlockThesisPagesView];
 }
 
@@ -471,7 +503,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [self lockThesisPagesView];
     self.viewForCheckComments.hidden = YES;
     self.addNewComments_Menu.hidden  = YES;
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewTextComments];
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_addNewTextComments];
 }
 
 /* 为批注添加新的语音内容 */
@@ -479,7 +511,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [self lockThesisPagesView];
     self.viewForCheckComments.hidden = YES;
     self.addNewComments_Menu.hidden  = YES;
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewVoiceComments];
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_addNewVoiceComments];
 }
 
 #pragma mark - TableView Delegate
@@ -527,7 +559,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
 - (IBAction)editCommentDetails:(id)sender {
     [self lockThesisPagesView];
     self.viewForCommentDetails.hidden = YES;
-    [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_editTextComments];
+    [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_editTextComments];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -546,6 +578,105 @@ const  CGFloat   kStopButtonLoc = 60.0;
     page++;
     self.myPDFDocument.currentIndex = page;
     self.navigationItem.title = [NSString stringWithFormat:@"%zu / %zu", self.myPDFDocument.currentIndex, self.myPDFDocument.totalPages];
+    
+    PDFScrollView *tempScrollView = [self.viewsForThesisPages objectForKey:kCurPage];
+    int temp = page - tempScrollView.pageIndex;
+    if (temp == 0) {
+        return;
+    }
+    if (temp == 1) {
+        [self scrollToNextPage:page];
+    }
+    else if (temp == -1) {
+        [self scrollToPreviousPage:page];
+    }
+    else {
+        [self jumpToPage:page];
+    }
+}
+
+- (void)scrollToNextPage:(NSUInteger)page {
+    PDFScrollView *preScrollView = [self.viewsForThesisPages objectForKey:kCurPage];
+    PDFScrollView *curScrollView = [self.viewsForThesisPages objectForKey:kNxtPage];
+    [self.viewsForThesisPages setObject:preScrollView forKey:kPrePage];
+    [self.viewsForThesisPages setObject:curScrollView forKey:kCurPage];
+    
+    if (page == self.myPDFDocument.totalPages) {
+        return;
+    }
+    
+    CGRect rect = self.tempFrame_;
+    rect.origin.x = page * self.thesisPagesView.bounds.size.width;
+    PDFScrollView *nxtScrollView = [[PDFScrollView alloc] initWithFrame:rect
+                                                               Document:self.myPDFDocument.pdfDocumentRef
+                                                              PageIndex:(page + 1)];
+    [self.tempViews addObject:nxtScrollView];
+    [self.thesisPagesView addSubview:nxtScrollView];
+    [nxtScrollView setNeedsLayout];
+    [self.viewsForThesisPages setObject:nxtScrollView forKey:kNxtPage];
+}
+
+- (void)scrollToPreviousPage:(NSUInteger)page {
+    PDFScrollView *curScrollView = [self.viewsForThesisPages objectForKey:kPrePage];
+    PDFScrollView *nxtScrollView = [self.viewsForThesisPages objectForKey:kCurPage];
+    [self.viewsForThesisPages setObject:curScrollView forKey:kCurPage];
+    [self.viewsForThesisPages setObject:nxtScrollView forKey:kNxtPage];
+    
+    if (page == 1) {
+        return;
+    }
+    
+    CGRect rect = self.tempFrame_;
+    rect.origin.x = (page - 2) * self.thesisPagesView.bounds.size.width;
+    PDFScrollView *preScrollView = [[PDFScrollView alloc] initWithFrame:rect
+                                                               Document:self.myPDFDocument.pdfDocumentRef
+                                                              PageIndex:(page - 1)];
+    [self.tempViews addObject:preScrollView];
+    [self.thesisPagesView addSubview:preScrollView];
+    [preScrollView setNeedsLayout];
+    [self.viewsForThesisPages setObject:preScrollView forKey:kPrePage];
+}
+
+- (void)jumpToPage:(NSUInteger)page {
+    for (PDFScrollView *view in self.tempViews) {
+        [view removeFromSuperview];
+    }
+    [self.tempViews removeAllObjects];
+    [self.viewsForThesisPages removeAllObjects];
+    
+    CGRect rect = self.tempFrame_;
+    
+    rect.origin.x = (page - 1) * self.thesisPagesView.bounds.size.width;
+    PDFScrollView *tempScrollView = [[PDFScrollView alloc] initWithFrame:rect
+                                                                Document:self.myPDFDocument.pdfDocumentRef
+                                                               PageIndex:page];
+    [self.tempViews addObject:tempScrollView];
+    [self.thesisPagesView addSubview:tempScrollView];
+    [tempScrollView setNeedsLayout];
+    [self.viewsForThesisPages setObject:tempScrollView forKey:kCurPage];
+    
+    if (page != 1) {
+        rect.origin.x -= self.thesisPagesView.bounds.size.width;
+        tempScrollView = [[PDFScrollView alloc] initWithFrame:rect
+                                                     Document:self.myPDFDocument.pdfDocumentRef
+                                                    PageIndex:(page - 1)];
+        [self.tempViews addObject:tempScrollView];
+        [self.thesisPagesView addSubview:tempScrollView];
+        [tempScrollView setNeedsLayout];
+        [self.viewsForThesisPages setObject:tempScrollView forKey:kPrePage];
+    }
+    
+    if (page != self.myPDFDocument.totalPages) {
+        rect = self.tempFrame_;
+        rect.origin.x = page * self.thesisPagesView.bounds.size.width;
+        tempScrollView = [[PDFScrollView alloc] initWithFrame:rect
+                                                     Document:self.myPDFDocument.pdfDocumentRef
+                                                    PageIndex:(page + 1)];
+        [self.tempViews addObject:tempScrollView];
+        [self.thesisPagesView addSubview:tempScrollView];
+        [tempScrollView setNeedsLayout];
+        [self.viewsForThesisPages setObject:tempScrollView forKey:kNxtPage];
+    }
 }
 
 #pragma mark - UIAlertView Delegate
@@ -569,7 +700,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     }
     else if (self.alertDelegate_ == kRemvStkAlert) { // 移除当前页面所有笔注对话框
         if (buttonIndex == 1) { // 确定删除本页所有笔画
-            [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_deleteAllStrokes];
+            [[self.viewsForThesisPages objectForKey:kCurPage] calloutPDFView_deleteAllStrokes];
             [self finishAddingStrokes:nil];
         }
     }

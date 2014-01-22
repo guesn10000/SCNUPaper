@@ -173,7 +173,7 @@ static NSString *kCellIdentifier = @"Cell";
             appDelegate.mainPDFViewController.hasEdited = YES;
             
             // 刷新tiledPDFScrollView
-            [appDelegate.mainPDFViewController.viewsForThesisPages[self.currentPageIndex - 1] refreshTiledPDFView];
+            [[appDelegate.mainPDFViewController.viewsForThesisPages objectForKey:@"cur"] refreshTiledPDFView];
         }
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {

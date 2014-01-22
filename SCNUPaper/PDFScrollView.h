@@ -19,6 +19,8 @@
 
 @property (strong, nonatomic) MyPDFPage *myPDFPage;
 
+@property (assign, nonatomic) NSInteger pageIndex;
+
 /* iPhone视图到iPad视图之间的转换参数 */
 @property (assign, nonatomic) CGFloat iPhone_iPad_Scale;
 
