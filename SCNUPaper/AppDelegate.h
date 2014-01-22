@@ -14,6 +14,7 @@
 @class KeyGeneraton;
 @class JCFilePersistence;
 @class FileCleaner;
+@class MyPDFCreator;
 @class LoginViewController;
 @class LatestViewController;
 @class MainPDFViewController;
@@ -42,6 +43,9 @@
 
 /* 清理文件 */
 @property (strong, nonatomic) FileCleaner *fileCleaner;
+
+/* 创建PDF文件，和一些压缩和解压工作 */
+@property (strong, nonatomic) MyPDFCreator *pdfCreator;
 
 /* 全局的spinner，用于指示正在进行数据处理 */
 @property (strong, nonatomic) UIActivityIndicatorView *app_spinner;

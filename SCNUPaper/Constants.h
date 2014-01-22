@@ -46,16 +46,20 @@
 
 #define CELL_IDENTIFIER @"Cell"
 
-#define PUSH_LOGIN_LATEST_SEGUE_ID @"push_LatestViewController"
-#define PUSH_LATEST_MAIN_SEGUE_ID  @"push_MainPDFViewController"
+#define UNABLE_VIEW_ALPHA  0.9
+#define DEFAULT_VIEW_ALPHA 1.0
 
 #define IPAD_TOOLBARS_NIB   @"iPad_ToolBars"
 #define IPHONE_TOOLBARS_NIB @"iPhone_ToolBars"
 
-#define UNABLE_VIEW_ALPHA  0.9
-#define DEFAULT_VIEW_ALPHA 1.0
+#define IPAD_INPUT_PAGE_XIB   @"PageInputView"
+#define IPHONE_INPUT_PAGE_XIB @"iPhone_PageInput"
 
-#define INPUTTEXTVIEW_XIB @"InputTextView.xib"
+#define IPAD_COMMENT_TABLE_XIB   @"CommentsTable"
+#define IPHONE_COMMENT_TABLE_XIB @"CheckCommTable"
+
+#define IPAD_COMMENT_DETAIL_XIB   @"CommentDetail"
+#define IPHONE_COMMENT_DETAIL_XIB @"CheckCommDetail"
 
 
 /* 应用常数 */

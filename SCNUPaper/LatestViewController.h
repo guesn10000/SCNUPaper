@@ -10,19 +10,11 @@
 
 @interface LatestViewController : UITableViewController
 
-/* 最近打开的文件清单 */
-
-@property (strong, nonatomic) NSMutableArray *latestOpenArray;
-
 /* 退出登陆 */
 - (IBAction)quitLogin:(id)sender;
 
-/*
- * 打开来自邮件或其它途径的File URL
- * 这里的File URL保存在AppDelegate中
- */
+/* 打开来自邮件或其它途径的File URL，这里的File URL保存在AppDelegate中 */
 - (void)openFileURL;
-
 
 /*
  * 从服务器下载文件
@@ -34,9 +26,5 @@
 - (void)getDownload_DOC_Data:(NSMutableData *)docData;
 - (void)getDownload_ZIP_Data:(NSMutableData *)zipData;
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData;
-
-
-/* 下载数据成功后，打开PDF文件 */
-- (void)openPDFFile;
 
 @end

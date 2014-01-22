@@ -20,6 +20,7 @@
 /* 输入用户名和密码 */
 @property (weak, nonatomic) IBOutlet UITextField *input_username_textField;
 @property (weak, nonatomic) IBOutlet UITextField *input_password_textField;
+- (IBAction)dismissKeyboard:(id)sender; // 让键盘消失
 
 /* 记住密码或自动登录 */
 @property (assign, nonatomic) BOOL shouldRememberPassword;

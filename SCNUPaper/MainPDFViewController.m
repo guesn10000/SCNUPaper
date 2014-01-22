@@ -28,9 +28,6 @@
 /* 用户是否正在编辑，包括添加笔注和添加文字或语音 */
 @property (assign, nonatomic) BOOL isEditing_;
 
-/* 从nib加载的工具栏数组 */
-@property (assign, nonatomic) NSArray *nibToolbars_;
-
 /* 该参数决定执行alertview delegate时的动作 */
 @property (assign, nonatomic) NSInteger alertDelegate_;
 
@@ -52,11 +49,9 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [super viewDidLoad];
     
     /* 初始化一些基本参数 */
-    
     self.isEditing_ = NO;
     self.hasEdited  = NO;
     self.alertDelegate_ = kDefaultAlert;
-    self.view.backgroundColor = (IS_IPAD) ? [UIColor whiteColor] : [UIColor lightGrayColor];
     
     // 产生管理Annotation key的序列号生成器
     AppDelegate *appDelegate  = APPDELEGATE;
@@ -85,19 +80,18 @@ const  CGFloat   kStopButtonLoc = 60.0;
     CGRect toolbarsFrame = CGRectMake(0,
                                       self.view.bounds.size.height - TOOLBAR_HEIGHT,
                                       self.view.bounds.size.width,
-                                      TOOLBAR_HEIGHT
-                                      );
+                                      TOOLBAR_HEIGHT);
     
     // 从nib中加载工具栏数组
     NSString *nibName = (IS_IPAD) ? IPAD_TOOLBARS_NIB : IPHONE_TOOLBARS_NIB;
-    self.nibToolbars_ = [[NSBundle mainBundle] loadNibNamed:nibName owner:self options:nil];
+    NSArray *nibToolbars = [[NSBundle mainBundle] loadNibNamed:nibName owner:self options:nil];
     
     // 设置工具栏和导航栏按钮
     AppDelegate *appDelegate = APPDELEGATE;
     if (appDelegate.cookies.isTeacher && IS_IPAD) { // 登陆的用户是老师，并且用iPad登陆
-        self.mainOptions_Toolbar    = (UIToolbar *)self.nibToolbars_[0];
-        self.strokeOptions_Toolbar  = (UIToolbar *)self.nibToolbars_[1];
-        self.commentOptions_Toolbar = (UIToolbar *)self.nibToolbars_[2];
+        self.mainOptions_Toolbar    = (UIToolbar *)nibToolbars[0];
+        self.strokeOptions_Toolbar  = (UIToolbar *)nibToolbars[1];
+        self.commentOptions_Toolbar = (UIToolbar *)nibToolbars[2];
         
         self.mainOptions_Toolbar.frame    = toolbarsFrame;
         self.strokeOptions_Toolbar.frame  = toolbarsFrame;
@@ -111,10 +105,10 @@ const  CGFloat   kStopButtonLoc = 60.0;
         [self.view addSubview:self.strokeOptions_Toolbar];
         [self.view addSubview:self.commentOptions_Toolbar];
     }
-    else { // 登陆的用户是学生
+    else { // 登陆的用户是学生，或用iPhone登陆
         self.navigationItem.rightBarButtonItem = nil; // 隐藏同步及发送邮件的操作按钮
         
-        self.mainOptions_Toolbar = (UIToolbar *)self.nibToolbars_[0];
+        self.mainOptions_Toolbar = (UIToolbar *)nibToolbars[0];
         self.mainOptions_Toolbar.frame = toolbarsFrame;
         self.mainOptions_Toolbar.hidden = NO;
         self.addStroke_barButtonItem.enabled = NO;
@@ -124,7 +118,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
         [self.view addSubview:self.mainOptions_Toolbar];
     }
     
-    NSString *pageInputNibName = (IS_IPAD) ? @"PageInputView" : @"iPhone_PageInput";
+    // 添加页码输入视图
+    NSString *pageInputNibName = (IS_IPAD) ? IPAD_INPUT_PAGE_XIB : IPHONE_INPUT_PAGE_XIB;
     NSArray *inputNibs = [[NSBundle mainBundle] loadNibNamed:pageInputNibName owner:self options:nil];
     self.pageInputView = [inputNibs objectAtIndex:0];
     self.pageInputView.layer.cornerRadius = 6.0;
@@ -144,11 +139,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
                                                      STATUS_NAVIGATIONBAR_HEIGHT  -\
                                                      TOOLBAR_HEIGHT)];
     [self.view addSubview:self.thesisPagesView];
-    self.thesisPagesView.backgroundColor                = [UIColor lightGrayColor];
     self.thesisPagesView.delegate                       = self;
     self.thesisPagesView.autoresizesSubviews            = YES;
-    self.thesisPagesView.contentOffset                  = CGPointZero;
-    self.thesisPagesView.directionalLockEnabled         = NO;
     self.thesisPagesView.pagingEnabled                  = YES;
     self.thesisPagesView.showsHorizontalScrollIndicator = NO;
     self.thesisPagesView.showsVerticalScrollIndicator   = NO;
@@ -156,12 +148,17 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.thesisPagesView.bounces                        = YES;
     self.thesisPagesView.scrollEnabled                  = YES;
     self.thesisPagesView.userInteractionEnabled         = YES;
-    self.thesisPagesView.contentSize                    = CGSizeMake(self.thesisPagesView.bounds.size.width *\
-                                                                     self.myPDFDocument.totalPages,
-                                                                     self.thesisPagesView.bounds.size.height);
+    self.thesisPagesView.contentOffset                  = CGPointZero;
+    self.thesisPagesView.contentSize = CGSizeMake(self.thesisPagesView.bounds.size.width * self.myPDFDocument.totalPages,
+                                                  self.thesisPagesView.bounds.size.height);
     
-    // 设置scroll view中的内容
-    self.viewsForThesisPages = [[NSMutableArray alloc] init];
+    if (!self.viewsForThesisPages) {
+        self.viewsForThesisPages = [[NSMutableArray alloc] init];
+    }
+    else {
+        [self.viewsForThesisPages removeAllObjects];
+    }
+    
     for (int i = 1; i <= self.myPDFDocument.totalPages; i++) {
         PDFScrollView *pdfScrollView = [[PDFScrollView alloc]
                                         initWithFrame:CGRectMake((i - 1) * self.thesisPagesView.bounds.size.width,
@@ -169,8 +166,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
                                                                  self.thesisPagesView.bounds.size.width,
                                                                  self.thesisPagesView.bounds.size.height)
                                         Document:self.myPDFDocument.pdfDocumentRef
-                                        PageIndex:i
-                                        ];
+                                        PageIndex:i];
         [self.viewsForThesisPages addObject:pdfScrollView];
         [self.thesisPagesView addSubview:pdfScrollView];
         [pdfScrollView setNeedsLayout]; // 立即刷新pdfScrollView的位置
@@ -182,13 +178,16 @@ const  CGFloat   kStopButtonLoc = 60.0;
     AppDelegate *appDelegate = APPDELEGATE;
     
     // 设置展现comments列表视图
-    NSString *commNibname = (IS_IPAD) ? @"CommentsTable" : @"CheckCommTable";
+    NSString *commNibname = (IS_IPAD) ? IPAD_COMMENT_TABLE_XIB : IPHONE_COMMENT_TABLE_XIB;
     NSArray *commNibs = [[NSBundle mainBundle] loadNibNamed:commNibname owner:self options:nil];
     self.viewForCheckComments = [commNibs objectAtIndex:0];
     self.viewForCheckComments.layer.cornerRadius = 6.0;
     self.viewForCheckComments.layer.masksToBounds = YES;
     self.viewForCheckComments.hidden = YES;
-    self.allComments                   = [[Comments alloc] init];
+    if (!self.allComments) {
+        self.allComments = [[Comments alloc] init];
+    }
+    self.allComments.currentText = @"";
     self.checkCommentsTable.delegate   = self;
     self.checkCommentsTable.dataSource = self.allComments;
     
@@ -197,20 +196,22 @@ const  CGFloat   kStopButtonLoc = 60.0;
         self.addNewComments_Menu = [commNibs objectAtIndex:1];
         self.addNewComments_Menu.layer.cornerRadius = 6.0;
         self.addNewComments_Menu.layer.masksToBounds = YES;
-        CGFloat menuHeight = self.addNewComments_Menu.frame.size.height / 2 + TOOLBAR_HEIGHT;
-        self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.frame.size.width / 2,
-                                                      self.view.frame.size.height - menuHeight);
+        CGFloat menuHeight = self.addNewComments_Menu.bounds.size.height / 2 + TOOLBAR_HEIGHT;
+        self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.bounds.size.width / 2,
+                                                      self.view.bounds.size.height - menuHeight);
         self.addNewComments_Menu.hidden = YES;
         [appDelegate.window addSubview:self.addNewComments_Menu];
     }
     
-    CGFloat height = self.viewForCheckComments.frame.size.height;
+    CGFloat height = self.viewForCheckComments.bounds.size.height;
     CGPoint center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
     self.viewForCheckComments.center = center;
     self.viewForCheckComments.hidden = YES;
     [self.view addSubview:self.viewForCheckComments];
     
-    self.voicePlayer = [[VoicePlayer alloc] initWithCenter:self.viewForCheckComments.center];
+    if (!self.voicePlayer) {
+        self.voicePlayer = [[VoicePlayer alloc] initWithCenter:self.viewForCheckComments.center];
+    }
     self.stopPlaying_button = [commNibs objectAtIndex:2];
     self.stopPlaying_button.hidden = YES;
     self.stopPlaying_button.center = CGPointMake(center.x, center.y + kStopButtonLoc);
@@ -218,13 +219,13 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     
     // 设置comment的细节视图
-    NSString *detailNibname = (IS_IPAD) ? @"CommentDetail" : @"CheckCommDetail";
+    NSString *detailNibname = (IS_IPAD) ? IPAD_COMMENT_DETAIL_XIB : IPHONE_COMMENT_DETAIL_XIB;
     NSArray *detailNibs = [[NSBundle mainBundle] loadNibNamed:detailNibname owner:self options:nil];
     self.viewForCommentDetails = [detailNibs objectAtIndex:0];
     self.viewForCommentDetails.layer.cornerRadius = 6.0;
     self.viewForCommentDetails.layer.masksToBounds = YES;
     
-    height = self.viewForCommentDetails.frame.size.height;
+    height = self.viewForCommentDetails.bounds.size.height;
     center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
     self.viewForCommentDetails.center = center;
     self.viewForCommentDetails.hidden = YES;
@@ -280,9 +281,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [mailViewController setMessageBody:@"批改的论文已附在下列附件，如果想查看老师的批注，请使用\"论文批阅系统\"打开查看" isHTML:NO];
     
     // 4.添加附件
-    MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
-    [pdfCreator createNewPDFFile];
-    [pdfCreator uploadFilesToServer];
+    [appDelegate.pdfCreator createNewPDFFile];
+    [appDelegate.pdfCreator uploadFilesToServer];
     
     NSString *folderDirectory = appDelegate.cookies.getPDFFolderDirectory;
     folderDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];
@@ -294,7 +294,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     [self presentViewController:mailViewController animated:YES completion:nil];
 }
 
-/// MailComposer Delegate
+/* MailComposer Delegate */
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     switch (result) {
         case MFMailComposeResultCancelled:
@@ -324,41 +324,41 @@ const  CGFloat   kStopButtonLoc = 60.0;
 /* 跳转到指定页 */
 - (IBAction)turnToPage:(id)sender {
     self.view.userInteractionEnabled = NO;
-    self.pageInputView.hidden = NO;
     self.inputPageIndex_textField.text = @"";
+    self.pageInputView.hidden = NO;
     [self.inputPageIndex_textField becomeFirstResponder];
-    [self lockThesisPagesView];
 }
 
+/* 确定跳转页面 */
 - (IBAction)turnToPage_Action:(id)sender {
     NSInteger pageIndex = self.inputPageIndex_textField.text.integerValue;
     if (pageIndex > 0 && pageIndex <= self.myPDFDocument.totalPages) {
         [self.inputPageIndex_textField resignFirstResponder];
-        self.view.userInteractionEnabled = YES;
         self.pageInputView.hidden = YES;
-        [self unlockThesisPagesView];
-        
+
         self.myPDFDocument.currentIndex = pageIndex;
         self.navigationItem.title = [NSString stringWithFormat:@"%zu / %zu", self.myPDFDocument.currentIndex, self.myPDFDocument.totalPages];
-        self.thesisPagesView.contentOffset = CGPointMake((pageIndex - 1) * self.thesisPagesView.frame.size.width,
-                                                         0.0);
+        self.thesisPagesView.contentOffset = CGPointMake((pageIndex - 1) * self.thesisPagesView.frame.size.width, 0.0);
+        self.view.userInteractionEnabled = YES;
     }
     else {
         [JCAlert alertWithMessage:@"您输入的页码出错"];
     }
 }
 
+/* 取消跳转页面 */
 - (IBAction)cancelTurnPage_Action:(id)sender {
     [self.inputPageIndex_textField resignFirstResponder];
-    self.view.userInteractionEnabled = YES;
     self.pageInputView.hidden = YES;
-    [self unlockThesisPagesView];
+    self.view.userInteractionEnabled = YES;
 }
 
 #pragma mark - Add Strokes
 
 /* 主选项：添加笔注 */
 - (IBAction)addStrokes:(id)sender {
+    [self lockThesisPagesView];
+    
     // 1.设置底部的工具栏
     self.mainOptions_Toolbar.hidden   = YES;
     self.strokeOptions_Toolbar.hidden = NO;
@@ -366,7 +366,6 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     // 2.开始选择文字
     self.isEditing_ = YES;
-    self.thesisPagesView.scrollEnabled = NO; // 锁住scroll view的滑动
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addStrokes]; // 调用当前视图的add strokes方法
 }
 
@@ -392,8 +391,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     self.isEditing_ = NO; // 解除编辑状态
     self.hasEdited  = YES;
-    self.thesisPagesView.scrollEnabled = YES; // 解锁
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_finishAddingStrokes]; // 通知对应视图完成添加批注
+    [self unlockThesisPagesView];
 }
 
 /* 添加笔注：取消添加笔画 */
@@ -403,21 +402,22 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.mainOptions_Toolbar.hidden   = NO;
     
     self.isEditing_ = NO; // 解除编辑状态
-    self.thesisPagesView.scrollEnabled = YES; // 解锁
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_cancelAddingStrokes]; // 通知对应视图取消添加批注
+    [self unlockThesisPagesView];
 }
 
 #pragma mark - Add Comments
 
 /* 选择文字 */
 - (IBAction)selectText:(id)sender {
+    [self lockThesisPagesView];
+    
     // 1.设置底部的工具栏
     self.mainOptions_Toolbar.hidden    = YES;
     self.commentOptions_Toolbar.hidden = NO;
     
     // 2.开始选择文字
     self.isEditing_ = YES; // 进入编辑状态
-    self.thesisPagesView.scrollEnabled = NO; // 锁定scroll view的滚动
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addComments];
 }
 
@@ -427,8 +427,8 @@ const  CGFloat   kStopButtonLoc = 60.0;
     self.mainOptions_Toolbar.hidden    = NO;
     
     self.isEditing_ = NO;
-    self.thesisPagesView.scrollEnabled = YES;
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_cancelAddingComments];
+    [self unlockThesisPagesView];
 }
 
 /* 完成添加批注 */
@@ -438,54 +438,60 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     self.isEditing_ = NO;
     self.hasEdited = YES;
-    self.thesisPagesView.scrollEnabled = YES;
+    [self unlockThesisPagesView];
 }
 
 #pragma mark - Check Comments
 
+/* 查看批注，呼出批注列表 */
 - (void)checkComments {
     [self lockThesisPagesView];
     [self.checkCommentsTable reloadData];
-    self.viewForCheckComments.hidden = NO;
+    self.viewForCheckComments.hidden  = NO;
     self.viewForCommentDetails.hidden = YES;
-    self.addNewComments_Menu.hidden = YES;
+    self.addNewComments_Menu.hidden   = YES;
 }
 
+/* 取消查看批注，让批注列表消失 */
 - (IBAction)dismissCommentsView:(id)sender {
-    self.addNewComments_Menu.hidden = YES;
-    self.viewForCheckComments.hidden = YES;
+    self.addNewComments_Menu.hidden   = YES;
+    self.viewForCheckComments.hidden  = YES;
     self.viewForCommentDetails.hidden = YES;
-    self.mainOptions_Toolbar.hidden = NO;
+    self.mainOptions_Toolbar.hidden   = NO;
     [self unlockThesisPagesView];
 }
 
+/* 呼出添加新的批注内容的菜单 */
 - (IBAction)addNewComments:(id)sender {
     self.addNewComments_Menu.hidden = NO;
 }
 
+/* 为批注添加新的文字内容 */
 - (IBAction)addNewTextComments:(id)sender {
     [self lockThesisPagesView];
     self.viewForCheckComments.hidden = YES;
-    self.addNewComments_Menu.hidden = YES;
+    self.addNewComments_Menu.hidden  = YES;
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewTextComments];
 }
 
+/* 为批注添加新的语音内容 */
 - (IBAction)addNewVoiceComments:(id)sender {
     [self lockThesisPagesView];
     self.viewForCheckComments.hidden = YES;
-    self.addNewComments_Menu.hidden = YES;
+    self.addNewComments_Menu.hidden  = YES;
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_addNewVoiceComments];
 }
 
 #pragma mark - TableView Delegate
 
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+/* 点击查看批注列表中的内容 */
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0) { // 打开文字批注内容
-        self.viewForCheckComments.hidden = YES;
-        self.viewForCommentDetails.hidden = NO;
         self.commentDetailsView.text = self.allComments.textComments[indexPath.row];
-        self.allComments.currentRow = indexPath.row;
+        self.allComments.currentRow  = indexPath.row;
         self.allComments.currentText = self.allComments.textComments[indexPath.row];
+        self.viewForCheckComments.hidden  = YES;
+        self.viewForCommentDetails.hidden = NO;
     }
     else if (indexPath.section == 1) { // 播放语音内容
         NSString *mp3FileName = self.allComments.voiceComments[indexPath.row];
@@ -503,6 +509,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
     return kCellHeight;
 }
 
+/* 暂停播放录音 */
 - (IBAction)stopPlayingRecordFile:(id)sender {
     [self.voicePlayer stopRecordVoicePlaying];
     self.stopPlaying_button.hidden = YES;
@@ -510,14 +517,16 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 #pragma mark - Comment Detail
 
+/* 返回批注列表 */
 - (IBAction)gobackToCommentsTable:(id)sender {
     self.viewForCommentDetails.hidden = YES;
-    self.viewForCheckComments.hidden = NO;
+    self.viewForCheckComments.hidden  = NO;
 }
 
+/* 编辑批注细节中的文字内容 */
 - (IBAction)editCommentDetails:(id)sender {
-    self.viewForCommentDetails.hidden = YES;
     [self lockThesisPagesView];
+    self.viewForCommentDetails.hidden = YES;
     [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_editTextComments];
 }
 
@@ -542,15 +551,15 @@ const  CGFloat   kStopButtonLoc = 60.0;
 #pragma mark - UIAlertView Delegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (self.alertDelegate_ == kSyncronAlert) {
+    if (self.alertDelegate_ == kSyncronAlert) { // 同步对话框
         AppDelegate *appDelegate = APPDELEGATE;
-        if (buttonIndex == 1) {
+        if (buttonIndex == 1) { // 保存修改并返回
             appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
             appDelegate.window.userInteractionEnabled = NO;
             
-            MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
-            [pdfCreator createNewPDFFile];
-            [pdfCreator uploadFilesToServer];
+            // 创建pdf文件并上传到服务器
+            [appDelegate.pdfCreator createNewPDFFile];
+            [appDelegate.pdfCreator uploadFilesToServer];
         }
         
         // 返回最近打开列表
@@ -558,13 +567,10 @@ const  CGFloat   kStopButtonLoc = 60.0;
         appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
         appDelegate.window.userInteractionEnabled = YES;
     }
-    else if (self.alertDelegate_ == kRemvStkAlert) {
-        if (buttonIndex == 1) { // 删除本页所有笔画
+    else if (self.alertDelegate_ == kRemvStkAlert) { // 移除当前页面所有笔注对话框
+        if (buttonIndex == 1) { // 确定删除本页所有笔画
             [self.viewsForThesisPages[self.myPDFDocument.currentIndex - 1] calloutPDFView_deleteAllStrokes];
             [self finishAddingStrokes:nil];
-        }
-        else { // 取消
-            
         }
     }
 }

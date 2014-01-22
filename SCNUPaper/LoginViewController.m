@@ -7,11 +7,11 @@
 //
 
 #import "LoginViewController.h"
-#import "Constants.h"
 #import "AppDelegate.h"
+#import "Constants.h"
+#import "JCAlert.h"
 #import "URLConnector.h"
 #import "Cookies.h"
-#import "JCAlert.h"
 
 /***********************************************************************/
 #import "LatestViewController.h"
@@ -33,7 +33,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    /* 获取基本参数 */
+    // 获取基本参数
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *tempUsername   = [userDefaults objectForKey:LATEST_USERNAME];
     NSString *tempPassword   = [userDefaults objectForKey:LATEST_PASSWORD];
@@ -44,30 +44,17 @@
     // 老师或学生的单选框
     self.isTeacher = (tempIsTeacher && [tempIsTeacher isEqualToString:@"YES"]) ? YES : NO;
     if (self.isTeacher) {
-        [self.isTeacher_button setImage:SEL_RADIO_IMG forState:UIControlStateNormal];
+        [self.isTeacher_button setImage:SEL_RADIO_IMG   forState:UIControlStateNormal];
         [self.isStudent_button setImage:UNSEL_RADIO_IMG forState:UIControlStateNormal];
     }
     else {
         [self.isTeacher_button setImage:UNSEL_RADIO_IMG forState:UIControlStateNormal];
-        [self.isStudent_button setImage:SEL_RADIO_IMG forState:UIControlStateNormal];
+        [self.isStudent_button setImage:SEL_RADIO_IMG   forState:UIControlStateNormal];
     }
     
-    // 用户名输入框
-    self.input_username_textField.borderStyle            = UITextBorderStyleRoundedRect;
-    self.input_username_textField.autocapitalizationType = NO;
-    self.input_username_textField.autocorrectionType     = NO;
-    self.input_username_textField.returnKeyType          = UIReturnKeyDefault;
-    self.input_username_textField.keyboardType           = UIKeyboardTypeAlphabet;
-    self.input_username_textField.text                   = tempUsername;
-    
-    // 密码输入框
-    self.input_password_textField.borderStyle            = UITextBorderStyleRoundedRect;
-    self.input_password_textField.secureTextEntry        = YES;
-    self.input_password_textField.autocapitalizationType = NO;
-    self.input_password_textField.autocorrectionType     = NO;
-    self.input_password_textField.returnKeyType          = UIReturnKeyDefault;
-    self.input_username_textField.keyboardType           = UIKeyboardTypeAlphabet;
-    self.input_password_textField.text                   = tempPassword;
+    // 用户名输入框和密码输入框
+    self.input_username_textField.text = tempUsername;
+    self.input_password_textField.text = tempPassword;
     
     // 记住密码选项的复选框
     self.shouldRememberPassword = (tempRemembPass && [tempRemembPass isEqualToString:@"YES"]) ? YES : NO;
@@ -87,11 +74,7 @@
         [self.loginAutomatically_button setImage:UNSEL_CHECKBOX_IMG forState:UIControlStateNormal];
     }
     
-    // 添加tap手势
-    UITapGestureRecognizer *tapInView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard:)];
-    [self.view addGestureRecognizer:tapInView];
-    
-    // 自动登录
+    // 是否需要自动登录
     if (self.shouldLoginAutomatically) {
         [self loginToServer:nil];
     }
@@ -99,7 +82,6 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Login Options
@@ -153,7 +135,7 @@
         [appDelegate.cookies saveUserInfo];
         
         // push LatestViewController进栈
-        [appDelegate.loginViewController.navigationController pushViewController:appDelegate.latestViewController animated:YES];
+        [appDelegate.rootViewController pushViewController:appDelegate.latestViewController animated:YES];
         /***********************************************************************/
     }
     else {
@@ -163,12 +145,13 @@
 
 #pragma mark - Regist
 
-- (IBAction)registerAccount:(id)sender {
+- (IBAction)registerAccount:(id)sender
+{
 }
 
 #pragma mark - Dismiss keyboard
 
-- (void)dismissKeyboard:(id)sender {
+- (IBAction)dismissKeyboard:(id)sender {
     [self.input_username_textField resignFirstResponder];
     [self.input_password_textField resignFirstResponder];
 }

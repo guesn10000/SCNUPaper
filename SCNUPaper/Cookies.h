@@ -20,6 +20,7 @@
 - (id)initWithUsername:(NSString *)username Password:(NSString *)password NickName:(NSString *)nickname;
 - (id)initWithUsername:(NSString *)username Password:(NSString *)password;
 
+/* 操作Cookies */
 - (void)saveUserInfo;
 - (void)cookiesQuitLogin;
 
@@ -33,7 +34,7 @@
 - (void)setFileNamesWithPDFFileName:(NSString *)pdfFileName;
 - (void)setFileNamesWithPureFileName:(NSString *)pureFileName;
 
-/* 获取文件夹的相对目录 */
+/* 获取文件夹或文件的相对目录 */
 - (NSString *)getDOCFolderDirectory;
 - (NSString *)getPDFFolderDirectory;
 - (NSString *)getDOCFileDirectory;

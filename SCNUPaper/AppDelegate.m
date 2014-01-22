@@ -11,6 +11,7 @@
 #import "JCAlert.h"
 #import "Cookies.h"
 #import "URLConnector.h"
+#import "MyPDFCreator.h"
 #import "JCFilePersistence.h"
 #import "FileCleaner.h"
 #import "LoginViewController.h"
@@ -19,43 +20,10 @@
 
 @implementation AppDelegate
 
-/* 设置基本的ViewController */
-- (void)setViewControllers {
-    // 1.重置ViewControllers
-    self.rootViewController    = nil;
-    self.latestViewController  = nil;
-    self.mainPDFViewController = nil;
-    
-    // 2.重新指定root view controller，避免push view controller时navigation controller是空的或者栈中的视图为空
-    self.rootViewController    = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
-                                  instantiateInitialViewController];
-    
-    self.loginViewController   = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
-                                  instantiateViewControllerWithIdentifier:LOGINVIEWCONTROLLER_ID];
-    
-    self.latestViewController  = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
-                                  instantiateViewControllerWithIdentifier:LATESTVIEWCONTROLLER_ID];
-    
-    self.mainPDFViewController = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
-                                  instantiateViewControllerWithIdentifier:MAINPDFVIEWCONTROLLER_ID];
-    
-    self.loginViewController.request_openFileURL = NO; // 程序刚开始时并不请求open file url
-    
-    self.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.loginViewController];
-    if (self.urlConnector.isLoginSucceed) {
-        [self.loginViewController.navigationController pushViewController:self.latestViewController animated:YES];
-    }
-    else {
-        
-    }
-    
-    self.window.rootViewController = self.rootViewController;
-}
-
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     if (url && [url isFileURL]) { // 如果是file url
-        // 设置好ViewControllers
-        [self setViewControllers];
+        // 返回根视图
+        [self.rootViewController popToRootViewControllerAnimated:YES];
         
         // 记录当前文件的URL
         self.fileURL = url;
@@ -63,6 +31,7 @@
         if (self.urlConnector.isLoginSucceed) {
             self.window.alpha = UNABLE_VIEW_ALPHA;
             [self.window setUserInteractionEnabled:NO];
+            [self.loginViewController.navigationController pushViewController:self.latestViewController animated:YES];
             [self.latestViewController openFileURL]; // 已登陆，直接打开file url
         }
         else {
@@ -79,8 +48,24 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // 1.设置好ViewControllers
-    [self setViewControllers];
+    // 1.设置root view controller，避免push view controller时navigation controller是空的或者栈中的视图为空
+    self.rootViewController    = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
+                                  instantiateInitialViewController];
+    
+    self.loginViewController   = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
+                                  instantiateViewControllerWithIdentifier:LOGINVIEWCONTROLLER_ID];
+    
+    self.latestViewController  = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
+                                  instantiateViewControllerWithIdentifier:LATESTVIEWCONTROLLER_ID];
+    
+    self.mainPDFViewController = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
+                                  instantiateViewControllerWithIdentifier:MAINPDFVIEWCONTROLLER_ID];
+    
+    self.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.loginViewController];
+    
+    self.window.rootViewController = self.rootViewController;
+    
+    self.loginViewController.request_openFileURL = NO; // 程序刚开始时并不请求open file url
     
     // 2.设置好全局的spinner，先不要add subview，否则会被后面的views遮住
     self.app_spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -89,9 +74,10 @@
     self.app_spinner.center = self.window.center;
     
     // 3.初始化基本参数
-    self.urlConnector = [[URLConnector alloc] init];
+    self.urlConnector    = [[URLConnector alloc] init];
     self.filePersistence = [[JCFilePersistence alloc] init];
-    self.fileCleaner = [[FileCleaner alloc] init];
+    self.fileCleaner     = [[FileCleaner alloc] init];
+    self.pdfCreator      = [[MyPDFCreator alloc] init];
     [self.fileCleaner clearDocumentFiles]; // 清除本地残留的zip, mp3, caf等文件
     
     return YES;

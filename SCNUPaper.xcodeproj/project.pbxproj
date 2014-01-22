@@ -60,6 +60,7 @@
 		18904CF0183A687600F0DF63 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18904CEF183A687600F0DF63 /* CoreAudio.framework */; };
 		18904CFA183A71A800F0DF63 /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 18904CF9183A71A800F0DF63 /* Comments.m */; };
 		18904D11183A83D200F0DF63 /* JCFilePersistence.m in Sources */ = {isa = PBXBuildFile; fileRef = 18904D10183A83D200F0DF63 /* JCFilePersistence.m */; };
+		18909AC4188FEF6000845307 /* JCTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 18909AC3188FEF6000845307 /* JCTimer.m */; };
 		1890D17B1887DEF600462055 /* FileCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1890D17A1887DEF600462055 /* FileCleaner.m */; };
 		18B4474718473DD20074D669 /* Stroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B4474618473DD20074D669 /* Stroke.m */; };
 		18B4474A184792020074D669 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B44749184792020074D669 /* LoginViewController.m */; };
@@ -184,6 +185,8 @@
 		18904CF9183A71A800F0DF63 /* Comments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Comments.m; sourceTree = "<group>"; };
 		18904D0F183A83D200F0DF63 /* JCFilePersistence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCFilePersistence.h; sourceTree = "<group>"; };
 		18904D10183A83D200F0DF63 /* JCFilePersistence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCFilePersistence.m; sourceTree = "<group>"; };
+		18909AC2188FEF6000845307 /* JCTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCTimer.h; sourceTree = "<group>"; };
+		18909AC3188FEF6000845307 /* JCTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCTimer.m; sourceTree = "<group>"; };
 		1890D1791887DEF600462055 /* FileCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileCleaner.h; sourceTree = "<group>"; };
 		1890D17A1887DEF600462055 /* FileCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileCleaner.m; sourceTree = "<group>"; };
 		18B4474518473DD20074D669 /* Stroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stroke.h; sourceTree = "<group>"; };
@@ -531,6 +534,8 @@
 				185F26131838B56900347214 /* JCAlert.m */,
 				18904CD3183A1F3A00F0DF63 /* JCPoint.h */,
 				18904CD4183A1F3A00F0DF63 /* JCPoint.m */,
+				18909AC2188FEF6000845307 /* JCTimer.h */,
+				18909AC3188FEF6000845307 /* JCTimer.m */,
 			);
 			name = Support;
 			sourceTree = "<group>";
@@ -767,6 +772,7 @@
 			files = (
 				18E288D81849924100BA1E70 /* MainPDFViewController.m in Sources */,
 				185F2583183898B200347214 /* AppDelegate.m in Sources */,
+				18909AC4188FEF6000845307 /* JCTimer.m in Sources */,
 				186FD6F2183DEBEC001C0B92 /* mztools.c in Sources */,
 				1890D17B1887DEF600462055 /* FileCleaner.m in Sources */,
 				18904D11183A83D200F0DF63 /* JCFilePersistence.m in Sources */,

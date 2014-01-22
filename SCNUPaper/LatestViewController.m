@@ -9,20 +9,24 @@
 #import "LatestViewController.h"
 #import "AppDelegate.h"
 #import "Constants.h"
-#import "Cookies.h"
-#import "JCFilePersistence.h"
-#import "FileCleaner.h"
-#import "URLConnector.h"
 #import "JCAlert.h"
+#import "JCTimer.h"
+#import "JCFilePersistence.h"
+#import "Cookies.h"
+#import "URLConnector.h"
 #import "MyPDFDocument.h"
 #import "MyPDFCreator.h"
+#import "FileCleaner.h"
 #import "LoginViewController.h"
 #import "MainPDFViewController.h"
 
 @interface LatestViewController ()
 
-// 从最近打开文件中加载用户列表
+/* 从最近打开文件中加载用户列表 */
 @property (strong, nonatomic) NSMutableDictionary *userslist_;
+
+/* 最近打开的文件清单 */
+@property (strong, nonatomic) NSMutableArray *latestOpenArray_;
 
 @end
 
@@ -47,17 +51,18 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     AppDelegate *appDelegate = APPDELEGATE;
     self.userslist_ = [appDelegate.filePersistence loadMutableDictionaryFromDocumentFile:LATEST_OPEN_FILENAME];
     if (self.userslist_) {
-        self.latestOpenArray = [self.userslist_ objectForKey:appDelegate.cookies.username];
-        if (!self.latestOpenArray) {
-            self.latestOpenArray = [[NSMutableArray alloc] init];
+        self.latestOpenArray_ = [self.userslist_ objectForKey:appDelegate.cookies.username];
+        if (!self.latestOpenArray_) {
+            self.latestOpenArray_ = [[NSMutableArray alloc] init];
         }
     }
     else {
         self.userslist_ = [[NSMutableDictionary alloc] init];
-        self.latestOpenArray = [[NSMutableArray alloc] init];
+        self.latestOpenArray_ = [[NSMutableArray alloc] init];
     }
 }
 
+/* 当视图将要消失时移除窗口中的spinner */
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     
@@ -72,7 +77,9 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+    self.userslist_ = nil;
+    self.latestOpenArray_ = nil;
 }
 
 #pragma mark - Table view data source
@@ -82,7 +89,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.latestOpenArray.count;
+    return self.latestOpenArray_.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -93,61 +100,19 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     }
     
     // configuring cell
-    NSDictionary *latestInfo = [self.latestOpenArray objectAtIndex:indexPath.row];
+    NSDictionary *latestInfo  = [self.latestOpenArray_ objectAtIndex:indexPath.row];
     cell.textLabel.text       = [latestInfo objectForKey:kLatest_FileName]; // 文件名
     cell.detailTextLabel.text = [latestInfo objectForKey:kLatest_OpenTime]; // 打开时间
     
     return cell;
 }
 
-/* 更新或新增最近打开记录 */
-- (void)updateLatestOpenWithRecord:(NSMutableDictionary *)openInfo {
-    // 搜索打开记录列表，看看是否曾经打开过
-    NSDictionary *info;
-    NSString *lastFileName;
-    NSString *openFileName;
-    NSString *openFileTime;
-    int i;
-    for (i = 0; i < self.latestOpenArray.count; i++) {
-        info = [self.latestOpenArray objectAtIndex:i];
-        lastFileName = [info objectForKey:kLatest_FileName];
-        openFileName = [openInfo objectForKey:kLatest_FileName];
-        openFileTime = [openInfo objectForKey:kLatest_OpenTime];
-        if ([lastFileName isEqualToString:openFileName]) {
-            break;
-        }
-    }
-    
-    if (i == self.latestOpenArray.count) {
-        // 如果最近打开记录超出最大记录数
-        if (self.latestOpenArray.count == Maximum_LatestOpen) {
-            NSDictionary *tempInfo = [self.latestOpenArray lastObject];
-            NSString *tempFileName = [tempInfo objectForKey:kLatest_FileName];
-            tempFileName = [tempFileName substringToIndex:tempFileName.length - 4];
-            AppDelegate *appDelegate = APPDELEGATE;
-            [appDelegate.fileCleaner clearFolder:tempFileName];
-            
-            [self.latestOpenArray removeLastObject];
-        }
-    }
-    else {
-        [self.latestOpenArray removeObjectAtIndex:i];
-    }
-    
-    [self.latestOpenArray insertObject:openInfo atIndex:0];
-    
-    // 保存到文件中
-    AppDelegate *appDelegate = APPDELEGATE;
-    [self.userslist_ setObject:self.latestOpenArray forKey:appDelegate.cookies.username];
-    [appDelegate.filePersistence saveMutableDictionary:self.userslist_ toDocumentFile:LATEST_OPEN_FILENAME];
-}
-
 #pragma mark - UITableView Delegate
 
+/* 点击表格后，打开对应的doc或pdf文件 */
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // 打开doc文件
     AppDelegate *appDelegate = APPDELEGATE;
-    NSDictionary *openInfo = [self.latestOpenArray objectAtIndex:indexPath.row];
+    NSDictionary *openInfo = [self.latestOpenArray_ objectAtIndex:indexPath.row];
     NSString *filename = [openInfo objectForKey:kLatest_FileName];
     NSString *pureFileName = [filename substringToIndex:filename.length - 4];
     NSString *fileDirect;
@@ -157,6 +122,9 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     else if ([filename hasSuffix:PDF_SUFFIX]) {
         fileDirect = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, pureFileName, PDF_FOLDER_NAME];
     }
+    else {
+        return;
+    }
     
     NSString *filePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:fileDirect];
     filePath = [filePath stringByAppendingPathComponent:filename];
@@ -164,8 +132,6 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     appDelegate.fileURL = fileURL;
     [self openFileURL];
     
-    // 刷新最近打开论文列表
-    [tableView reloadData];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
@@ -173,7 +139,55 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     return 80.0;
 }
 
-#pragma mark - Open Files
+/* 更新或新增最近打开记录 */
+- (void)updateLatestOpenWithRecord:(NSMutableDictionary *)openInfo {
+    // 搜索打开记录列表，看看是否曾经打开过
+    NSDictionary *info;
+    NSString *lastFileName;
+    NSString *openFileName;
+    int i;
+    for (i = 0; i < self.latestOpenArray_.count; i++) {
+        info = [self.latestOpenArray_ objectAtIndex:i];
+        lastFileName = [info     objectForKey:kLatest_FileName];
+        openFileName = [openInfo objectForKey:kLatest_FileName];
+        if ([lastFileName isEqualToString:openFileName]) {
+            break;
+        }
+    }
+    
+    // 没有打开过该文件
+    if (i == self.latestOpenArray_.count) {
+        // 如果最近打开记录超出最大记录数
+        if (self.latestOpenArray_.count == Maximum_LatestOpen) {
+            // 清空最后一项对应的文件夹
+            NSDictionary *tempInfo = [self.latestOpenArray_ lastObject];
+            NSString *tempFileName = [tempInfo objectForKey:kLatest_FileName];
+            tempFileName = [tempFileName substringToIndex:tempFileName.length - 4];
+            AppDelegate *appDelegate = APPDELEGATE;
+            [appDelegate.fileCleaner clearFolder:tempFileName];
+            
+            // 移除数组中的元素
+            [self.latestOpenArray_ removeLastObject];
+        }
+    }
+    else {
+        [self.latestOpenArray_ removeObjectAtIndex:i];
+    }
+    
+    [self.latestOpenArray_ insertObject:openInfo atIndex:0];
+    
+    // 异步刷新页面
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
+    
+    // 保存记录到文件中
+    AppDelegate *appDelegate = APPDELEGATE;
+    [self.userslist_ setObject:self.latestOpenArray_ forKey:appDelegate.cookies.username];
+    [appDelegate.filePersistence saveMutableDictionary:self.userslist_ toDocumentFile:LATEST_OPEN_FILENAME];
+}
+
+#pragma mark - Open File
 
 - (void)openFileURL {
     // 1.获取文件名
@@ -308,8 +322,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
             
             // 解压zip包并将zip包中的数据移动到对应位置
             NSString *zipFilePath = [appDelegate.filePersistence getDirectoryOfDocumentFileWithName:appDelegate.cookies.zipFileName];
-            MyPDFCreator *pdfCreator = [[MyPDFCreator alloc] init];
-            [pdfCreator unzipFilesInPath:zipFilePath];
+            [appDelegate.pdfCreator unzipFilesInPath:zipFilePath];
             
             [appDelegate.fileCleaner clearFilesWithSuffix:ZIP_SUFFIX];
         }
@@ -356,32 +369,16 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     
     
     
-    
     /****************************************************************/
     NSString *filename = appDelegate.cookies.pdfFileName;
     /****************************************************************/
     
     
     
-    
-    
-    
+    // 更新最近打开记录
     [openInfo setObject:filename forKey:kLatest_FileName];
-    
-    // 生成时间戳
-    NSDateFormatter *fileNameFormatter = [[NSDateFormatter alloc] init];
-    [fileNameFormatter setDateFormat:@"yy年MM月dd日hh时mm分"];
-    NSString *timeStamp = [fileNameFormatter stringFromDate:[NSDate date]];
-    [openInfo setObject:timeStamp forKey:kLatest_OpenTime];
-    
-    // 添加到最近打开数组中
+    [openInfo setObject:[JCTimer get_yyMMddhhmm_StringOfCurrentTime] forKey:kLatest_OpenTime];
     [self updateLatestOpenWithRecord:openInfo];
-    
-    [self.tableView reloadData];
-    
-    appDelegate.mainPDFViewController = nil;
-    appDelegate.mainPDFViewController = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
-                                         instantiateViewControllerWithIdentifier:MAINPDFVIEWCONTROLLER_ID];
     
     // 初始化PDF文件
     NSString *pdfFileDirectory = [appDelegate.cookies getPDFFolderDirectory];
@@ -389,6 +386,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     pdfFilePath = [pdfFilePath stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     appDelegate.mainPDFViewController.myPDFDocument = [[MyPDFDocument alloc] initWithPDFFilePath:pdfFilePath];
     
+    // 关闭打开文件请求
     appDelegate.loginViewController.request_openFileURL = NO;
     
     // 将main pdf viewcontroller压入栈中
@@ -397,6 +395,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 
 #pragma mark - Quit Login
 
+/* 退出登陆 */
 - (IBAction)quitLogin:(id)sender {
 //    AppDelegate *appDelegate = APPDELEGATE;
 //    [appDelegate.cookies cookiesQuitLogin];

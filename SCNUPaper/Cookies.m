@@ -7,8 +7,8 @@
 //
 
 #import "Cookies.h"
-#import "Constants.h"
 #import "AppDelegate.h"
+#import "Constants.h"
 #import "LoginViewController.h"
 
 @implementation Cookies
@@ -38,6 +38,9 @@
     return self;
 }
 
+#pragma mark - Set cookies
+
+/* 保存登陆用户的信息到UserDefaults中 */
 - (void)saveUserInfo {
     AppDelegate *appDelegate = APPDELEGATE;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -61,34 +64,42 @@
     }
 }
 
+/* 退出登陆，清空参数 */
 - (void)cookiesQuitLogin {
+    self.username = @"";
+    self.password = @"";
+    self.nickname = @"";
+    self.pureFileName = @"";
+    self.docFileName  = @"";
+    self.pdfFileName  = @"";
+    self.zipFileName  = @"";
+    
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setObject:@"NO" forKey:SHOULD_LOGIN_AUTOMATICALLY];
     [userDefaults synchronize];
-    
 }
 
 #pragma mark - Set file names
 
 - (void)setFileNamesWithDOCFileName:(NSString *)docFileName {
-    self.docFileName = docFileName;
+    self.docFileName  = docFileName;
     self.pureFileName = [docFileName substringToIndex:docFileName.length - 4];
-    self.pdfFileName = [self.pureFileName stringByAppendingString:PDF_SUFFIX];
-    self.zipFileName = [self.pureFileName stringByAppendingString:ZIP_SUFFIX];
+    self.pdfFileName  = [self.pureFileName stringByAppendingString:PDF_SUFFIX];
+    self.zipFileName  = [self.pureFileName stringByAppendingString:ZIP_SUFFIX];
 }
 
 - (void)setFileNamesWithPDFFileName:(NSString *)pdfFileName {
-    self.pdfFileName = pdfFileName;
+    self.pdfFileName  = pdfFileName;
     self.pureFileName = [pdfFileName substringToIndex:pdfFileName.length - 4];
-    self.docFileName = [self.pureFileName stringByAppendingString:DOC_SUFFIX];
-    self.zipFileName = [self.pureFileName stringByAppendingString:ZIP_SUFFIX];
+    self.docFileName  = [self.pureFileName stringByAppendingString:DOC_SUFFIX];
+    self.zipFileName  = [self.pureFileName stringByAppendingString:ZIP_SUFFIX];
 }
 
 - (void)setFileNamesWithPureFileName:(NSString *)pureFileName {
     self.pureFileName = pureFileName;
-    self.pdfFileName = [pureFileName stringByAppendingString:PDF_SUFFIX];
-    self.docFileName = [pureFileName stringByAppendingString:DOC_SUFFIX];
-    self.zipFileName = [pureFileName stringByAppendingString:ZIP_SUFFIX];
+    self.pdfFileName  = [pureFileName stringByAppendingString:PDF_SUFFIX];
+    self.docFileName  = [pureFileName stringByAppendingString:DOC_SUFFIX];
+    self.zipFileName  = [pureFileName stringByAppendingString:ZIP_SUFFIX];
 }
 
 #pragma mark - Get directory
