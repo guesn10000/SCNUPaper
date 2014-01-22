@@ -90,7 +90,6 @@ static NSString *kCellIdentifier = @"Cell";
     if (editingStyle == UITableViewCellEditingStyleDelete) { // 删除批注
         AppDelegate *appDelegate = APPDELEGATE;
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        BOOL showComments = YES;
         
         if (indexPath.section == 0) {
             // 1.获取文件路径，文件名：PageIndex_CommentAnnotationKey_text.plist
@@ -151,11 +150,7 @@ static NSString *kCellIdentifier = @"Cell";
             // 如果当前批注内容为空，就移除该批注
             if (self.textComments.count + self.voiceComments.count == 0) {
                 [strokesArray removeObjectAtIndex:i];
-                
-                // 刷新tiledPDFScrollView，取消文字的高亮状态，并移除按钮
-                [appDelegate.mainPDFViewController.viewsForThesisPages[self.currentPageIndex - 1] refreshTiledPDFView];
-                
-                showComments = NO;
+                [appDelegate.mainPDFViewController dismissCommentsView:nil]; // 内容被清空，隐藏批注视图
             }
             else { // 否则修改批注状态
                 if (self.textComments.count == 0) {
@@ -176,11 +171,9 @@ static NSString *kCellIdentifier = @"Cell";
                                  inDocumentWithDirectory:strokesFileDirectory];
             
             appDelegate.mainPDFViewController.hasEdited = YES;
-        }
-        
-        // 如果批注内容还没被清空，就显示批注列表
-        if (showComments) {
-            [Comments showCommentsWithPage:self.currentPageIndex Key:self.currentButtonKey];
+            
+            // 刷新tiledPDFScrollView
+            [appDelegate.mainPDFViewController.viewsForThesisPages[self.currentPageIndex - 1] refreshTiledPDFView];
         }
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
