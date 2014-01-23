@@ -11,7 +11,7 @@
 #import "JCAlert.h"
 #import "Constants.h"
 #import "APIURL.h"
-#import "FileCleaner.h"
+#import "JCFilePersistence.h"
 #import "LatestViewController.h"
 #import "MainPDFViewController.h"
 
@@ -39,49 +39,49 @@
 #pragma mark - NSURLConnnection Delegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    self.responseData_ = [[NSMutableData alloc] initWithLength:0];
-    NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     NSUInteger responseStatusCode = [httpResponse statusCode];
     if (responseStatusCode == REDIRECT_STATUS_CODE || responseStatusCode == REQUEST_SUCCEED_STATUS_CODE) {
-//        NSLog(@"上传文件请求成功");
+        // 上传文件请求成功
+        self.responseData_ = [[NSMutableData alloc] initWithLength:0];
     }
     else {
+        self.responseData_ = nil;
         [JCAlert alertWithMessage:@"发送网络请求失败"];
     }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    if (data) {
+    if (self.responseData_ && data) {
         [self.responseData_ appendData:data];
     }
 }
 
 /* 上传文件操作完成 */
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    if (self.needConvert) {
-        if (self.responseData_.length == 0) {
+    if (!self.responseData_ || self.responseData_.length == 0) {
+        if (self.needConvert) {
             [JCAlert alertWithMessage:@"转换文件失败"];
         }
-        else { // 转换成功
-            AppDelegate *appDelegate = APPDELEGATE;
+        else {
+            [JCAlert alertWithMessage:@"上传数据失败"];
+        }
+        return;
+    }
+    else {
+        AppDelegate *appDelegate = APPDELEGATE;
+        if (self.needConvert) { // 转换成功
             LatestViewController *latestViewController = appDelegate.latestViewController;
             
             // 下载该pdf文件配套的zip包
             [latestViewController downloadZipFile];
             
-            // 下载pdf文件
+            // 下载pdf文件，顺序不可互换
             [latestViewController downloadPDFFile];
         }
-    }
-    else {
-        if (self.responseData_.length == 0) {
-            [JCAlert alertWithMessage:@"上传数据失败"];
-        }
-        else {
-            AppDelegate *appDelegate = APPDELEGATE;
-            
-            // 清理本地残留的zip文件
-            [appDelegate.fileCleaner clearDocumentFiles];
+        else { // 上传文件操作
+            // 清理本地tmp文件夹中残留的zip文件
+            [appDelegate.filePersistence removeFilesAtTmpFolder];
         }
     }
 }

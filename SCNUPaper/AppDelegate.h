@@ -15,6 +15,7 @@
 @class JCFilePersistence;
 @class FileCleaner;
 @class MyPDFCreator;
+@class ZipArchive;
 @class LoginViewController;
 @class LatestViewController;
 @class MainPDFViewController;
@@ -46,6 +47,9 @@
 
 /* 创建PDF文件，和一些压缩和解压工作 */
 @property (strong, nonatomic) MyPDFCreator *pdfCreator;
+
+/* 用于压缩和解压缩文件夹 */
+@property (strong, nonatomic) ZipArchive *zipArchiver;
 
 /* 全局的spinner，用于指示正在进行数据处理 */
 @property (strong, nonatomic) UIActivityIndicatorView *app_spinner;

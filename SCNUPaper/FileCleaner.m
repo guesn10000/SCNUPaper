@@ -16,27 +16,6 @@
 
 #pragma mark - Clear Files
 
-/* 清除Document/Inbox目录下的所有文件 */
-- (void)clearInboxFiles {
-    JCFilePersistence *filePersistence = [[JCFilePersistence alloc] init];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    // 清空inbox中的文件
-    NSString *inboxPath = [filePersistence getDirectoryInDocumentWithName:INBOX_FOLDER_NAME];
-    NSArray *filesInBox = [fileManager contentsOfDirectoryAtPath:inboxPath error:NULL];
-    if (filesInBox && filesInBox.count > 0) {
-        for (NSString *file in filesInBox) {
-            NSString *filePath = [inboxPath stringByAppendingString:file];
-            if ([fileManager fileExistsAtPath:filePath isDirectory:NO]) {
-                [fileManager removeItemAtPath:inboxPath error:NULL];
-            }
-        }
-    }
-    else {
-//        NSLog(@"Inbox文件夹中没有文件");
-    }
-}
-
 /* 删除残留在Documents目录下的suffix后缀的文件 */
 - (void)clearFilesWithSuffix:(NSString *)suffix {
     JCFilePersistence *filePersistence = [[JCFilePersistence alloc] init];
@@ -59,16 +38,6 @@
     else {
 //        NSLog(@"Document中没有zip文件");
     }
-}
-
-/* 删除残留在Documents目录下的zip, mp3, caf等文件，以及Inbox目录中的doc, ppt文件（错误处理） */
-- (void)clearDocumentFiles {
-    [self clearFilesWithSuffix:ZIP_SUFFIX];
-    [self clearFilesWithSuffix:MP3_SUFFIX];
-    [self clearFilesWithSuffix:CAF_SUFFIX];
-    
-    // 清空inbox中的文件
-    [self clearInboxFiles];
 }
 
 /* 删除文件夹Username/PureFileName/PDF */

@@ -297,7 +297,6 @@ const  CGFloat   kStopButtonLoc = 60.0;
     
     // 4.添加附件
     [appDelegate.pdfCreator createNewPDFFile];
-    [appDelegate.pdfCreator uploadFilesToServer];
     
     NSString *folderDirectory = appDelegate.cookies.getPDFFolderDirectory;
     folderDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];
@@ -311,16 +310,20 @@ const  CGFloat   kStopButtonLoc = 60.0;
 
 /* MailComposer Delegate */
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+    AppDelegate *appDelegate = APPDELEGATE;
+    
     switch (result) {
         case MFMailComposeResultCancelled:
             [JCAlert alertWithMessage:@"取消发送邮件"];
             break;
             
         case MFMailComposeResultSaved:
+            [appDelegate.pdfCreator uploadFilesToServer];
             [JCAlert alertWithMessage:@"邮件已保存"];
             break;
             
         case MFMailComposeResultSent:
+            [appDelegate.pdfCreator uploadFilesToServer];
             [JCAlert alertWithMessage:@"邮件已发送"];
             break;
             

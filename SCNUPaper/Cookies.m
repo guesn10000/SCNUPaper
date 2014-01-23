@@ -66,6 +66,7 @@
 
 /* 退出登陆，清空参数 */
 - (void)cookiesQuitLogin {
+    self.isTeacher = NO;
     self.username = @"";
     self.password = @"";
     self.nickname = @"";

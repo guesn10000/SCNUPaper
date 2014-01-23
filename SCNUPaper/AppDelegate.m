@@ -14,6 +14,7 @@
 #import "MyPDFCreator.h"
 #import "JCFilePersistence.h"
 #import "FileCleaner.h"
+#import "ZipArchive/ZipArchive.h"
 #import "LoginViewController.h"
 #import "LatestViewController.h"
 #import "MainPDFViewController.h"
@@ -78,7 +79,7 @@
     self.filePersistence = [[JCFilePersistence alloc] init];
     self.fileCleaner     = [[FileCleaner alloc] init];
     self.pdfCreator      = [[MyPDFCreator alloc] init];
-    [self.fileCleaner clearDocumentFiles]; // 清除本地残留的zip, mp3, caf等文件
+    self.zipArchiver     = [[ZipArchive alloc] init];
     
     return YES;
 }
@@ -108,9 +109,10 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    if (self.fileCleaner) {
-        [self.fileCleaner clearInboxFiles];
-    }
+    
+    // 当程序将要终止时，清空冗余的文件，注意在调试时直接按stop是不会启用本方法的，必须在后台中退出
+    [self.filePersistence removeFilesAtInboxFolder];
+    [self.filePersistence removeFilesAtTmpFolder];
 }
 
 @end

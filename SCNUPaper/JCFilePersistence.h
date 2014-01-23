@@ -15,8 +15,17 @@
 /* 获取Document文件夹的路径 */
 - (NSString *)getDirectoryOfDocumentFolder;
 
+/* 获取Document/Inbox文件夹的路径 */
+- (NSString *)getDirectoryOfInboxFolder;
+
 /* 获取Document文件夹下文件的路径 */
 - (NSString *)getDirectoryOfDocumentFileWithName:(NSString *)fileName;
+
+/* 获取tmp文件夹的路径，注意返回的路径最后是带/的 */
+- (NSString *)getDirectoryOfTmpFolder;
+
+/* 获取tmp文件夹下文件的路径 */
+- (NSString *)getDirectoryOfTmpFileWithName:(NSString *)fileName;
 
 /* 存取位于Document文件夹下文件中的mutable dictionary数据 */
 - (BOOL)saveMutableDictionary:(NSMutableDictionary *)mdic toDocumentFile:(NSString *)fileName;
@@ -29,6 +38,10 @@
 /* 存取位于Document文件夹下文件中的data数据 */
 - (BOOL)saveMutableData:(NSMutableData *)mdata toDocumentFile:(NSString *)fileName;
 - (NSMutableData *)loadMutableDataFromDocumentFile:(NSString *)fileName;
+
+/* 存取位于tmp文件夹下文件中的data数据 */
+- (BOOL)saveMutableData:(NSMutableData *)mdata toTmpFile:(NSString *)fileName;
+- (NSMutableData *)loadMutableDataFromTmpFile:(NSString *)fileName;
 
 // -----------------------------------------------------------------------------------------------------------------------
 
@@ -51,5 +64,25 @@
 /* 存取位于Document/directory下文件中的data数据 */
 - (BOOL)saveMutableData:(NSMutableData *)mdata ToFile:(NSString *)fileName inDocumentWithDirectory:(NSString *)directory;
 - (NSMutableData *)loadMutableDataFromFile:(NSString *)fileName inDocumentWithDirectory:(NSString *)directory;
+
+// -----------------------------------------------------------------------------------------------------------------------
+
+// 3.删除文件
+
+/* 删除Inbox文件夹下的所有文件 */
+- (void)removeFilesAtInboxFolder;
+
+/* 删除tmp文件夹下的所有文件 */
+- (void)removeFilesAtTmpFolder;
+
+/* 删除指定路径下的文件 */
+- (void)removeFileAtPath:(NSString *)filePath;
+
+// -----------------------------------------------------------------------------------------------------------------------
+
+// 4.移动文件
+
+/* 将文件从源路径移动到目标路径 */
+- (void)moveFileFromPath:(NSString *)srcFilePath toPath:(NSString *)desFilePath;
 
 @end

@@ -37,7 +37,6 @@
     return self;
 }
 
-
 #pragma mark - Network
 
 /* 判断网络是否连接 */
@@ -88,7 +87,6 @@
     return (isReachable && !needsConnection) ? YES : NO;
 }
 
-
 #pragma mark - Login
 
 - (void)loginWithUsername:(NSString *)username Password:(NSString *)password {
@@ -107,7 +105,6 @@
     }
 }
 
-
 #pragma mark - Register
 
 - (void)registerWithUsername:(NSString *)username Nickname:(NSString *)nickname Password:(NSString *)password
@@ -116,6 +113,19 @@
 
 
 #pragma mark - Upload Files
+
+/* 上传文件到服务器
+ *
+ * 参数
+ * filePath   : 文件路径
+ * foldername : 文件夹名
+ *
+ */
+- (void)uploadFileInPath:(NSString *)filepath toServerInFolder:(NSString *)foldername {
+    AppDelegate *appDelegate = APPDELEGATE;
+    NSURL *uploadRequestURL = [NSURL URLWithString:UPLOAD_FILES_URL(appDelegate.cookies.username)];
+    [self uploadFileInPath:filepath ToFolder:foldername ServerURL:uploadRequestURL NeedConvert:NO];
+}
 
 /*
  * 上传文件到服务器，如有需要则转换文件
@@ -196,20 +206,6 @@
     }
 }
 
-/* 上传文件到服务器
- *
- * 参数
- * filePath   : 文件路径
- * foldername : 文件夹名
- *
- */
-- (void)uploadFileInPath:(NSString *)filepath toServerInFolder:(NSString *)foldername {
-    AppDelegate *appDelegate = APPDELEGATE;
-    NSURL *uploadRequestURL = [NSURL URLWithString:UPLOAD_FILES_URL(appDelegate.cookies.username)];
-    [self uploadFileInPath:filepath ToFolder:foldername ServerURL:uploadRequestURL NeedConvert:NO];
-}
-
-
 #pragma mark - Convert doc to pdf
 
 /* 上传文件到服务器，并执行转换操作
@@ -224,7 +220,6 @@
     NSURL *convertRequestURL = [NSURL URLWithString:CONVERT_DOC_TO_PDF_URL(appDelegate.cookies.username)];
     [self uploadFileInPath:filepath ToFolder:foldername ServerURL:convertRequestURL NeedConvert:YES];
 }
-
 
 #pragma mark - Show download list
 
@@ -248,7 +243,6 @@
     return downloadList;
 }
 
-
 #pragma mark - Download Files 
 
 /* 从服务器下载文件 
@@ -265,7 +259,6 @@
     downloadURLString = [downloadURLString stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]; // 对下载URL进行编码，字符集为utf-8，防止受到中文URL的影响
     NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
     
-    
     // 2.开始下载数据
     NSMutableURLRequest *requestForDownload = [[NSMutableURLRequest alloc] initWithURL:downloadURL];
     [requestForDownload setHTTPMethod:@"POST"];
@@ -273,7 +266,6 @@
     NSString *paramFileName   = [NSString stringWithFormat:@"%@=%@", kFilename, filename];
     NSString *parameters      = [NSString stringWithFormat:@"%@&%@", paramFolderName, paramFileName];
     [requestForDownload setHTTPBody:[parameters dataUsingEncoding:NSUTF8StringEncoding]];
-    
     
     // 3.建立连接
     DownloadHandler *downloadHandler = [[DownloadHandler alloc] initWithFileType:fileType];

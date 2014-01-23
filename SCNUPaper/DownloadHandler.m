@@ -12,7 +12,7 @@
 #import "AppDelegate.h"
 #import "Cookies.h"
 #import "JCAlert.h"
-#import "FileCleaner.h"
+#import "JCFilePersistence.h"
 #import "LatestViewController.h"
 
 @interface DownloadHandler ()
@@ -45,16 +45,16 @@
 #pragma mark - NSURLConnnection Delegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    self.download_data_ = [[NSMutableData alloc] initWithLength:0];
-    NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     self.responseStatusCode_ = [httpResponse statusCode];
     if (self.responseStatusCode_ == REDIRECT_STATUS_CODE || self.responseStatusCode_ == REQUEST_SUCCEED_STATUS_CODE) {
-        
+        self.download_data_ = [[NSMutableData alloc] initWithLength:0];
     }
     else if (self.responseStatusCode_ == FILE_NOT_FOUND_CODE) {
+        self.download_data_ = nil;
         [JCAlert alertWithMessage:@"该文件不曾被老师修改过，找不到任何批改意见"];
         AppDelegate *appDelegate = APPDELEGATE;
-        [appDelegate.fileCleaner clearInboxFiles];
+        [appDelegate.filePersistence removeFilesAtInboxFolder];
     }
     else {
         [JCAlert alertWithMessage:@"发送网络请求失败"];
@@ -62,33 +62,29 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    if (data) {
+    if (self.download_data_ && data) {
         [self.download_data_ appendData:data];
     }
 }
 
 /* 下载文件操作完成 */
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    if (self.responseStatusCode_ == REDIRECT_STATUS_CODE || self.responseStatusCode_ == REQUEST_SUCCEED_STATUS_CODE) {
+    if (self.download_data_ && self.download_data_.length > 0) {
         AppDelegate *appDelegate = APPDELEGATE;
-        if (self.download_data_.length > 0) {
-            // 将下载的数据回传到LatestViewController
-            if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
-                [appDelegate.latestViewController getDownload_ZIP_Data:self.download_data_];
-            }
-            else if ([self.fileType_ isEqualToString:PDF_SUFFIX]) {
-                [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
-            }
-            else if ([self.fileType_ isEqualToString:DOC_SUFFIX]) {
-                [appDelegate.latestViewController getDownload_DOC_Data:self.download_data_];
-            }
-            else {
-                [JCAlert alertWithMessage:@"从服务器下载数据失败"];
-            }
+        
+        // 将下载的数据回传到LatestViewController
+        if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
+            [appDelegate.latestViewController getDownload_ZIP_Data:self.download_data_];
         }
-    }
-    else {
-        return;
+        else if ([self.fileType_ isEqualToString:PDF_SUFFIX]) {
+            [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
+        }
+        else if ([self.fileType_ isEqualToString:DOC_SUFFIX]) {
+            [appDelegate.latestViewController getDownload_DOC_Data:self.download_data_];
+        }
+        else {
+            [JCAlert alertWithMessage:@"从服务器下载数据失败"];
+        }
     }
 }
 

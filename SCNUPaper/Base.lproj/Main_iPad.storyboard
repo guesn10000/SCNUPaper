@@ -109,6 +109,9 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="10O-WR-w7a" appends="YES" id="CNR-Q2-uxP"/>
+                        </connections>
                     </view>
                     <navigationItem key="navigationItem" title="请先登录" id="ijf-hx-1Ej"/>
                     <connections>
@@ -124,7 +127,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZQl-S1-mbg" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="10O-WR-w7a">
                     <connections>
-                        <action selector="dismissKeyboard:" destination="oaP-RM-3As" id="sip-ET-2bZ"/>
+                        <action selector="dismissKeyboard:" destination="oaP-RM-3As" id="7VL-5a-Hjm"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
