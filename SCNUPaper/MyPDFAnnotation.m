@@ -15,9 +15,9 @@
 
 #pragma mark - Constants
 
-//const NSInteger kTxtAnno    = 1;
-//const NSInteger kVocAnno    = 2;
-//const NSInteger kTxtVocAnno = 3;
+static const NSUInteger kTxtPDFAnno    = 1;
+static const NSUInteger kVocPDFAnno    = 2;
+static const NSUInteger kTxtVocPDFAnno = 3;
 
 #pragma mark - Initialization
 
@@ -42,15 +42,15 @@
             rect.size.height *= convertScale;
         }
         
-        NSInteger type = 0;
+        NSUInteger type = 0;
         if (textAnno && voiceAnno) {
-            type = 3;
+            type = kTxtVocPDFAnno;
         }
         else if (voiceAnno) {
-            type = 2;
+            type = kVocPDFAnno;
         }
         else if (textAnno) {
-            type = 1;
+            type = kTxtPDFAnno;
         }
         self.annotationView = [[AnnotationView alloc] initWithFrame:rect AnnotationType:type];
         

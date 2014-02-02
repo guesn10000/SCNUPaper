@@ -25,7 +25,39 @@
 #import "PDFScrollView.h"
 #import "MainPDFViewController.h"
 
+#pragma mark - Constants
+
+static const CGFloat gVolumeView_Width  = 200.0;
+static const CGFloat gVolumeView_Height = 40.0;
+
+static NSString * const kPoints = @"Draw_Points";
+static NSString * const kColor  = @"Draw_Color";
+static NSString * const kWidth  = @"Draw_Width";
+
+enum EditType {
+    kAddEmpty    = 0,
+    kAddStrokes  = 1,
+    kAddComments = 2,
+    kAddTextComments  = 3,
+    kAddVoiceComments = 4
+};
+
+enum AddTextType {
+    kTxtNone = 0,
+    kTxtNew,
+    kTxtAdd,
+    kTxtEdit
+};
+
+enum AddVoiceType {
+    kVocNone = 0,
+    kVocNew,
+    kVocAdd
+};
+
 @interface TiledPDFView ()
+
+#pragma mark - Private
 
 /* PDF页面参数 */
 @property (strong, nonatomic) MyPDFPage *myPDFPage_;
@@ -34,13 +66,10 @@
 @property (assign, nonatomic) CGPoint beginPoint_;
 @property (assign, nonatomic) CGPoint endPoint_;
 
-/*
- * 批改的类型
- * 0: 无
- * 1: 笔注
- * 2: 批注
- */
-@property (assign, nonatomic) NSInteger editType_;
+/* 批改的类型 */
+@property (assign, nonatomic) enum EditType     editType_;
+@property (assign, nonatomic) enum AddTextType  addTextType_;
+@property (assign, nonatomic) enum AddVoiceType addVoiceType_;
 
 /* 当前视图上的所有按钮和标记视图 */
 @property (strong, nonatomic) NSMutableArray  *buttonsInView_;
@@ -60,33 +89,6 @@
 
 
 @implementation TiledPDFView
-
-#pragma mark - Constants
-
-const CGFloat kVolumeView_Width  = 200.0;
-const CGFloat kVolumeView_Height = 40.0;
-
-const CGFloat kAnnoView_Width  = 60.0;
-const CGFloat kAnnoView_Height = 30.0;
-
-const NSString *kPoints = @"Draw_Points";
-const NSString *kColor  = @"Draw_Color";
-const NSString *kWidth  = @"Draw_Width";
-
-const NSInteger kAddEmpty    = 0;
-const NSInteger kAddStrokes  = 1;
-const NSInteger kAddComments = 2;
-const NSInteger kAddTextComments  = 3;
-const NSInteger kAddVoiceComments = 4;
-
-const NSInteger kTxtNone = 0;
-const NSInteger kTxtNew  = 1;
-const NSInteger kTxtAdd  = 2;
-const NSInteger kTxtEdit = 3;
-
-const NSInteger kVocNone = 0;
-const NSInteger kVocNew  = 1;
-const NSInteger kVocAdd  = 2;
 
 #pragma mark - Initailization
 
@@ -110,8 +112,8 @@ const NSInteger kVocAdd  = 2;
         
         /* 3.初始化添加批注参数 */
         self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
-        self.addTextType  = kTxtNone;
-        self.addVoiceType = kVocNone;
+        self.addTextType_  = kTxtNone;
+        self.addVoiceType_ = kVocNone;
         
         
         /* 4.设置视图部分 */
@@ -160,10 +162,10 @@ const NSInteger kVocAdd  = 2;
         // 添加调节音量视图
         self.volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(0.0,
                                                                          0.0,
-                                                                         kVolumeView_Width,
-                                                                         kVolumeView_Height)];
+                                                                         gVolumeView_Width,
+                                                                         gVolumeView_Height)];
         self.volumeView.center = CGPointMake(appDelegate.window.frame.size.width / 2,
-                                             self.recorderView.frame.size.height - kVolumeView_Height / 2);
+                                             self.recorderView.frame.size.height - gVolumeView_Height / 2);
         [self.volumeView sizeToFit];
         [self.recorderView addSubview:self.volumeView];
         
@@ -365,8 +367,8 @@ const NSInteger kVocAdd  = 2;
 - (void)quit_addingComments {
     // 解除添加批注状态
     self.editType_    = kAddEmpty;
-    self.addTextType  = kTxtNone;
-    self.addVoiceType = kVocNone;
+    self.addTextType_  = kTxtNone;
+    self.addVoiceType_ = kVocNone;
     [self.input_textView resignFirstResponder];
     
     // 隐藏仍在显示的菜单，输入文本框，录音视图等
@@ -467,7 +469,7 @@ const NSInteger kVocAdd  = 2;
 #pragma mark - Add Text Comments
 
 - (void)prepareToAddText:(NSInteger)addTextType PreviousText:(NSString *)preText {
-    self.addTextType          = addTextType;
+    self.addTextType_          = addTextType;
     self.editType_            = kAddEmpty;
     self.commentsMenu.hidden  = YES;
     self.inputTextView.hidden = NO;
@@ -499,7 +501,7 @@ const NSInteger kVocAdd  = 2;
         AppDelegate *appDelegate = APPDELEGATE;
         NSString *filename = appDelegate.cookies.pureFileName;
         
-        if (self.addTextType == kTxtNew) { // 添加新的文字批注
+        if (self.addTextType_ == kTxtNew) { // 添加新的文字批注
             [self finishAddingCommentsToPDFView:kAddTextComments]; // 添加批注到页面上和当前批注数组
             [self saveCommentStrokes];                             // 保存批注到文件
             [TextAnnotation saveInputText:self.input_textView.text
@@ -511,7 +513,7 @@ const NSInteger kVocAdd  = 2;
             self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
             self.tempPDFAnnotation_ = nil;
         }
-        else if (self.addTextType == kTxtAdd) { // 在当前文字批注的基础上添加新的文字批注
+        else if (self.addTextType_ == kTxtAdd) { // 在当前文字批注的基础上添加新的文字批注
             [self quit_addingComments]; // 退出添加批注状态
             
             // 刷新页面的标记
@@ -537,7 +539,7 @@ const NSInteger kVocAdd  = 2;
             [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
                                        Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
         }
-        else if (self.addTextType == kTxtEdit) { // 编辑现存的某个文字批注内容
+        else if (self.addTextType_ == kTxtEdit) { // 编辑现存的某个文字批注内容
             [self quit_addingComments]; // 退出添加批注状态
             [TextAnnotation editInputText:self.input_textView.text
                                  toFolder:filename
@@ -564,7 +566,7 @@ const NSInteger kVocAdd  = 2;
     [self.containerScrollView unlockPDFScrollView];
     [appDelegate.mainPDFViewController main_finishAddingComments];
     
-    if (self.addTextType == kTxtAdd || self.addTextType == kTxtEdit) {
+    if (self.addTextType_ == kTxtAdd || self.addTextType_ == kTxtEdit) {
         [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
                                    Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
     }
@@ -575,7 +577,7 @@ const NSInteger kVocAdd  = 2;
 /* 点击了菜单中的添加语音选项后的响应方法 */
 - (IBAction)addVoiceComments:(id)sender {
     self.editType_ = kAddEmpty;
-    self.addVoiceType = kVocNew;
+    self.addVoiceType_ = kVocNew;
     self.commentsMenu.hidden = YES;
     self.recorderView.hidden = NO;
     
@@ -587,7 +589,7 @@ const NSInteger kVocAdd  = 2;
 /* 给表格添加新的语音批注 */
 - (void)addNewVoiceComments {
     self.editType_ = kAddEmpty;
-    self.addVoiceType = kVocAdd;
+    self.addVoiceType_ = kVocAdd;
     self.commentsMenu.hidden = YES;
     self.recorderView.hidden = NO;
     
@@ -627,7 +629,7 @@ const NSInteger kVocAdd  = 2;
 - (IBAction)done_record:(id)sender {
     AppDelegate *appDelegate = APPDELEGATE;
     
-    if (self.addVoiceType == kVocNew) {
+    if (self.addVoiceType_ == kVocNew) {
         [self finishAddingCommentsToPDFView:kAddVoiceComments]; // 保存批注并添加批注到页面上
         [self saveCommentStrokes]; // 保存批注到文件
         [self.recorder saveRecordVoiceForPDFAnnotaton:self.tempPDFAnnotation_ toFolder:appDelegate.cookies.pureFileName]; // 保存录音文件
@@ -637,7 +639,7 @@ const NSInteger kVocAdd  = 2;
         self.tempCommentFrame_ = NSStringFromCGRect(CGRectZero);
         self.tempPDFAnnotation_ = nil;
     }
-    else if (self.addVoiceType == kVocAdd) {
+    else if (self.addVoiceType_ == kVocAdd) {
         [self quit_addingComments]; // 退出添加批注状态
         
         // 刷新页面的标记
@@ -677,7 +679,7 @@ const NSInteger kVocAdd  = 2;
     AppDelegate *appDelegate = APPDELEGATE;
     [appDelegate.mainPDFViewController main_finishAddingComments];
     
-    if (self.addVoiceType == kVocAdd) {
+    if (self.addVoiceType_ == kVocAdd) {
         [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
                                    Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
     }

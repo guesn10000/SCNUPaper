@@ -33,7 +33,6 @@
 		185F25C01838A1C300347214 /* PDFScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 185F25BF1838A1C300347214 /* PDFScrollView.m */; };
 		185F25C31838A1D400347214 /* TiledPDFView.m in Sources */ = {isa = PBXBuildFile; fileRef = 185F25C21838A1D400347214 /* TiledPDFView.m */; };
 		185F26141838B56900347214 /* JCAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 185F26131838B56900347214 /* JCAlert.m */; };
-		185F261A1838BCC800347214 /* JCLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 185F26191838BCC800347214 /* JCLog.m */; };
 		185F261C1838BE6D00347214 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 185F261B1838BE6D00347214 /* QuartzCore.framework */; };
 		1869425118471E2F0011DAD4 /* libmp3lame.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869424F18471DCF0011DAD4 /* libmp3lame.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		186FD6F1183DEBEC001C0B92 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 186FD6E6183DEBEC001C0B92 /* ioapi.c */; };
@@ -52,7 +51,6 @@
 		188E9C6C183B93D60093FFF3 /* LoginHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 188E9C6B183B93D60093FFF3 /* LoginHandler.m */; };
 		188E9C70183B9E6F0093FFF3 /* UploadHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 188E9C6F183B9E6F0093FFF3 /* UploadHandler.m */; };
 		188EDF34183B100900689046 /* MyPDFPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 188EDF33183B100900689046 /* MyPDFPage.m */; };
-		18904CD5183A1F3A00F0DF63 /* JCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 18904CD4183A1F3A00F0DF63 /* JCPoint.m */; };
 		18904CE8183A685400F0DF63 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18904CE7183A685400F0DF63 /* MediaPlayer.framework */; };
 		18904CEA183A685D00F0DF63 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18904CE9183A685D00F0DF63 /* libz.dylib */; };
 		18904CEC183A686800F0DF63 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18904CEB183A686800F0DF63 /* AudioToolbox.framework */; };
@@ -139,8 +137,6 @@
 		185F260B1838AA4800347214 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		185F26121838B56900347214 /* JCAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCAlert.h; sourceTree = "<group>"; };
 		185F26131838B56900347214 /* JCAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCAlert.m; sourceTree = "<group>"; };
-		185F26181838BCC800347214 /* JCLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCLog.h; sourceTree = "<group>"; };
-		185F26191838BCC800347214 /* JCLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCLog.m; sourceTree = "<group>"; };
 		185F261B1838BE6D00347214 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1869424E18471DCF0011DAD4 /* lame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lame.h; sourceTree = "<group>"; };
 		1869424F18471DCF0011DAD4 /* libmp3lame.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmp3lame.a; sourceTree = "<group>"; };
@@ -174,8 +170,6 @@
 		188E9C6F183B9E6F0093FFF3 /* UploadHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UploadHandler.m; sourceTree = "<group>"; };
 		188EDF32183B100900689046 /* MyPDFPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPDFPage.h; sourceTree = "<group>"; };
 		188EDF33183B100900689046 /* MyPDFPage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyPDFPage.m; sourceTree = "<group>"; };
-		18904CD3183A1F3A00F0DF63 /* JCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCPoint.h; sourceTree = "<group>"; };
-		18904CD4183A1F3A00F0DF63 /* JCPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCPoint.m; sourceTree = "<group>"; };
 		18904CE7183A685400F0DF63 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		18904CE9183A685D00F0DF63 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		18904CEB183A686800F0DF63 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -429,20 +423,10 @@
 		185F26151838B56B00347214 /* JuliaCore */ = {
 			isa = PBXGroup;
 			children = (
-				185F26161838BCAE00347214 /* Debug */,
 				18904D0D183A839D00F0DF63 /* Support */,
 				18904D0E183A83B600F0DF63 /* FilePersistence */,
 			);
 			name = JuliaCore;
-			sourceTree = "<group>";
-		};
-		185F26161838BCAE00347214 /* Debug */ = {
-			isa = PBXGroup;
-			children = (
-				185F26181838BCC800347214 /* JCLog.h */,
-				185F26191838BCC800347214 /* JCLog.m */,
-			);
-			name = Debug;
 			sourceTree = "<group>";
 		};
 		1869424D18471DC00011DAD4 /* Lame */ = {
@@ -532,8 +516,6 @@
 			children = (
 				185F26121838B56900347214 /* JCAlert.h */,
 				185F26131838B56900347214 /* JCAlert.m */,
-				18904CD3183A1F3A00F0DF63 /* JCPoint.h */,
-				18904CD4183A1F3A00F0DF63 /* JCPoint.m */,
 				18909AC2188FEF6000845307 /* JCTimer.h */,
 				18909AC3188FEF6000845307 /* JCTimer.m */,
 			);
@@ -786,7 +768,6 @@
 				18F079D6183DD725008733D7 /* Cookies.m in Sources */,
 				188EDF34183B100900689046 /* MyPDFPage.m in Sources */,
 				186FD6F4183DEBEC001C0B92 /* zip.c in Sources */,
-				185F261A1838BCC800347214 /* JCLog.m in Sources */,
 				185F26141838B56900347214 /* JCAlert.m in Sources */,
 				188E5CF8184131A900DC3151 /* VoicePlayer.m in Sources */,
 				186FD6F1183DEBEC001C0B92 /* ioapi.c in Sources */,
@@ -805,7 +786,6 @@
 				18B4474A184792020074D669 /* LoginViewController.m in Sources */,
 				184F3C14183CBFA4006DCAC3 /* MyPDFButton.m in Sources */,
 				18F079CE183DCCFD008733D7 /* TextAnnotation.m in Sources */,
-				18904CD5183A1F3A00F0DF63 /* JCPoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

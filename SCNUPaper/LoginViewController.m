@@ -13,9 +13,9 @@
 #import "URLConnector.h"
 #import "Cookies.h"
 
-/***********************************************************************/
+#ifdef LOCAL_TEST
 #import "LatestViewController.h"
-/***********************************************************************/
+#endif
 
 #define SEL_RADIO_IMG      [UIImage imageNamed:@"RadioButton-Selected.png"]
 #define UNSEL_RADIO_IMG    [UIImage imageNamed:@"RadioButton-Unselected.png"]

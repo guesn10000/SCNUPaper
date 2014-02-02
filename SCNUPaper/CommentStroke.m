@@ -12,13 +12,13 @@
 
 #pragma mark - Constants
 
-static NSString *kStrkFrame    = @"ButtonFrame";
-static NSString *kStrkBtnKey   = @"ButtonKey";
-static NSString *kHasTextAnno  = @"HasTextAnnotation";
-static NSString *kHasVoiceAnno = @"HasVoiceAnnotation";
+static NSString * const kStrkFrame    = @"ButtonFrame";
+static NSString * const kStrkBtnKey   = @"ButtonKey";
+static NSString * const kHasTextAnno  = @"HasTextAnnotation";
+static NSString * const kHasVoiceAnno = @"HasVoiceAnnotation";
 
-static NSInteger kTextType  = 3;
-static NSInteger kVoiceType = 4;
+static const NSInteger kTextType  = 3; // 这里的kTextType的值必须等于enum EditType 的枚举值kAddTextComments
+static const NSInteger kVoiceType = 4; // 这里的kTextType的值必须等于enum EditType 的枚举值kAddVoiceComments
 
 #pragma mark - NSCoding Delegate
 

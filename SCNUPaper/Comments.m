@@ -23,10 +23,6 @@
 
 @implementation Comments
 
-#pragma mark - Constants
-
-static NSString *kCellIdentifier = @"Cell";
-
 #pragma mark - Initialization
 
 - (id)init {
@@ -60,9 +56,9 @@ static NSString *kCellIdentifier = @"Cell";
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdentifier];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CELL_IDENTIFIER];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CELL_IDENTIFIER];
     }
     
     if (indexPath.section == 0) {

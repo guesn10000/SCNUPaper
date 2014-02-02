@@ -22,12 +22,11 @@
 #import "TiledPDFView.h"
 #import "MainPDFViewController.h"
 
-@implementation MyPDFCreator
-
 #define ADD_TEXT_IMG  [UIImage imageNamed:@"addText.png"]
 #define ADD_VOICE_IMG [UIImage imageNamed:@"addVoice.jpg"]
 #define ANNO_SIZE 30.0
 
+@implementation MyPDFCreator
 
 #pragma mark - Create PDF file and upload files
 

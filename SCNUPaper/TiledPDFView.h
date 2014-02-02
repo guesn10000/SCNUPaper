@@ -83,9 +83,6 @@
 
 /// Add Comments
 
-@property (assign, nonatomic) NSInteger addTextType;
-@property (assign, nonatomic) NSInteger addVoiceType;
-
 /* 添加批注 */
 - (void)addCommentsToPDFView;
 

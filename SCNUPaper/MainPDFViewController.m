@@ -23,13 +23,29 @@
 #import "LoginViewController.h"
 #import "LatestViewController.h"
 
+#pragma mark - Constants
+
+static NSString * const kPrePage = @"pre";
+static NSString * const kCurPage = @"cur";
+static NSString * const kNxtPage = @"nxt";
+
+static const CGFloat kStopButtonLoc = 60.0;
+
+enum AlertDelegate {
+    kDefaultAlert = 0,
+    kRemvStkAlert,
+    kSyncronAlert
+};
+
 @interface MainPDFViewController ()
+
+#pragma mark - Private
 
 /* 用户是否正在编辑，包括添加笔注和添加文字或语音 */
 @property (assign, nonatomic) BOOL isEditing_;
 
 /* 该参数决定执行alertview delegate时的动作 */
-@property (assign, nonatomic) NSInteger alertDelegate_;
+@property (assign, nonatomic) enum AlertDelegate alertDelegate_;
 
 @property (assign, nonatomic) CGRect tempFrame_;
 
@@ -37,23 +53,11 @@
 
 @implementation MainPDFViewController
 
-#pragma mark - Constants
-
-const NSString *kPrePage = @"pre";
-const NSString *kCurPage = @"cur";
-const NSString *kNxtPage = @"nxt";
-
-static NSInteger kDefaultAlert  = 0;
-static NSInteger kRemvStkAlert  = 1;
-static NSInteger kSyncronAlert  = 2;
-const  CGFloat   kCellHeight    = 60.0;
-const  CGFloat   kStopButtonLoc = 60.0;
-
 #pragma mark - View life cycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
     /* 初始化一些基本参数 */
     self.isEditing_ = NO;
     self.hasEdited  = NO;
@@ -541,7 +545,7 @@ const  CGFloat   kStopButtonLoc = 60.0;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return kCellHeight;
+    return 60.0;
 }
 
 /* 暂停播放录音 */

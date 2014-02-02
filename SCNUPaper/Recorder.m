@@ -18,7 +18,15 @@
 #import "MyPDFAnnotation.h"
 #import "MainPDFViewController.h"
 
+#pragma mark - Constants
+
+static const int   Record_EncoderBitRate   = 16;
+static const int   Record_NumberOfChannels = 2;
+static const float Record_SampleRateKey    = 44100.0;
+
 @interface Recorder ()
+
+#pragma mark - Private
 
 /* 负责录音功能 */
 @property (strong, nonatomic) AVAudioRecorder *avrecorder_;
@@ -36,12 +44,6 @@
 @end
 
 @implementation Recorder
-
-#pragma mark - Constants
-
-const int   Record_EncoderBitRate   = 16;
-const int   Record_NumberOfChannels = 2;
-const float Record_SampleRateKey    = 44100.0;
 
 #pragma mark - Initialization
 

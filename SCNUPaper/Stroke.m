@@ -8,11 +8,13 @@
 
 #import "Stroke.h"
 
-@implementation Stroke
+#pragma mark - Constants
 
-static NSString *kPoints = @"Points";
-static NSString *kColor  = @"Color";
-static NSString *kWidth  = @"Width";
+static NSString * const kStrokePoints = @"StrokePoints";
+static NSString * const kStrokeColor  = @"StrokeColor";
+static NSString * const kStrokeWidth  = @"StrokeWidth";
+
+@implementation Stroke
 
 #pragma mark - NSCoding
 
@@ -21,9 +23,9 @@ static NSString *kWidth  = @"Width";
     self = [super init];
     
     if (self) {
-        self.points = (NSMutableArray *)[aDecoder decodeObjectForKey:kPoints];
+        self.points = (NSMutableArray *)[aDecoder decodeObjectForKey:kStrokePoints];
         
-        NSMutableArray *color_values = (NSMutableArray *)[aDecoder decodeObjectForKey:kColor];
+        NSMutableArray *color_values = (NSMutableArray *)[aDecoder decodeObjectForKey:kStrokeColor];
         NSString *red   = [color_values objectAtIndex:0];
         NSString *green = [color_values objectAtIndex:1];
         NSString *blue  = [color_values objectAtIndex:2];
@@ -33,7 +35,7 @@ static NSString *kWidth  = @"Width";
                                       blue:blue.floatValue
                                      alpha:alpha.floatValue];
         
-        self.width = [aDecoder decodeFloatForKey:kWidth];
+        self.width = [aDecoder decodeFloatForKey:kStrokeWidth];
     }
     
     return self;
@@ -53,9 +55,9 @@ static NSString *kWidth  = @"Width";
         [color_values addObject:[NSString stringWithFormat:@"%f", components[3]]];
     }
     
-    [aCoder encodeObject:self.points  forKey:kPoints];
-    [aCoder encodeObject:color_values forKey:kColor];
-    [aCoder encodeFloat:self.width    forKey:kWidth];
+    [aCoder encodeObject:self.points  forKey:kStrokePoints];
+    [aCoder encodeObject:color_values forKey:kStrokeColor];
+    [aCoder encodeFloat:self.width    forKey:kStrokeWidth];
     
 }
 

@@ -13,12 +13,12 @@
 
 #pragma mark - Constants
 
-const NSInteger kNoneAnno   = 0;
-const NSInteger kTxtAnno    = 1;
-const NSInteger kVocAnno    = 2;
-const NSInteger kTxtVocAnno = 3;
+static const NSInteger kNoneAnno   = 0;
+static const NSInteger kTxtAnno    = 1;
+static const NSInteger kVocAnno    = 2;
+static const NSInteger kTxtVocAnno = 3;
 
-const CGFloat kAnnoSize = 30.0;
+static const CGFloat kAnnoSize = 30.0;
 
 #pragma mark - Initialization
 

@@ -20,7 +20,16 @@
 #import "LoginViewController.h"
 #import "MainPDFViewController.h"
 
+#pragma mark - Constants
+
+static NSString * const kLatest_FileName = @"filename"; // 最近打开的文件名
+static NSString * const kLatest_OpenTime = @"opentime"; // 最近打开的时间
+
+static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最大数
+
 @interface LatestViewController ()
+
+#pragma mark - Private
 
 /* 从最近打开文件中加载用户列表 */
 @property (strong, nonatomic) NSMutableDictionary *userslist_;
@@ -31,13 +40,6 @@
 @end
 
 @implementation LatestViewController
-
-#pragma mark - Constants
-
-static NSString *kLatest_FileName = @"filename"; // 最近打开的文件名
-static NSString *kLatest_OpenTime = @"opentime"; // 最近打开的时间
-
-const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 
 #pragma mark - View life cycle
 
@@ -158,7 +160,7 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     // 没有打开过该文件
     if (i == self.latestOpenArray_.count) {
         // 如果最近打开记录超出最大记录数
-        if (self.latestOpenArray_.count == Maximum_LatestOpen) {
+        if (self.latestOpenArray_.count == kMaximum_LatestOpen) {
             // 清空最后一项对应的文件夹
             NSDictionary *tempInfo = [self.latestOpenArray_ lastObject];
             NSString *tempFileName = [tempInfo objectForKey:kLatest_FileName];

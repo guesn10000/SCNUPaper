@@ -14,7 +14,15 @@
 #import "MyPDFPage.h"
 #import "TiledPDFView.h"
 
+#pragma mark - Constants
+
+/* PDF ScrollView 缩放的最大和最小因子 */
+const CGFloat kMaximumZoomScale = 2.0;
+const CGFloat kMinimumZoomScale = 0.5;
+
 @interface PDFScrollView ()
+
+#pragma mark - Private
 
 /* 用于展示缩放后的PDF内容 */
 @property (strong, nonatomic) TiledPDFView *tiledPDFView_;
@@ -28,12 +36,6 @@
 @end
 
 @implementation PDFScrollView
-
-#pragma mark - Constants
-
-/* PDF ScrollView 缩放的最大和最小因子 */
-const CGFloat kMaximumZoomScale = 2.0;
-const CGFloat kMinimumZoomScale = 0.5;
 
 #pragma mark - Initialization
 
