@@ -10,6 +10,12 @@
 #define _______Constants_h
 
 
+/* 声明本地测试的宏 */
+
+#if 1
+#define LOCAL_TEST
+#endif
+
 /* 程序常量 */
 
 #define APPDELEGATE [[UIApplication sharedApplication] delegate]

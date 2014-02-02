@@ -124,10 +124,8 @@
     if ([self.input_username_textField.text isEqual:TEMP_USERNAME] &&
         [self.input_password_textField.text isEqual:TEMP_PASSWORD]) {
         AppDelegate *appDelegate = APPDELEGATE;
-//        [appDelegate.urlConnector loginWithUsername:self.input_username_textField.text Password:self.input_password_textField.text];
         
-        
-        /***********************************************************************/
+#ifdef LOCAL_TEST
         // 设置好参数并保存用户的临时信息
         appDelegate.urlConnector.isLoginSucceed = YES;
         appDelegate.cookies = [[Cookies alloc] initWithUsername:TEMP_USERNAME Password:TEMP_PASSWORD];
@@ -136,7 +134,11 @@
         
         // push LatestViewController进栈
         [appDelegate.rootViewController pushViewController:appDelegate.latestViewController animated:YES];
-        /***********************************************************************/
+#else
+        [appDelegate.urlConnector loginWithUsername:self.input_username_textField.text
+                                           Password:self.input_password_textField.text];
+#endif
+        
     }
     else {
         [JCAlert alertWithMessage:@"登陆失败，请检查您的用户名密码是否正确"];

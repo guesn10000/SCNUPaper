@@ -190,31 +190,32 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 #pragma mark - Open File
 
 - (void)openFileURL {
-    // 1.获取文件名
     AppDelegate *appDelegate = APPDELEGATE;
     
-    /***********************************************************************/
+#ifdef LOCAL_TEST
     NSString *filename = @"中国的绘画精神（长篇）.pdf";
     [appDelegate.cookies setFileNamesWithPDFFileName:filename];
     [self openPDFFile];
-    /***********************************************************************/
+#else
+    // 1.获取文件名
+    NSString *filename = [appDelegate.fileURL lastPathComponent];
     
-//    NSString *filename = [appDelegate.fileURL lastPathComponent];
-//    
-//    // 2.打开从邮箱打开的或最近打开列表中的文件
-//    if ([filename hasSuffix:DOC_SUFFIX]) {
-//        [appDelegate.cookies setFileNamesWithDOCFileName:filename];
-//        
-//        // 上传doc文件到服务器进行转换
-//        [self uploadFileWithSuffix:DOC_SUFFIX];
-//    }
-//    else if ([filename hasSuffix:PDF_SUFFIX]) {
-//        [appDelegate.cookies setFileNamesWithPDFFileName:filename];
-//        [self uploadFileWithSuffix:PDF_SUFFIX];
-//    }
-//    else {
-//        [JCAlert alertWithMessage:@"打开文件失败，该文件格式不是doc或pdf"];
-//    }
+    // 2.打开从邮箱打开的或最近打开列表中的文件
+    if ([filename hasSuffix:DOC_SUFFIX]) {
+        [appDelegate.cookies setFileNamesWithDOCFileName:filename];
+        
+        // 上传doc文件到服务器进行转换
+        [self uploadFileWithSuffix:DOC_SUFFIX];
+    }
+    else if ([filename hasSuffix:PDF_SUFFIX]) {
+        [appDelegate.cookies setFileNamesWithPDFFileName:filename];
+        [self uploadFileWithSuffix:PDF_SUFFIX];
+    }
+    else {
+        [JCAlert alertWithMessage:@"打开文件失败，该文件格式不是doc或pdf"];
+    }
+#endif
+    
 }
 
 #pragma mark - Upload Files
@@ -354,15 +355,11 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
     NSMutableDictionary *openInfo = [[NSMutableDictionary alloc] init];
     
     // 文件名
-//    NSString *filename = appDelegate.fileURL.lastPathComponent;
-    
-    
-    
-    /****************************************************************/
+#ifdef LOCAL_TEST
     NSString *filename = appDelegate.cookies.pdfFileName;
-    /****************************************************************/
-    
-    
+#else
+    NSString *filename = appDelegate.fileURL.lastPathComponent;
+#endif
     
     // 更新最近打开记录
     [openInfo setObject:filename forKey:kLatest_FileName];
@@ -386,18 +383,18 @@ const NSUInteger Maximum_LatestOpen = 10; // 最近打开历史记录最大数
 
 /* 退出登陆 */
 - (IBAction)quitLogin:(id)sender {
-//    // 重置cookies和urlconnector的参数，并返回登陆页面
-//    AppDelegate *appDelegate = APPDELEGATE;
-//    [appDelegate.cookies cookiesQuitLogin];
-//    appDelegate.urlConnector.isLoginSucceed = NO;
-//    [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
     
-    
-    
-    
-    /************************************************************/
+#ifdef LOCAL_TEST
     [self openFileURL];
-    /************************************************************/
+#else
+    // 重置cookies和urlconnector的参数，并返回登陆页面
+    AppDelegate *appDelegate = APPDELEGATE;
+    [appDelegate.cookies cookiesQuitLogin];
+    appDelegate.urlConnector.isLoginSucceed = NO;
+    [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
+
+#endif
+    
 }
 
 @end
