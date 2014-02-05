@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MyPDFCreator : NSObject
+@interface MyPDFCreator : NSObject <NSCopying>
+
+/* 获取MyPDFCreator单例 */
++ (instancetype)sharedInstance;
 
 /* 创建新的pdf文件，包含批改的涂鸦 */
 - (void)createNewPDFFile;

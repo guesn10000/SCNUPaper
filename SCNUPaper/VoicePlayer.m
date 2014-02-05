@@ -45,13 +45,14 @@
 
 - (void)playRecordVoice:(NSString *)mp3FileName {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
     appDelegate.mainPDFViewController.view.userInteractionEnabled = NO;
     
     NSError *error = nil;
     NSString *mp3FileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, MP3_FOLDER_NAME];
-    mp3FileDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:mp3FileDirectory];
+    mp3FileDirectory = [filePersistence getDirectoryInDocumentWithName:mp3FileDirectory];
     NSString *mp3FilePath = [mp3FileDirectory stringByAppendingPathComponent:mp3FileName];
     NSURL *url = [NSURL fileURLWithPath:mp3FilePath];
     if (url) {

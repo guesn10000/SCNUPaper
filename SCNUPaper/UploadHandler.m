@@ -81,7 +81,8 @@
         }
         else { // 上传文件操作
             // 清理本地tmp文件夹中残留的zip文件
-            [appDelegate.filePersistence removeFilesAtTmpFolder];
+            JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+            [filePersistence removeFilesAtTmpFolder];
         }
     }
 }

@@ -85,6 +85,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) { // 删除批注
         AppDelegate *appDelegate = APPDELEGATE;
+        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
         if (indexPath.section == 0) {
@@ -97,7 +98,7 @@
             [self.textComments removeObjectAtIndex:indexPath.row];
             
             // 3.将数组写回文件中
-            [appDelegate.filePersistence saveMutableArray:self.textComments toFile:fileName inDocumentWithDirectory:fileDirectory];
+            [filePersistence saveMutableArray:self.textComments toFile:fileName inDocumentWithDirectory:fileDirectory];
             
             // 4.更新表格
             [appDelegate.mainPDFViewController.checkCommentsTable reloadData];
@@ -116,7 +117,7 @@
             [self.voiceComments removeObjectAtIndex:indexPath.row];
             
             // 3.将数组写回文件中
-            [appDelegate.filePersistence saveMutableArray:self.voiceComments toFile:fileName inDocumentWithDirectory:fileDirectory];
+            [filePersistence saveMutableArray:self.voiceComments toFile:fileName inDocumentWithDirectory:fileDirectory];
             
             // 4.更新表格
             [appDelegate.mainPDFViewController.checkCommentsTable reloadData];
@@ -130,7 +131,7 @@
             // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_strokes.plist
             NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.currentPageIndex];
             NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
-            NSMutableData *mdata = [appDelegate.filePersistence loadMutableDataFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
+            NSMutableData *mdata = [filePersistence loadMutableDataFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
             NSMutableArray *strokesArray = [NSKeyedUnarchiver unarchiveObjectWithData:mdata];
             CommentStroke *stroke;
             int i = 0;
@@ -162,9 +163,9 @@
             // 保存CommentStroke数据到文件中
             NSData *data  = [NSKeyedArchiver archivedDataWithRootObject:strokesArray];
             mdata = [[NSMutableData alloc] initWithData:data];
-            [appDelegate.filePersistence saveMutableData:mdata
-                                                  ToFile:strokesFileName
-                                 inDocumentWithDirectory:strokesFileDirectory];
+            [filePersistence saveMutableData:mdata
+                                      ToFile:strokesFileName
+                     inDocumentWithDirectory:strokesFileDirectory];
             
             appDelegate.mainPDFViewController.hasEdited = YES;
             
@@ -181,11 +182,12 @@
 + (void)showCommentsWithPage:(size_t)pageIndex Key:(NSInteger)buttonKey {
     // 1.获取基本参数
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.初始化Text Comments的数组
     NSString *textFileName = [NSString stringWithFormat:@"%zu_%d_text.plist", pageIndex, buttonKey];
     NSString *textFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, TEXT_FOLDER_NAME];
-    NSMutableArray *textArray = [appDelegate.filePersistence loadMutableArrayFromFile:textFileName inDocumentWithDirectory:textFileDirectory];
+    NSMutableArray *textArray = [filePersistence loadMutableArrayFromFile:textFileName inDocumentWithDirectory:textFileDirectory];
     if (!textArray) {
         textArray = [[NSMutableArray alloc] init];
     }
@@ -194,7 +196,7 @@
     // 3.初始化Voice Comments的数组
     NSString *voiceFileName = [NSString stringWithFormat:@"%zu_%d_voice.plist", pageIndex, buttonKey];
     NSString *voiceFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, VOICE_FOLDER_NAME];
-    NSMutableArray *voiceArray = [appDelegate.filePersistence loadMutableArrayFromFile:voiceFileName inDocumentWithDirectory:voiceFileDirectory];
+    NSMutableArray *voiceArray = [filePersistence loadMutableArrayFromFile:voiceFileName inDocumentWithDirectory:voiceFileDirectory];
     if (!voiceArray) {
         voiceArray = [[NSMutableArray alloc] init];
     }

@@ -23,10 +23,12 @@
     
     if (self) {
         AppDelegate *appDelegate = APPDELEGATE;
+        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+        
         // key file的位置：Document / Username / PureFileName / PDF / AnnotationKeys.plist
         NSString *keyFileDirectory = [NSString stringWithFormat:@"%@/%@/%@",
                                       appDelegate.cookies.username, documentName, PDF_FOLDER_NAME];
-        self.annotationKeys = [appDelegate.filePersistence loadMutableDictionaryFromFile:ANNOTATION_KEYS_FILENAME inDocumentWithDirectory:keyFileDirectory];
+        self.annotationKeys = [filePersistence loadMutableDictionaryFromFile:ANNOTATION_KEYS_FILENAME inDocumentWithDirectory:keyFileDirectory];
         if (!self.annotationKeys) {
             self.annotationKeys = [[NSMutableDictionary alloc] init];
         }
@@ -66,10 +68,11 @@
 
 - (void)updateAnnotationKeysWithDocumentName:(NSString *)documentName {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     // key file的位置：Document / Username / PureFileName / PDF / AnnotationKeys.plist
     NSString *keyFileDirectory = [NSString stringWithFormat:@"%@/%@/%@",
                                   appDelegate.cookies.username, documentName, PDF_FOLDER_NAME];
-    [appDelegate.filePersistence saveMutableDictionary:self.annotationKeys toFile:ANNOTATION_KEYS_FILENAME inDocumentWithDirectory:keyFileDirectory];
+    [filePersistence saveMutableDictionary:self.annotationKeys toFile:ANNOTATION_KEYS_FILENAME inDocumentWithDirectory:keyFileDirectory];
 }
 
 @end

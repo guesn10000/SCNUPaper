@@ -14,6 +14,26 @@
 
 @implementation FileCleaner
 
+#pragma mark - Singleton
+
++ (instancetype)sharedInstance {
+    static FileCleaner *cleaner = nil;
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        cleaner = [[super allocWithZone:NULL] init];
+    });
+    
+    return cleaner;
+}
+
++ (instancetype)allocWithZone:(struct _NSZone *)zone {
+    return [self sharedInstance];
+}
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+    return self;
+}
+
 #pragma mark - Clear Files
 
 /* 删除残留在Documents目录下的suffix后缀的文件 */
@@ -45,7 +65,8 @@
     AppDelegate *appDelegate = APPDELEGATE;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *folderPath = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, foldername, PDF_FOLDER_NAME];
-    folderPath = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderPath];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    folderPath = [filePersistence getDirectoryInDocumentWithName:folderPath];
     
     if ([fileManager fileExistsAtPath:folderPath isDirectory:NO]) {
         [fileManager removeItemAtPath:folderPath error:NULL];
@@ -56,7 +77,8 @@
     AppDelegate *appDelegate = APPDELEGATE;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *folderPath = [NSString stringWithFormat:@"%@/%@", appDelegate.cookies.username, foldername];
-    folderPath = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderPath];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    folderPath = [filePersistence getDirectoryInDocumentWithName:folderPath];
     
     if ([fileManager fileExistsAtPath:folderPath isDirectory:NO]) {
         [fileManager removeItemAtPath:folderPath error:NULL];

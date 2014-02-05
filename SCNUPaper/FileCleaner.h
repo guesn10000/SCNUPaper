@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface FileCleaner : NSObject
+@interface FileCleaner : NSObject <NSCopying>
+
+/* 获取FileCleaner单例 */
++ (instancetype)sharedInstance;
 
 /* 删除残留在Documents目录下的suffix后缀的文件 */
 - (void)clearFilesWithSuffix:(NSString *)suffix;

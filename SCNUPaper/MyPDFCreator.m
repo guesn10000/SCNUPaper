@@ -28,11 +28,32 @@
 
 @implementation MyPDFCreator
 
+#pragma mark - Singleton
+
++ (instancetype)sharedInstance {
+    static MyPDFCreator *creator = nil;
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        creator = [[super allocWithZone:NULL] init];
+    });
+    
+    return creator;
+}
+
++ (instancetype)allocWithZone:(struct _NSZone *)zone {
+    return [self sharedInstance];
+}
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+    return self;
+}
+
 #pragma mark - Create PDF file and upload files
 
 - (void)createNewPDFFile {
     // 1.获取基本参数
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.创建media box
     PDFScrollView *tempPDFScrollView = [appDelegate.mainPDFViewController.viewsForThesisPages objectForKey:@"cur"];
@@ -48,7 +69,7 @@
     
     // 目录： Document / Username / PureFileName / PDF / PDFFileName
     NSString *pdfDirectory = [appDelegate.cookies getPDFFolderDirectory];
-    NSString *tempPDFFilePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:pdfDirectory];
+    NSString *tempPDFFilePath = [filePersistence getDirectoryInDocumentWithName:pdfDirectory];
     NSString *pdfFileName = appDelegate.cookies.pdfFileName;
     NSString *pdfFilePath = [tempPDFFilePath stringByAppendingPathComponent:pdfFileName];
     
@@ -233,16 +254,18 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
 - (void)uploadFilesToServer {
     // 1.初始化各个参数
     AppDelegate *appDelegate = APPDELEGATE;
+    URLConnector *urlConnector = [URLConnector sharedInstance];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.定位文件夹路径，所有要上传的文件位于Document / Username / PureFileName / PDF /
     NSString *folderDirectory = [appDelegate.cookies getPDFFolderDirectory];
-    NSString *folderPath = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];
+    NSString *folderPath = [filePersistence getDirectoryInDocumentWithName:folderDirectory];
     
     // 3.压缩文件夹中的所有文件
     NSString *zipFilePath = [self zipFilesInPath:folderPath];
     
     // 4.将打包后的zip文件上传到服务器
-    [appDelegate.urlConnector uploadFileInPath:zipFilePath toServerInFolder:appDelegate.cookies.pureFileName];
+    [urlConnector uploadFileInPath:zipFilePath toServerInFolder:appDelegate.cookies.pureFileName];
     
     // 5.上传成功后删除zip文件
     // 该动作由urlconnection的delegate调用完成
@@ -250,7 +273,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     // 6.上传新创建的pdf文件到pureFileName_created文件夹
     NSString *pdfFilePath = [folderPath stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     NSString *createdPDFFolder = [appDelegate.cookies.pureFileName stringByAppendingString:@"_created"];
-    [appDelegate.urlConnector uploadFileInPath:pdfFilePath toServerInFolder:createdPDFFolder];
+    [urlConnector uploadFileInPath:pdfFilePath toServerInFolder:createdPDFFolder];
 }
 
 #pragma mark - Zip files
@@ -260,6 +283,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     
     // 1.设置基本参数
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 压缩步骤（Documents / Username / PureFileName / PDF / 目录下）：
     // (1)先压缩Text文件夹
@@ -284,7 +308,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     
     // 4.开始压缩所有文件
     NSString *zipFileName = appDelegate.cookies.zipFileName;
-    NSString *zipFilePath = [appDelegate.filePersistence getDirectoryOfTmpFileWithName:zipFileName]; // 将zip创建在tmp目录中
+    NSString *zipFilePath = [filePersistence getDirectoryOfTmpFileWithName:zipFileName]; // 将zip创建在tmp目录中
     BOOL isSuccessful = [appDelegate.zipArchiver CreateZipFile2:zipFilePath];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -337,6 +361,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     // 1.设置基本参数
     NSFileManager *fileManager = [NSFileManager defaultManager];
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.获取文件夹中所有文件
     NSArray *filesInFolder = [fileManager contentsOfDirectoryAtPath:subPath error:NULL];
@@ -345,7 +370,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
         // 3.设置zip文件的存放路径
         NSString *folderName = [subPath lastPathComponent];
         NSString *zipFileName = [folderName stringByAppendingString:ZIP_SUFFIX];
-        NSString *zipFilePath = [appDelegate.filePersistence getDirectoryOfTmpFileWithName:zipFileName]; // 创建的子zip文件放在tmp目录下
+        NSString *zipFilePath = [filePersistence getDirectoryOfTmpFileWithName:zipFileName]; // 创建的子zip文件放在tmp目录下
         
         // 4.开始zip
         BOOL isSuccessful = [appDelegate.zipArchiver CreateZipFile2:zipFilePath];
@@ -388,22 +413,23 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
 - (void)unzipFilesInPath:(NSString *)zipFilePath {
     // 1.获取基本参数
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.解压文件
     if (zipFilePath && [appDelegate.zipArchiver UnzipOpenFile:zipFilePath]) {
         // 文件解压的目标路径：tmp文件夹
-        NSString *unzipPath = [appDelegate.filePersistence getDirectoryOfTmpFolder];
+        NSString *unzipPath = [filePersistence getDirectoryOfTmpFolder];
         
         // 设定解压后文件的存放目录：username / purefilename / PDF
         NSString *pdfFileDirectory = [appDelegate.cookies getPDFFolderDirectory];
-        NSString *pdfFilePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:pdfFileDirectory];
+        NSString *pdfFilePath = [filePersistence getDirectoryInDocumentWithName:pdfFileDirectory];
         
         // 开始解压
         if([appDelegate.zipArchiver UnzipFileTo:unzipPath overWrite:YES]) {
             // AnnotationKey.plist
             NSString *srcPlistFilePath = [unzipPath   stringByAppendingPathComponent:ANNOTATION_KEYS_FILENAME];
             NSString *desPlistFilePath = [pdfFilePath stringByAppendingPathComponent:ANNOTATION_KEYS_FILENAME];
-            [appDelegate.filePersistence moveFileFromPath:srcPlistFilePath toPath:desPlistFilePath];
+            [filePersistence moveFileFromPath:srcPlistFilePath toPath:desPlistFilePath];
             
             // Text Folder
             NSString *textFolderPath = [unzipPath stringByAppendingPathComponent:
@@ -446,6 +472,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
  */
 - (void)unzipFilesInSubPath:(NSString *)subFilePath {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *folderName = [subFilePath lastPathComponent];
     folderName = [folderName substringToIndex:folderName.length - 4];
@@ -456,7 +483,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     
     if ([appDelegate.zipArchiver UnzipOpenFile:subFilePath]) {
         NSString *unzipDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, folderName];
-        NSString *unzipPath = [appDelegate.filePersistence getDirectoryInDocumentWithName:unzipDirectory];
+        NSString *unzipPath = [filePersistence getDirectoryInDocumentWithName:unzipDirectory];
         if (![appDelegate.zipArchiver UnzipFileTo:unzipPath overWrite:YES]) {
             [JCAlert alertWithMessage:@"解压zip文件失败"];
         }

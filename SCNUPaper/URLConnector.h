@@ -11,7 +11,10 @@
 
 @class JCFilePersistence;
 
-@interface URLConnector : NSObject 
+@interface URLConnector : NSObject <NSCopying>
+
+/* 获取URLConnector单例 */
++ (instancetype)sharedInstance;
 
 /* 判断当前网络是否可用 */
 + (BOOL)isNetworkConnecting;

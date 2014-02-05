@@ -25,6 +25,27 @@
 
 @implementation URLConnector
 
+#pragma mark - Singleton
+
++ (instancetype)sharedInstance {
+    static URLConnector *connector = nil;
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        connector = [[super allocWithZone:NULL] init];
+        connector.isLoginSucceed = NO;
+    });
+    
+    return connector;
+}
+
++ (instancetype)allocWithZone:(struct _NSZone *)zone {
+    return [self sharedInstance];
+}
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+    return self;
+}
+
 #pragma mark - Initialization
 
 - (id)init {

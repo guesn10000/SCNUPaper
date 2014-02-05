@@ -383,6 +383,7 @@ enum AddVoiceType {
 /* 保存批注到文件中 */
 - (void)saveCommentStrokes {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 保存笔画和笔画按钮的边界到文件中
     // Document / Username / PureFileName / PDF / CommentStrokes / PageIndex_commentStrokes.plist
@@ -392,9 +393,9 @@ enum AddVoiceType {
     NSData        *data  = [NSKeyedArchiver archivedDataWithRootObject:self.myPDFPage_.previousStrokesForComments];
     NSMutableData *mdata = [[NSMutableData alloc] initWithData:data];
     
-    [appDelegate.filePersistence saveMutableData:mdata
-                                          ToFile:strokesFileName
-                         inDocumentWithDirectory:strokesFileDirectory];
+    [filePersistence saveMutableData:mdata
+                              ToFile:strokesFileName
+             inDocumentWithDirectory:strokesFileDirectory];
 }
 
 #pragma mark - Comments Annotations

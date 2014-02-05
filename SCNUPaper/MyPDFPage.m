@@ -23,6 +23,7 @@
     if (self) {
         // 初始化参数
         AppDelegate *appDelegate = APPDELEGATE;
+        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
         
         // 设置pdfPage内容
         self.pdfPageRef = CGPDFDocumentGetPage(pdfDocument, pageIndex);
@@ -35,7 +36,7 @@
         NSString *drawStrokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, DRAW_STROKES_FOLDER_NAME];
         
         // 解压从文件中加载的二进制数据
-        NSMutableData *mdata = [appDelegate.filePersistence loadMutableDataFromFile:drawStrokesFileName inDocumentWithDirectory:drawStrokesFileDirectory];
+        NSMutableData *mdata = [filePersistence loadMutableDataFromFile:drawStrokesFileName inDocumentWithDirectory:drawStrokesFileDirectory];
         if (mdata) {
             @try {
                 self.previousDrawStrokes = [NSKeyedUnarchiver unarchiveObjectWithData:mdata];
@@ -74,10 +75,11 @@
 
 - (void)loadCommentStrokesAndAnnotationsFromFile {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.pageIndex];
     NSString *strokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, COMMENT_STROKES_FOLDER_NAME];
-    NSMutableData *mcdata = [appDelegate.filePersistence loadMutableDataFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
+    NSMutableData *mcdata = [filePersistence loadMutableDataFromFile:strokesFileName inDocumentWithDirectory:strokesFileDirectory];
     if (mcdata) {
         @try {
             self.previousStrokesForComments = [NSKeyedUnarchiver unarchiveObjectWithData:mcdata];

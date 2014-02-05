@@ -53,8 +53,8 @@
     else if (self.responseStatusCode_ == FILE_NOT_FOUND_CODE) {
         self.download_data_ = nil;
         [JCAlert alertWithMessage:@"该文件不曾被老师修改过，找不到任何批改意见"];
-        AppDelegate *appDelegate = APPDELEGATE;
-        [appDelegate.filePersistence removeFilesAtInboxFolder];
+        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+        [filePersistence removeFilesAtInboxFolder];
     }
     else {
         [JCAlert alertWithMessage:@"发送网络请求失败"];

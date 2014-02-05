@@ -127,7 +127,8 @@
         
 #ifdef LOCAL_TEST
         // 设置好参数并保存用户的临时信息
-        appDelegate.urlConnector.isLoginSucceed = YES;
+        URLConnector *urlConnector = [URLConnector sharedInstance];
+        urlConnector.isLoginSucceed = YES;
         appDelegate.cookies = [[Cookies alloc] initWithUsername:TEMP_USERNAME Password:TEMP_PASSWORD];
         appDelegate.cookies.isTeacher = appDelegate.loginViewController.isTeacher;
         [appDelegate.cookies saveUserInfo];

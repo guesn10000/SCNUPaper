@@ -92,7 +92,7 @@ static const float Record_SampleRateKey    = 44100.0;
         }
     }
     
-    AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     //  开始录音或完成录音
     if (!self.isRecording) { // Start to record
         self.isRecording = YES;
@@ -103,7 +103,7 @@ static const float Record_SampleRateKey    = 44100.0;
         [fileNameFormatter setDateFormat:@"yyyyMMddhhmmss"];
         
         self.cafFileName      = [[fileNameFormatter stringFromDate:[NSDate date]] stringByAppendingString:@".caf"];
-        NSString *cafFilePath = [[appDelegate.filePersistence getDirectoryOfDocumentFolder] stringByAppendingPathComponent:self.cafFileName];
+        NSString *cafFilePath = [[filePersistence getDirectoryOfDocumentFolder] stringByAppendingPathComponent:self.cafFileName];
         self.cafFileURL       = [NSURL fileURLWithPath:cafFilePath];
         
         
@@ -143,18 +143,18 @@ static const float Record_SampleRateKey    = 44100.0;
 
 /* 将caf文件转换为mp3文件 */
 - (void)convertCAFtoMP3 {
-    AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     NSDateFormatter *fileNameFormat=[[NSDateFormatter alloc] init];
     [fileNameFormat setDateFormat:@"yyyyMMddhhmmss"];
     
     //  -- 设置mp3文件路径 --
     self.mp3FileName = [[fileNameFormat stringFromDate:[NSDate date]] stringByAppendingString:@".mp3"];
-    NSString *mp3FilePath = [[appDelegate.filePersistence getDirectoryOfDocumentFolder] stringByAppendingPathComponent:self.mp3FileName];
+    NSString *mp3FilePath = [[filePersistence getDirectoryOfDocumentFolder] stringByAppendingPathComponent:self.mp3FileName];
     self.mp3FileURL = [NSURL fileURLWithPath:mp3FilePath];
     
     //  -- 获取caf文件路径 --
-    NSString *cafFilePath = [[appDelegate.filePersistence getDirectoryOfDocumentFolder] stringByAppendingPathComponent:self.cafFileName];
+    NSString *cafFilePath = [[filePersistence getDirectoryOfDocumentFolder] stringByAppendingPathComponent:self.cafFileName];
     
     
     //  -- 开始转换 --
@@ -214,13 +214,14 @@ static const float Record_SampleRateKey    = 44100.0;
 
 - (void)saveRecordVoiceForPDFAnnotaton:(MyPDFAnnotation *)pdfAnnotation toFolder:(NSString *)folderName {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     // 1.将mp3文件移到Documents/Username/Foldername/PDF/MP3目录下
-    NSString *srcMP3FilePath = [appDelegate.filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
+    NSString *srcMP3FilePath = [filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
     NSString *desMP3FileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@",
                                      appDelegate.cookies.username, folderName, PDF_FOLDER_NAME, MP3_FOLDER_NAME];
-    NSString *desMP3FilePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:[NSString stringWithFormat:@"%@/%@", desMP3FileDirectory, self.mp3FileName]];
+    NSString *desMP3FilePath = [filePersistence getDirectoryInDocumentWithName:[NSString stringWithFormat:@"%@/%@", desMP3FileDirectory, self.mp3FileName]];
     
     // 如果文件存在于目标路径中，先将其移除
     if ([fileManager fileExistsAtPath:desMP3FilePath isDirectory:NO]) {
@@ -240,7 +241,7 @@ static const float Record_SampleRateKey    = 44100.0;
     
     
     // 3.从文件中加载数组数据，将mp3文件路径加入数组中
-    NSMutableArray *voiceArray = [appDelegate.filePersistence loadMutableArrayFromFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
+    NSMutableArray *voiceArray = [filePersistence loadMutableArrayFromFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
     if (!voiceArray) {
         voiceArray = [[NSMutableArray alloc] init];
     }
@@ -248,7 +249,7 @@ static const float Record_SampleRateKey    = 44100.0;
     
     
     // 4.将数组写回文件中
-    [appDelegate.filePersistence saveMutableArray:voiceArray toFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
+    [filePersistence saveMutableArray:voiceArray toFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
     
     
     // 5.保存每一页的annotationkey
@@ -261,10 +262,10 @@ static const float Record_SampleRateKey    = 44100.0;
 
 /* 删除当前的录音文件 */
 - (void)unsaveRecordVoice {
-    AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    NSString *mp3FilePath = [appDelegate.filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
+    NSString *mp3FilePath = [filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
     if ([fileManager fileExistsAtPath:mp3FilePath]) {
         [fileManager removeItemAtPath:mp3FilePath error:nil];
     }
@@ -287,13 +288,14 @@ static const float Record_SampleRateKey    = 44100.0;
 
 - (void)addNewRecordVoiceToFolder:(NSString *)folderName Page:(size_t)pageIndex Key:(NSInteger)key {
     AppDelegate *appDelegate = APPDELEGATE;
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     // 1.将mp3文件移到Documents/Username/Foldername/PDF/MP3目录下
-    NSString *srcMP3FilePath = [appDelegate.filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
+    NSString *srcMP3FilePath = [filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
     NSString *desMP3FileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@",
                                      appDelegate.cookies.username, folderName, PDF_FOLDER_NAME, MP3_FOLDER_NAME];
-    NSString *desMP3FilePath = [appDelegate.filePersistence getDirectoryInDocumentWithName:[NSString stringWithFormat:@"%@/%@", desMP3FileDirectory, self.mp3FileName]];
+    NSString *desMP3FilePath = [filePersistence getDirectoryInDocumentWithName:[NSString stringWithFormat:@"%@/%@", desMP3FileDirectory, self.mp3FileName]];
     
     // 如果文件存在于目标路径中，先将其移除
     if ([fileManager fileExistsAtPath:desMP3FilePath isDirectory:NO]) {
@@ -313,7 +315,7 @@ static const float Record_SampleRateKey    = 44100.0;
     
     
     // 3.从文件中加载数组数据，将mp3文件路径加入数组中
-    NSMutableArray *voiceArray = [appDelegate.filePersistence loadMutableArrayFromFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
+    NSMutableArray *voiceArray = [filePersistence loadMutableArrayFromFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
     if (!voiceArray) {
         voiceArray = [[NSMutableArray alloc] init];
     }
@@ -321,7 +323,7 @@ static const float Record_SampleRateKey    = 44100.0;
     
     
     // 4.将数组写回文件中
-    [appDelegate.filePersistence saveMutableArray:voiceArray toFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
+    [filePersistence saveMutableArray:voiceArray toFile:plistFileName inDocumentWithDirectory:plistFileDirectory];
     
     
     // 5.重置参数

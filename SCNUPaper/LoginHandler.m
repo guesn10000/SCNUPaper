@@ -46,9 +46,10 @@
         NSInteger responseStatusCode = [httpResponse statusCode];
         
         AppDelegate *appDelegate = APPDELEGATE;
+        URLConnector *urlConnector = [URLConnector sharedInstance];
         if (responseStatusCode == REQUEST_SUCCEED_STATUS_CODE) {
             // 设置好参数并保存用户的临时信息
-            appDelegate.urlConnector.isLoginSucceed = YES;
+            urlConnector.isLoginSucceed = YES;
             appDelegate.cookies = [[Cookies alloc] initWithUsername:self.temp_username_ Password:self.temp_password_];
             appDelegate.cookies.isTeacher = appDelegate.loginViewController.isTeacher;
             [appDelegate.cookies saveUserInfo];

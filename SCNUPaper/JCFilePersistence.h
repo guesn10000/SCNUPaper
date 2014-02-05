@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface JCFilePersistence : NSObject
+@interface JCFilePersistence : NSObject <NSCopying>
+
+/* 获取JCFilePersistence单例 */
++ (instancetype)sharedInstance;
 
 //  1.对文件进行存取数据，文件位于Documents目录下
 

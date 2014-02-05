@@ -12,8 +12,8 @@
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFCreator.h"
-#import "JCFilePersistence.h"
 #import "FileCleaner.h"
+#import "JCFilePersistence.h"
 #import "ZipArchive/ZipArchive.h"
 #import "LoginViewController.h"
 #import "LatestViewController.h"
@@ -29,7 +29,8 @@
         // 记录当前文件的URL
         self.fileURL = url;
         
-        if (self.urlConnector.isLoginSucceed) {
+        URLConnector *urlConnector = [URLConnector sharedInstance];
+        if (urlConnector.isLoginSucceed) {
             self.window.alpha = UNABLE_VIEW_ALPHA;
             [self.window setUserInteractionEnabled:NO];
             [self.loginViewController.navigationController pushViewController:self.latestViewController animated:YES];
@@ -75,11 +76,7 @@
     self.app_spinner.center = self.window.center;
     
     // 3.初始化基本参数
-    self.urlConnector    = [[URLConnector alloc] init];
-    self.filePersistence = [[JCFilePersistence alloc] init];
-    self.fileCleaner     = [[FileCleaner alloc] init];
-    self.pdfCreator      = [[MyPDFCreator alloc] init];
-    self.zipArchiver     = [[ZipArchive alloc] init];
+    self.zipArchiver = [[ZipArchive alloc] init];
     
     return YES;
 }
@@ -111,8 +108,9 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     
     // 当程序将要终止时，清空冗余的文件，注意在调试时直接按stop是不会启用本方法的，必须在后台中退出
-    [self.filePersistence removeFilesAtInboxFolder];
-    [self.filePersistence removeFilesAtTmpFolder];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    [filePersistence removeFilesAtInboxFolder];
+    [filePersistence removeFilesAtTmpFolder];
 }
 
 @end

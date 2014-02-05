@@ -285,6 +285,8 @@ enum AlertDelegate {
 - (IBAction)performActions:(id)sender {
     // 1.创建视图控制器
     AppDelegate *appDelegate = APPDELEGATE;
+    MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
+    
     MFMailComposeViewController *mailViewController = [[MFMailComposeViewController alloc] init];
     if (!mailViewController) {
         // 在设备还没有添加邮件账户的时候mailViewController为空，下面的present view controller会导致程序崩溃，这里要作出判断
@@ -300,10 +302,11 @@ enum AlertDelegate {
     [mailViewController setMessageBody:@"批改的论文已附在下列附件，如果想查看老师的批注，请使用\"论文批阅系统\"打开查看" isHTML:NO];
     
     // 4.添加附件
-    [appDelegate.pdfCreator createNewPDFFile];
+    [pdfCreator createNewPDFFile];
     
     NSString *folderDirectory = appDelegate.cookies.getPDFFolderDirectory;
-    folderDirectory = [appDelegate.filePersistence getDirectoryInDocumentWithName:folderDirectory];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    folderDirectory = [filePersistence getDirectoryInDocumentWithName:folderDirectory];
     NSString *pdfFilePath = [folderDirectory stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     NSData *attachmentData = [NSData dataWithContentsOfFile:pdfFilePath];
     [mailViewController addAttachmentData:attachmentData mimeType:PDF_MIME_TYPE fileName:appDelegate.cookies.pdfFileName];
@@ -314,7 +317,7 @@ enum AlertDelegate {
 
 /* MailComposer Delegate */
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
-    AppDelegate *appDelegate = APPDELEGATE;
+    MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
     
     switch (result) {
         case MFMailComposeResultCancelled:
@@ -322,12 +325,12 @@ enum AlertDelegate {
             break;
             
         case MFMailComposeResultSaved:
-            [appDelegate.pdfCreator uploadFilesToServer];
+            [pdfCreator uploadFilesToServer];
             [JCAlert alertWithMessage:@"邮件已保存"];
             break;
             
         case MFMailComposeResultSent:
-            [appDelegate.pdfCreator uploadFilesToServer];
+            [pdfCreator uploadFilesToServer];
             [JCAlert alertWithMessage:@"邮件已发送"];
             break;
             
@@ -696,8 +699,9 @@ enum AlertDelegate {
             appDelegate.window.userInteractionEnabled = NO;
             
             // 创建pdf文件并上传到服务器
-            [appDelegate.pdfCreator createNewPDFFile];
-            [appDelegate.pdfCreator uploadFilesToServer];
+            MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
+            [pdfCreator createNewPDFFile];
+            [pdfCreator uploadFilesToServer];
         }
         
         // 返回最近打开列表

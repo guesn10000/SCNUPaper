@@ -16,6 +16,26 @@
 
 @implementation JCFilePersistence
 
+#pragma mark - Singleton
+
++ (instancetype)sharedInstance {
+    static JCFilePersistence *filePersistence = nil;
+    static dispatch_once_t onceToken = 0;
+    dispatch_once(&onceToken, ^{
+        filePersistence = [[super allocWithZone:NULL] init];
+    });
+    
+    return filePersistence;
+}
+
++ (instancetype)allocWithZone:(struct _NSZone *)zone {
+    return [self sharedInstance];
+}
+
+- (instancetype)copyWithZone:(NSZone *)zone {
+    return self;
+}
+
 #pragma mark - Handle files in document
 
 - (NSString *)getDirectoryOfDocumentFolder {

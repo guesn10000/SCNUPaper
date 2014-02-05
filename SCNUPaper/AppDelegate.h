@@ -10,11 +10,7 @@
 #import <MessageUI/MessageUI.h>
 
 @class Cookies;
-@class URLConnector;
 @class KeyGeneraton;
-@class JCFilePersistence;
-@class FileCleaner;
-@class MyPDFCreator;
 @class ZipArchive;
 @class LoginViewController;
 @class LatestViewController;
@@ -35,18 +31,6 @@
 
 /* 产生和管理KeyNumber，用于管理PDF Page上的Annotation */
 @property (strong, nonatomic) KeyGeneraton *keyGeneration;
-
-/* 执行各种网络动作 */
-@property (strong, nonatomic) URLConnector *urlConnector;
-
-/* 保存文件 */
-@property (strong, nonatomic) JCFilePersistence *filePersistence;
-
-/* 清理文件 */
-@property (strong, nonatomic) FileCleaner *fileCleaner;
-
-/* 创建PDF文件，和一些压缩和解压工作 */
-@property (strong, nonatomic) MyPDFCreator *pdfCreator;
 
 /* 用于压缩和解压缩文件夹 */
 @property (strong, nonatomic) ZipArchive *zipArchiver;
