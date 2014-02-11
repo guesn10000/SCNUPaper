@@ -67,31 +67,21 @@
     
     // 3.设置pdf文档存储的路径
     
-    // 目录： Document / Username / PureFileName / PDF / PDFFileName
-    NSString *pdfDirectory = [appDelegate.cookies getPDFFolderDirectory];
-    NSString *tempPDFFilePath = [filePersistence getDirectoryInDocumentWithName:pdfDirectory];
-    NSString *pdfFileName = appDelegate.cookies.pdfFileName;
-    NSString *pdfFilePath = [tempPDFFilePath stringByAppendingPathComponent:pdfFileName];
+    // 目录： tmp / PDFFileName
+    NSString *pdfFilePath = [filePersistence getDirectoryOfTmpFolder];
+    pdfFilePath = [pdfFilePath stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     
     const char *cPDFFilePath = [pdfFilePath UTF8String];
     CFStringRef pathRef = CFStringCreateWithCString(NULL, cPDFFilePath, kCFStringEncodingUTF8);
     
-    // 生成时间戳
-    NSDateFormatter *fileNameFormatter = [[NSDateFormatter alloc] init];
-    [fileNameFormatter setDateFormat:@"yyyyMMddhhmmss"];
-    NSString *timeStamp = [fileNameFormatter stringFromDate:[NSDate date]];
-    
     
     // 4.设置当前pdf页面的属性
-    CFStringRef myKeys[3];
-    CFTypeRef myValues[3];
+    CFStringRef myKeys[2];
+    CFTypeRef myValues[2];
     myKeys[0]   = kCGPDFContextMediaBox;
     myValues[0] = (CFTypeRef) CFDataCreate(NULL,(const UInt8 *)&mediaBox, sizeof (CGRect));
-    // 用时间戳给context title签名，用于文件名同名的情况下进行配对
-    myKeys[1] = kCGPDFContextTitle;
-    myValues[1] = (__bridge CFStringRef)timeStamp; // 用时间戳给文件签名
-    myKeys[2] = kCGPDFContextCreator;
-    myValues[2] = CFSTR("Jymn_Chen");
+    myKeys[1]   = kCGPDFContextCreator;
+    myValues[1] = CFSTR("Jymn_Chen");
     CFDictionaryRef pageDictionary;
     CGFloat widthScale  = mediaBox.size.width  / tempPDFScrollView.frame.size.width;
     CGFloat heightScale = mediaBox.size.height / tempPDFScrollView.frame.size.height;
@@ -107,10 +97,9 @@
     for (int j = 1; j <= tempDocument.totalPages; j++) {
         CGRect tempRect = tempFrame;
         tempRect.origin.x = (j - 1) * tempFrame.size.width;
-        PDFScrollView *pdfScrollView = [[PDFScrollView alloc]
-                                        initWithFrame:tempRect
-                                        Document:tempDocument.pdfDocumentRef
-                                        PageIndex:j];
+        PDFScrollView *pdfScrollView = [[PDFScrollView alloc] initWithFrame:tempRect
+                                                                   Document:tempDocument.pdfDocumentRef
+                                                                  PageIndex:j];
         pageDictionary = NULL;
         CFDictionaryRef pageDictionary = CFDictionaryCreate(NULL, (const void **) myKeys, (const void **) myValues, 3,
                                                             &kCFTypeDictionaryKeyCallBacks, & kCFTypeDictionaryValueCallBacks);
@@ -160,8 +149,9 @@
     
     
     // 7.释放创建的对象
-    CFRelease(myValues[0]);
     CGContextRelease(myPDFContext);
+    CFRelease(myValues[0]);
+    CFRelease(pathRef);
 }
 
 CGContextRef MyPDFContextCreate(const CGRect *inMediaBox, CFStringRef path) {
@@ -271,7 +261,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     // 该动作由urlconnection的delegate调用完成
     
     // 6.上传新创建的pdf文件到pureFileName_created文件夹
-    NSString *pdfFilePath = [folderPath stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
+    NSString *pdfFilePath = [[filePersistence getDirectoryOfTmpFolder] stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     NSString *createdPDFFolder = [appDelegate.cookies.pureFileName stringByAppendingString:@"_created"];
     [urlConnector uploadFileInPath:pdfFilePath toServerInFolder:createdPDFFolder];
 }

@@ -284,8 +284,9 @@ enum AlertDelegate {
 /* 发送邮件，将文件与服务器同步 */
 - (IBAction)performActions:(id)sender {
     // 1.创建视图控制器
-    AppDelegate *appDelegate = APPDELEGATE;
-    MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
+    AppDelegate       *appDelegate     = APPDELEGATE;
+    MyPDFCreator      *pdfCreator      = [MyPDFCreator sharedInstance];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     MFMailComposeViewController *mailViewController = [[MFMailComposeViewController alloc] init];
     if (!mailViewController) {
@@ -302,12 +303,10 @@ enum AlertDelegate {
     [mailViewController setMessageBody:@"批改的论文已附在下列附件，如果想查看老师的批注，请使用\"论文批阅系统\"打开查看" isHTML:NO];
     
     // 4.添加附件
+    NSString *tmpFolderDirectory = [filePersistence getDirectoryOfTmpFolder];
+    NSString *pdfFilePath = [tmpFolderDirectory stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
+    [filePersistence removeFileAtPath:pdfFilePath];
     [pdfCreator createNewPDFFile];
-    
-    NSString *folderDirectory = appDelegate.cookies.getPDFFolderDirectory;
-    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-    folderDirectory = [filePersistence getDirectoryInDocumentWithName:folderDirectory];
-    NSString *pdfFilePath = [folderDirectory stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
     NSData *attachmentData = [NSData dataWithContentsOfFile:pdfFilePath];
     [mailViewController addAttachmentData:attachmentData mimeType:PDF_MIME_TYPE fileName:appDelegate.cookies.pdfFileName];
     

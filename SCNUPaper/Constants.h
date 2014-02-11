@@ -87,9 +87,10 @@
 
 /* 文件保存常数 */
 
-#define PDF_FOLDER_NAME   @"PDF"
-#define DOC_FOLDER_NAME   @"DOC"
-#define INBOX_FOLDER_NAME @"Inbox"
+#define PDF_FOLDER_NAME        @"PDF"
+#define DOC_FOLDER_NAME        @"DOC"
+#define INBOX_FOLDER_NAME      @"Inbox"
+#define PDF_CREATE_FOLDER_NAME @"PDF_Create"
 
 #define TEXT_FOLDER_NAME            @"Text"
 #define VOICE_FOLDER_NAME           @"Voice"

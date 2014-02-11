@@ -49,6 +49,10 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     // 隐藏返回按钮
     self.navigationItem.hidesBackButton = YES;
     
+#ifdef LOCAL_TEST
+    self.navigationItem.rightBarButtonItem.title = @"本地测试";
+#endif
+    
     // 记载登陆用户最近打开的文件列表
     AppDelegate *appDelegate = APPDELEGATE;
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
@@ -199,7 +203,8 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     AppDelegate *appDelegate = APPDELEGATE;
     
 #ifdef LOCAL_TEST
-    NSString *filename = @"中国的绘画精神（长篇）.pdf";
+//    NSString *filename = @"中国的绘画精神（长篇）.pdf";
+    NSString *filename = @"中国的绘画精神.pdf";
     [appDelegate.cookies setFileNamesWithPDFFileName:filename];
     [self openPDFFile];
 #else
