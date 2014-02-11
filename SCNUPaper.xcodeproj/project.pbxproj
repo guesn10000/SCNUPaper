@@ -80,6 +80,8 @@
 		18E3CD14188961C000D02BA2 /* CommentDetail.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD13188961C000D02BA2 /* CommentDetail.xib */; };
 		18E3CD1B1889642500D02BA2 /* CheckCommTable.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD1A1889642500D02BA2 /* CheckCommTable.xib */; };
 		18E3CD1D1889643100D02BA2 /* CheckCommDetail.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD1C1889643100D02BA2 /* CheckCommDetail.xib */; };
+		18E4841918A9BCD9000416EB /* RegistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E4841818A9BCD9000416EB /* RegistViewController.m */; };
+		18E4841F18A9C19C000416EB /* RegistAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E4841E18A9C19C000416EB /* RegistAccount.m */; };
 		18F079CE183DCCFD008733D7 /* TextAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 18F079CD183DCCFD008733D7 /* TextAnnotation.m */; };
 		18F079D6183DD725008733D7 /* Cookies.m in Sources */ = {isa = PBXBuildFile; fileRef = 18F079D5183DD725008733D7 /* Cookies.m */; };
 		18F44CD21844CEAB0078C8C4 /* DownloadHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 18F44CD11844CEAB0078C8C4 /* DownloadHandler.m */; };
@@ -206,6 +208,10 @@
 		18E3CD13188961C000D02BA2 /* CommentDetail.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CommentDetail.xib; sourceTree = "<group>"; };
 		18E3CD1A1889642500D02BA2 /* CheckCommTable.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CheckCommTable.xib; sourceTree = "<group>"; };
 		18E3CD1C1889643100D02BA2 /* CheckCommDetail.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CheckCommDetail.xib; sourceTree = "<group>"; };
+		18E4841718A9BCD9000416EB /* RegistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistViewController.h; sourceTree = "<group>"; };
+		18E4841818A9BCD9000416EB /* RegistViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistViewController.m; sourceTree = "<group>"; };
+		18E4841D18A9C19C000416EB /* RegistAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistAccount.h; sourceTree = "<group>"; };
+		18E4841E18A9C19C000416EB /* RegistAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistAccount.m; sourceTree = "<group>"; };
 		18F079CC183DCCFD008733D7 /* TextAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextAnnotation.h; sourceTree = "<group>"; };
 		18F079CD183DCCFD008733D7 /* TextAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextAnnotation.m; sourceTree = "<group>"; };
 		18F079D4183DD725008733D7 /* Cookies.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cookies.h; sourceTree = "<group>"; };
@@ -371,6 +377,8 @@
 			children = (
 				18B44748184792020074D669 /* LoginViewController.h */,
 				18B44749184792020074D669 /* LoginViewController.m */,
+				18E4841718A9BCD9000416EB /* RegistViewController.h */,
+				18E4841818A9BCD9000416EB /* RegistViewController.m */,
 				18D070AE183E672E0062F856 /* LatestViewController.h */,
 				18D070AF183E672E0062F856 /* LatestViewController.m */,
 				185F25BB1838A14300347214 /* MainPDFViewController.h */,
@@ -496,6 +504,8 @@
 				188E9C6F183B9E6F0093FFF3 /* UploadHandler.m */,
 				18F44CD01844CEAB0078C8C4 /* DownloadHandler.h */,
 				18F44CD11844CEAB0078C8C4 /* DownloadHandler.m */,
+				18E4841D18A9C19C000416EB /* RegistAccount.h */,
+				18E4841E18A9C19C000416EB /* RegistAccount.m */,
 			);
 			name = WebService;
 			sourceTree = "<group>";
@@ -757,6 +767,7 @@
 				18909AC4188FEF6000845307 /* JCTimer.m in Sources */,
 				186FD6F2183DEBEC001C0B92 /* mztools.c in Sources */,
 				1890D17B1887DEF600462055 /* FileCleaner.m in Sources */,
+				18E4841F18A9C19C000416EB /* RegistAccount.m in Sources */,
 				18904D11183A83D200F0DF63 /* JCFilePersistence.m in Sources */,
 				186FD6F5183DEBEC001C0B92 /* ZipArchive.mm in Sources */,
 				18D070B0183E672E0062F856 /* LatestViewController.m in Sources */,
@@ -781,6 +792,7 @@
 				185F25C01838A1C300347214 /* PDFScrollView.m in Sources */,
 				186FD6F3183DEBEC001C0B92 /* unzip.c in Sources */,
 				18904CFA183A71A800F0DF63 /* Comments.m in Sources */,
+				18E4841918A9BCD9000416EB /* RegistViewController.m in Sources */,
 				181680FA188B8CDA008DE61F /* MyPDFCreator.m in Sources */,
 				185F25C31838A1D400347214 /* TiledPDFView.m in Sources */,
 				18B4474A184792020074D669 /* LoginViewController.m in Sources */,

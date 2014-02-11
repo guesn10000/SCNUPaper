@@ -74,12 +74,14 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     [super viewDidDisappear:animated];
     
     // 视图消失后移除spinner
-    AppDelegate *appDelegate = APPDELEGATE;
-    [appDelegate.app_spinner stopAnimating];
-    [appDelegate.app_spinner removeFromSuperview];
-    
-    appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
-    appDelegate.window.userInteractionEnabled = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        AppDelegate *appDelegate = APPDELEGATE;
+        [appDelegate.app_spinner stopAnimating];
+        [appDelegate.app_spinner removeFromSuperview];
+        
+        appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
+        appDelegate.window.userInteractionEnabled = YES;
+    });
 }
 
 - (void)didReceiveMemoryWarning {
