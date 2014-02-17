@@ -242,6 +242,10 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
 }
 
 - (void)uploadFilesToServer {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return;
+    }
+    
     // 1.初始化各个参数
     AppDelegate *appDelegate = APPDELEGATE;
     URLConnector *urlConnector = [URLConnector sharedInstance];

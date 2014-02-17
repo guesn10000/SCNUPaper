@@ -73,4 +73,8 @@
     }
 }
 
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+    [JCAlert alertWithMessage:@"登陆失败，请检查您的网络" Error:error];
+}
+
 @end

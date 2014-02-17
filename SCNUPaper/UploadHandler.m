@@ -88,7 +88,9 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    [JCAlert alertWithMessage:@"上传文件出错" Error:error];
+    [[JCFilePersistence sharedInstance] removeFilesAtTmpFolder];
+    self.responseData_ = nil;
+    [JCAlert alertWithMessage:@"上传文件失败，请检查您的网络" Error:error];
 }
 
 @end

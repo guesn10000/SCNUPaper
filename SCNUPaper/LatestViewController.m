@@ -265,13 +265,14 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
         
         // 3.将doc文件上传到服务器进行转换
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        if ([fileManager fileExistsAtPath:desFilePath isDirectory:NO]) {
+        if ([fileManager fileExistsAtPath:desFilePath]) {
             URLConnector *urlConnector = [URLConnector sharedInstance];
             [urlConnector convertDocFileInPath:desFilePath toPDFFileInFolder:pureFilename];
         }
     }
     else if ([suffix isEqualToString:PDF_SUFFIX]) {
-        [self downloadDOCFile];
+        [self downloadZipFile];
+        [self downloadPDFFile];
     }
     else {
         [JCAlert alertWithMessage:@"请检查您的文件格式"];
@@ -280,33 +281,6 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 }
 
 #pragma mark - Download Files
-
-- (void)downloadDOCFile {
-    AppDelegate *appDelegate = APPDELEGATE;
-    URLConnector *urlConnector = [URLConnector sharedInstance];
-    [urlConnector downloadFile:appDelegate.cookies.docFileName
-                          Type:DOC_SUFFIX
-            FromServerInFolder:appDelegate.cookies.pureFileName];
-}
-
-- (void)getDownload_DOC_Data:(NSMutableData *)docData {
-    AppDelegate *appDelegate = APPDELEGATE;
-    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-    
-    // 保存doc文件数据到Documents / Inbox文件夹中
-    if (docData && docData.length > 0) {
-        [filePersistence saveMutableData:docData ToFile:appDelegate.cookies.docFileName inDocumentWithDirectory:INBOX_FOLDER_NAME];
-    }
-    else {
-        [JCAlert alertWithMessage:@"打开文件失败，下载的数据为空"];
-    }
-    
-    // 上传doc文件进行转换
-    [self uploadFileWithSuffix:DOC_SUFFIX];
-    
-    // 清除Inbox目录下需要直接打开的pdf文件
-    [filePersistence removeFilesAtInboxFolder];
-}
 
 /* 下载该doc文件在服务器对应的zip包（如果已经存在） */
 - (void)downloadZipFile {
@@ -413,8 +387,9 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 #else
     // 重置cookies和urlconnector的参数，并返回登陆页面
     AppDelegate *appDelegate = APPDELEGATE;
+    URLConnector *urlConnector = [URLConnector sharedInstance];
     [appDelegate.cookies cookiesQuitLogin];
-    appDelegate.urlConnector.isLoginSucceed = NO;
+    urlConnector.isLoginSucceed = NO;
     [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
 
 #endif

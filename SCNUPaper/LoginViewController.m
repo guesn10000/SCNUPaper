@@ -123,7 +123,6 @@
 - (IBAction)loginToServer:(id)sender {
     if ([self.input_username_textField.text isEqual:TEMP_USERNAME] &&
         [self.input_password_textField.text isEqual:TEMP_PASSWORD]) {
-        AppDelegate *appDelegate = APPDELEGATE;
         
 #ifdef LOCAL_TEST
         // 设置好参数并保存用户的临时信息
@@ -136,8 +135,8 @@
         // push LatestViewController进栈
         [appDelegate.rootViewController pushViewController:appDelegate.latestViewController animated:YES];
 #else
-        [appDelegate.urlConnector loginWithUsername:self.input_username_textField.text
-                                           Password:self.input_password_textField.text];
+        [[URLConnector sharedInstance] loginWithUsername:self.input_username_textField.text
+                                                Password:self.input_password_textField.text];
 #endif
         
     }

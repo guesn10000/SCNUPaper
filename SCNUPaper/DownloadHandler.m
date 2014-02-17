@@ -79,9 +79,6 @@
         else if ([self.fileType_ isEqualToString:PDF_SUFFIX]) {
             [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
         }
-        else if ([self.fileType_ isEqualToString:DOC_SUFFIX]) {
-            [appDelegate.latestViewController getDownload_DOC_Data:self.download_data_];
-        }
         else {
             [JCAlert alertWithMessage:@"从服务器下载数据失败"];
         }
@@ -89,7 +86,8 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    [JCAlert alertWithMessage:@"下载文件出错" Error:error];
+    self.download_data_ = nil;
+    [JCAlert alertWithMessage:@"下载文件出错，请检查您的网络" Error:error];
 }
 
 @end

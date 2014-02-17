@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <SystemConfiguration/SystemConfiguration.h>
 
 @class JCFilePersistence;
 
@@ -16,8 +15,8 @@
 /* 获取URLConnector单例 */
 + (instancetype)sharedInstance;
 
-/* 判断当前网络是否可用 */
-+ (BOOL)isNetworkConnecting;
+/* 判断是否能够连接到SCNU服务器上 */
++ (BOOL)canConnectToSCNUServer;
 
 /* 是否登陆成功 */
 @property (assign, nonatomic) BOOL isLoginSucceed;

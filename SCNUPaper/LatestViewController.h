@@ -20,10 +20,8 @@
  * 从服务器下载文件
  * 下载完成后，获取下载的数据
  */
-- (void)downloadDOCFile;
 - (void)downloadZipFile;
 - (void)downloadPDFFile;
-- (void)getDownload_DOC_Data:(NSMutableData *)docData;
 - (void)getDownload_ZIP_Data:(NSMutableData *)zipData;
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData;
 

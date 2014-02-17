@@ -7,7 +7,7 @@
 //
 
 #import "URLConnector.h"
-#include "netdb.h"
+#import "Reachability.h"
 #import "Constants.h"
 #import "AppDelegate.h"
 #import "Cookies.h"
@@ -18,6 +18,8 @@
 #import "UploadHandler.h"
 #import "DownloadHandler.h"
 #import "AppDelegate.h"
+
+static const CGFloat kTimeoutInterval = 60.0;
 
 @interface URLConnector ()
 
@@ -60,60 +62,41 @@
 
 #pragma mark - Network
 
-/* 判断网络是否连接 */
-+ (BOOL)isNetworkConnecting {
-    // 创建零地址，0.0.0.0的地址表示查询本机的网络连接状态
-    struct sockaddr_in zeroAddress;
-    bzero(&zeroAddress, sizeof(zeroAddress));
-    zeroAddress.sin_len = sizeof(zeroAddress);
-    zeroAddress.sin_family = AF_INET;
-    
-    /**
-     *  SCNetworkReachabilityRef: 用来保存创建测试连接返回的引用
-     *
-     *  SCNetworkReachabilityCreateWithAddress: 根据传入的地址测试连接.
-     *  第一个参数可以为NULL或kCFAllocatorDefault
-     *  第二个参数为需要测试连接的IP地址,当为0.0.0.0时则可以查询本机的网络连接状态.
-     *  同时返回一个引用必须在用完后释放.
-     *  PS: SCNetworkReachabilityCreateWithName: 这个是根据传入的网址测试连接,
-     *  第二个参数比如为"www.2cto.com",其他和上一个一样.
-     *
-     *  SCNetworkReachabilityGetFlags: 这个函数用来获得测试连接的状态,
-     *  第一个参数为之前建立的测试连接的引用,
-     *  第二个参数用来保存获得的状态,
-     *  如果能获得状态则返回TRUE，否则返回FALSE
-     *
-     */
-    SCNetworkReachabilityRef defaultRouteReachability = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *)&zeroAddress);
-    SCNetworkReachabilityFlags flags;
-    
-    BOOL didRetrieveFlags = SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags);
-    CFRelease(defaultRouteReachability);
-    
-    if (!didRetrieveFlags)
-    {
-        printf("Error. Could not recover network reachability flagsn");
-        return NO;
++ (BOOL)canConnectToSCNUServer {
+    BOOL isExistenceNetwork = YES;
+    Reachability *reach = [Reachability reachabilityWithHostName:SCNU_SERVER_URL];
+    switch ([reach currentReachabilityStatus]) {
+        case NotReachable:
+            isExistenceNetwork = NO;
+            [JCAlert alertWithMessage:@"无法连接到华师服务器，请检查您的网络"];
+            break;
+            
+        case ReachableViaWiFi:
+            break;
+            
+        case ReachableViaWWAN:
+            break;
+            
+        default:
+            isExistenceNetwork = NO;
+            [JCAlert alertWithMessage:@"无法连接到华师服务器，请检查您的网络"];
+            break;
     }
     
-    /**
-     *  kSCNetworkReachabilityFlagsReachable: 能够连接网络
-     *  kSCNetworkReachabilityFlagsConnectionRequired: 能够连接网络,但是首先得建立连接过程
-     *  kSCNetworkReachabilityFlagsIsWWAN: 判断是否通过蜂窝网覆盖的连接,
-     *  比如EDGE,GPRS或者目前的3G.主要是区别通过WiFi的连接.
-     *
-     */
-    BOOL isReachable = ((flags & kSCNetworkFlagsReachable) != 0);
-    BOOL needsConnection = ((flags & kSCNetworkFlagsConnectionRequired) != 0);
-    return (isReachable && !needsConnection) ? YES : NO;
+    return isExistenceNetwork;
 }
 
 #pragma mark - Login
 
 - (void)loginWithUsername:(NSString *)username Password:(NSString *)password {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return;
+    }
+    
     NSURL *loginURL = [NSURL URLWithString:LOGIN_URL];
     NSMutableURLRequest *requestForLogin = [[NSMutableURLRequest alloc] initWithURL:loginURL];
     [requestForLogin setHTTPMethod:@"POST"];
+    [requestForLogin setTimeoutInterval:kTimeoutInterval];
     NSString *paramUsername = [NSString stringWithFormat:@"%@=%@", kUsername, username];
     NSString *paramPassword = [NSString stringWithFormat:@"%@=%@", kPassword, password];
     NSString *parameters = [NSString stringWithFormat:@"%@&%@", paramUsername, paramPassword];
@@ -130,6 +113,9 @@
 
 - (void)registerWithUsername:(NSString *)username Nickname:(NSString *)nickname Password:(NSString *)password
 {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return;
+    }
 }
 
 
@@ -143,6 +129,10 @@
  *
  */
 - (void)uploadFileInPath:(NSString *)filepath toServerInFolder:(NSString *)foldername {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return;
+    }
+    
     AppDelegate *appDelegate = APPDELEGATE;
     NSURL *uploadRequestURL = [NSURL URLWithString:UPLOAD_FILES_URL(appDelegate.cookies.username)];
     [self uploadFileInPath:filepath ToFolder:foldername ServerURL:uploadRequestURL NeedConvert:NO];
@@ -173,6 +163,7 @@
     NSString *endItemBoundary = [NSString stringWithFormat:@"\r\n--%@\r\n",stringBoundary];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:serverURL];
     [request setHTTPMethod:@"POST"];
+    [request setTimeoutInterval:kTimeoutInterval];
     [request setValue:[NSString stringWithFormat:@"multipart/form-data; charset=%@; boundary=%@", charset, stringBoundary] forHTTPHeaderField:@"Content-Type"];
     
     
@@ -237,6 +228,10 @@
  *
  */
 - (void)convertDocFileInPath:(NSString *)filepath toPDFFileInFolder:(NSString *)foldername {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return;
+    }
+    
     AppDelegate *appDelegate = APPDELEGATE;
     NSURL *convertRequestURL = [NSURL URLWithString:CONVERT_DOC_TO_PDF_URL(appDelegate.cookies.username)];
     [self uploadFileInPath:filepath ToFolder:foldername ServerURL:convertRequestURL NeedConvert:YES];
@@ -245,6 +240,10 @@
 #pragma mark - Show download list
 
 - (NSArray *)getDownloadList {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return nil;
+    }
+    
     // 首先对url进行编码
     AppDelegate *appDelegate = APPDELEGATE;
     NSString *showDownloadListURLString = SHOW_DOWNLOADLIST_URL(appDelegate.cookies.username);
@@ -274,6 +273,10 @@
  *
  */
 - (void)downloadFile:(NSString *)filename Type:(NSString *)fileType FromServerInFolder:(NSString *)foldername {
+    if (![URLConnector canConnectToSCNUServer]) {
+        return;
+    }
+    
     // 1.设置下载接口的URL
     AppDelegate *appDelegate = APPDELEGATE;
     NSString *downloadURLString = DOWNLOAD_FILES_URL(appDelegate.cookies.username);
@@ -283,6 +286,7 @@
     // 2.开始下载数据
     NSMutableURLRequest *requestForDownload = [[NSMutableURLRequest alloc] initWithURL:downloadURL];
     [requestForDownload setHTTPMethod:@"POST"];
+    [requestForDownload setTimeoutInterval:kTimeoutInterval];
     NSString *paramFolderName = [NSString stringWithFormat:@"%@=%@", kFoldername, foldername];
     NSString *paramFileName   = [NSString stringWithFormat:@"%@=%@", kFilename, filename];
     NSString *parameters      = [NSString stringWithFormat:@"%@&%@", paramFolderName, paramFileName];

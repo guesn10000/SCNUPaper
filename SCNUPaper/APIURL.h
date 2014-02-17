@@ -17,6 +17,7 @@
 #define REDIRECT_STATUS_CODE        302
 #define FILE_NOT_FOUND_CODE         404
 
+#define SCNU_SERVER_URL @"http://192.168.4.104:8080/scnuoffice/"
 
 /* 登陆 */
 /*
