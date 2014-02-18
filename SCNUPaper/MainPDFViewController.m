@@ -7,19 +7,18 @@
 //
 
 #import "MainPDFViewController.h"
-#import "Constants.h"
 #import "AppDelegate.h"
+#import "Constants.h"
 #import "JCAlert.h"
 #import "JCFilePersistence.h"
-#import "KeyGeneraton.h"
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFDocument.h"
-#import "MyPDFCreator.h"
-#import "Comments.h"
-#import "PDFScrollView.h"
 #import "Comments.h"
 #import "VoicePlayer.h"
+#import "KeyGeneraton.h"
+#import "MyPDFCreator.h"
+#import "PDFScrollView.h"
 #import "LoginViewController.h"
 #import "LatestViewController.h"
 
@@ -57,35 +56,36 @@ enum AlertDelegate {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self setBarsWithAuthority];
+    [self setViewsForCheckComments];
+}
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
     /* 初始化一些基本参数 */
     self.isEditing_ = NO;
     self.hasEdited  = NO;
     self.alertDelegate_ = kDefaultAlert;
     
     // 产生管理Annotation key的序列号生成器
-    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    AppDelegate *appDelegate  = [AppDelegate sharedDelegate];
     appDelegate.keyGeneration = [[KeyGeneraton alloc] initWithDocumentName:appDelegate.cookies.pureFileName];
     
-    
     /* 设置基本的界面部分 */
-    
     // 设置标题
-    self.navigationItem.hidesBackButton = YES;
     self.navigationItem.title = [NSString stringWithFormat:@"%zu / %zu", self.myPDFDocument.currentIndex, self.myPDFDocument.totalPages];
-    
-    // 根据用户权限决定是否显示工具栏和导航栏的按钮
-    [self setBarsWithAuthority];
     
     // 建立显示论文内容的视图
     [self buildThesisPages];
-    
-    // 设置显示comments结果的视图
-    [self setViewsForCheckComments];
 }
 
 /* 根据权限设置工具条和导航栏 */
 - (void)setBarsWithAuthority {
+    // 隐藏返回按钮
+    self.navigationItem.hidesBackButton = YES;
+    
     // 设置边界位置
     CGRect toolbarsFrame = CGRectMake(0,
                                       self.view.bounds.size.height - TOOLBAR_HEIGHT,
@@ -139,6 +139,65 @@ enum AlertDelegate {
     [appDelegate.window addSubview:self.pageInputView];
 }
 
+/* 设置展示批注的视图 */
+- (void)setViewsForCheckComments {
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    
+    // 设置展现comments列表视图
+    NSString *commNibname = (IS_IPAD) ? IPAD_COMMENT_TABLE_XIB : IPHONE_COMMENT_TABLE_XIB;
+    NSArray *commNibs = [[NSBundle mainBundle] loadNibNamed:commNibname owner:self options:nil];
+    self.viewForCheckComments = [commNibs objectAtIndex:0];
+    self.viewForCheckComments.layer.cornerRadius = 6.0;
+    self.viewForCheckComments.layer.masksToBounds = YES;
+    self.viewForCheckComments.hidden = YES;
+    if (!self.allComments) {
+        self.allComments = [[Comments alloc] init];
+    }
+    self.allComments.currentText = @"";
+    self.checkCommentsTable.delegate   = self;
+    self.checkCommentsTable.dataSource = self.allComments;
+    
+    // 添加批注的菜单
+    if (IS_IPAD) {
+        self.addNewComments_Menu = [commNibs objectAtIndex:1];
+        self.addNewComments_Menu.layer.cornerRadius = 6.0;
+        self.addNewComments_Menu.layer.masksToBounds = YES;
+        CGFloat menuHeight = self.addNewComments_Menu.bounds.size.height / 2 + TOOLBAR_HEIGHT;
+        self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.bounds.size.width / 2,
+                                                      self.view.bounds.size.height - menuHeight);
+        self.addNewComments_Menu.hidden = YES;
+        [appDelegate.window addSubview:self.addNewComments_Menu];
+    }
+    
+    CGFloat height = self.viewForCheckComments.bounds.size.height;
+    CGPoint center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
+    self.viewForCheckComments.center = center;
+    self.viewForCheckComments.hidden = YES;
+    [appDelegate.window addSubview:self.viewForCheckComments];
+    
+    if (!self.voicePlayer) {
+        self.voicePlayer = [[VoicePlayer alloc] initWithCenter:self.viewForCheckComments.center];
+    }
+    self.stopPlaying_button = [commNibs objectAtIndex:2];
+    self.stopPlaying_button.hidden = YES;
+    self.stopPlaying_button.center = CGPointMake(center.x, center.y + kStopButtonLoc);
+    [appDelegate.window addSubview:self.stopPlaying_button];
+    
+    
+    // 设置comment的细节视图
+    NSString *detailNibname = (IS_IPAD) ? IPAD_COMMENT_DETAIL_XIB : IPHONE_COMMENT_DETAIL_XIB;
+    NSArray *detailNibs = [[NSBundle mainBundle] loadNibNamed:detailNibname owner:self options:nil];
+    self.viewForCommentDetails = [detailNibs objectAtIndex:0];
+    self.viewForCommentDetails.layer.cornerRadius = 6.0;
+    self.viewForCommentDetails.layer.masksToBounds = YES;
+    
+    height = self.viewForCommentDetails.bounds.size.height;
+    center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
+    self.viewForCommentDetails.center = center;
+    self.viewForCommentDetails.hidden = YES;
+    [appDelegate.window addSubview:self.viewForCommentDetails];
+}
+
 /* 建立显示论文内容的视图 */
 - (void)buildThesisPages {
     self.thesisPagesView = [[UIScrollView alloc]
@@ -190,65 +249,6 @@ enum AlertDelegate {
         [self.tempViews addObject:pdfScrollView];
         [pdfScrollView setNeedsLayout]; // 立即刷新pdfScrollView的位置
     }
-}
-
-/* 设置展示批注的视图 */
-- (void)setViewsForCheckComments {
-    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
-    
-    // 设置展现comments列表视图
-    NSString *commNibname = (IS_IPAD) ? IPAD_COMMENT_TABLE_XIB : IPHONE_COMMENT_TABLE_XIB;
-    NSArray *commNibs = [[NSBundle mainBundle] loadNibNamed:commNibname owner:self options:nil];
-    self.viewForCheckComments = [commNibs objectAtIndex:0];
-    self.viewForCheckComments.layer.cornerRadius = 6.0;
-    self.viewForCheckComments.layer.masksToBounds = YES;
-    self.viewForCheckComments.hidden = YES;
-    if (!self.allComments) {
-        self.allComments = [[Comments alloc] init];
-    }
-    self.allComments.currentText = @"";
-    self.checkCommentsTable.delegate   = self;
-    self.checkCommentsTable.dataSource = self.allComments;
-    
-    // 添加批注的菜单
-    if (IS_IPAD) {
-        self.addNewComments_Menu = [commNibs objectAtIndex:1];
-        self.addNewComments_Menu.layer.cornerRadius = 6.0;
-        self.addNewComments_Menu.layer.masksToBounds = YES;
-        CGFloat menuHeight = self.addNewComments_Menu.bounds.size.height / 2 + TOOLBAR_HEIGHT;
-        self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.bounds.size.width / 2,
-                                                      self.view.bounds.size.height - menuHeight);
-        self.addNewComments_Menu.hidden = YES;
-        [appDelegate.window addSubview:self.addNewComments_Menu];
-    }
-    
-    CGFloat height = self.viewForCheckComments.bounds.size.height;
-    CGPoint center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
-    self.viewForCheckComments.center = center;
-    self.viewForCheckComments.hidden = YES;
-    [self.view addSubview:self.viewForCheckComments];
-    
-    if (!self.voicePlayer) {
-        self.voicePlayer = [[VoicePlayer alloc] initWithCenter:self.viewForCheckComments.center];
-    }
-    self.stopPlaying_button = [commNibs objectAtIndex:2];
-    self.stopPlaying_button.hidden = YES;
-    self.stopPlaying_button.center = CGPointMake(center.x, center.y + kStopButtonLoc);
-    [appDelegate.window addSubview:self.stopPlaying_button];
-    
-    
-    // 设置comment的细节视图
-    NSString *detailNibname = (IS_IPAD) ? IPAD_COMMENT_DETAIL_XIB : IPHONE_COMMENT_DETAIL_XIB;
-    NSArray *detailNibs = [[NSBundle mainBundle] loadNibNamed:detailNibname owner:self options:nil];
-    self.viewForCommentDetails = [detailNibs objectAtIndex:0];
-    self.viewForCommentDetails.layer.cornerRadius = 6.0;
-    self.viewForCommentDetails.layer.masksToBounds = YES;
-    
-    height = self.viewForCommentDetails.bounds.size.height;
-    center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
-    self.viewForCommentDetails.center = center;
-    self.viewForCommentDetails.hidden = YES;
-    [self.view addSubview:self.viewForCommentDetails];
 }
 
 - (void)didReceiveMemoryWarning{

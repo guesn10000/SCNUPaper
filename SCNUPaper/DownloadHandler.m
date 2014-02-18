@@ -52,9 +52,10 @@
         self.download_data_ = nil;
         [JCAlert alertWithMessage:@"该文件不曾被老师修改过，找不到任何批改意见"];
         [[JCFilePersistence sharedInstance] removeFilesAtInboxFolder];
+        [[AppDelegate sharedDelegate] stopSpinnerAnimating];
     }
     else {
-        [JCAlert alertWithMessage:@"发送网络请求失败"];
+        [[AppDelegate sharedDelegate] stopSpinnerAnimating];
     }
 }
 

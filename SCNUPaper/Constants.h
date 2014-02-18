@@ -12,7 +12,7 @@
 
 /* 声明本地测试的宏 */
 
-#if 0
+#if 1
 #define LOCAL_TEST
 #endif
 

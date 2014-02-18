@@ -26,7 +26,7 @@
 }
 
 - (void)startSpinnerAnimating {
-    if (!self.app_spinner.hidden) {
+    if (self.app_spinner.isAnimating) {
         return;
     }
     
@@ -40,12 +40,6 @@
 }
 
 - (void)stopSpinnerAnimating {
-    if (self.app_spinner.hidden) {
-        self.window.alpha = DEFAULT_VIEW_ALPHA;
-        self.window.userInteractionEnabled = YES;
-        return;
-    }
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.app_spinner stopAnimating];
         [self.app_spinner removeFromSuperview];

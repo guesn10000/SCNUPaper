@@ -142,7 +142,6 @@
         appDelegate.cookies = [[Cookies alloc] initWithUsername:TEMP_USERNAME Password:TEMP_PASSWORD];
         appDelegate.cookies.isTeacher = appDelegate.loginViewController.isTeacher;
         [appDelegate.cookies saveUserInfo];
-        
         // push LatestViewController进栈
         [appDelegate.rootViewController pushViewController:appDelegate.latestViewController animated:YES];
         [appDelegate stopSpinnerAnimating];
