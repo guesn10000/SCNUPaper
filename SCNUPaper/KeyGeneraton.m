@@ -22,7 +22,7 @@
     self = [super init];
     
     if (self) {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
         
         // key file的位置：Document / Username / PureFileName / PDF / AnnotationKeys.plist
@@ -67,7 +67,7 @@
 }
 
 - (void)updateAnnotationKeysWithDocumentName:(NSString *)documentName {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     // key file的位置：Document / Username / PureFileName / PDF / AnnotationKeys.plist
     NSString *keyFileDirectory = [NSString stringWithFormat:@"%@/%@/%@",

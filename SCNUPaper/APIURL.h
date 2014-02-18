@@ -19,12 +19,13 @@
 
 #define SCNU_SERVER_URL @"http://192.168.4.104:8080/scnuoffice/"
 
+
 /* 登陆 */
 /*
  <form action="user/login" method="post">
- Username:<input type="text" name="username"/><br/>
- Password:<input type="password" name="password"/><br/>
- <input type="submit"/>
+    Username:<input type="text"     name="username"/><br/>
+    Password:<input type="password" name="password"/><br/>
+    <input type="submit"/>
  </form>
  */
 #define LOGIN_URL @"http://192.168.4.104:8080/scnuoffice/user/login"
@@ -35,10 +36,10 @@
 /* 注册 */
 /*
  <form action="./register" method="post">
- Username:<input type="text" name="username"/><br/>
- Nickname:<input type="text" name="nickname"/><br/>
- Password:<input type="password" name="password"/><br/>
- <input type="submit"/>
+    Username:<input type="text"     name="username"/><br/>
+    Nickname:<input type="text"     name="nickname"/><br/>
+    Password:<input type="password" name="password"/><br/>
+    <input type="submit"/>
  </form>
  */
 #define REGISTER_URL @"http://192.168.4.104:8080/scnuoffice/register"
@@ -48,9 +49,9 @@
 /* 上传文件 */
 /*
  <form method="post" action="../../user/qwe/upload" enctype="multipart/form-data">
- <input type="text" name="folder"/><br/>
- <input type="file" name="data01"/><br/>
- <input type="submit" value="Submit"/>
+    <input type="text"   name="folder"/><br/>
+    <input type="file"   name="data01"/><br/>
+    <input type="submit" value="Submit"/>
  </form>
  */
 #define UPLOAD_FILES_URL(_username) [NSString stringWithFormat:@"http://192.168.4.104:8080/scnuoffice/user/%@/upload", _username]
@@ -61,12 +62,13 @@
 /* 转换doc成pdf */
 /*
  <form method="post" action="../../../../user/qwe/conv/to/pdf" enctype="multipart/form-data">
- <input type="text" name="folder"/><br/>
- <input type="file" name="data01"/><br/>
- <input type="submit" value="Submit"/>
+    <input type="text"   name="folder"/><br/>
+    <input type="file"   name="data01"/><br/>
+    <input type="submit" value="Submit"/>
  </form>
  */
 #define CONVERT_DOC_TO_PDF_URL(_username) [NSString stringWithFormat:@"http://192.168.4.104:8080/scnuoffice/user/%@/conv/to/pdf", _username]
+
 
 /* 查看资源 */
 #define SHOW_DOWNLOADLIST_URL(_username) [NSString stringWithFormat:@"http://192.168.4.104:8080/scnuoffice/user/%@/show/download-list", _username]

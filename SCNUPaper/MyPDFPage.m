@@ -22,7 +22,7 @@
     
     if (self) {
         // 初始化参数
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
         
         // 设置pdfPage内容
@@ -74,7 +74,7 @@
 }
 
 - (void)loadCommentStrokesAndAnnotationsFromFile {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     NSString *strokesFileName = [NSString stringWithFormat:@"%zu_commentStrokes.plist", self.pageIndex];

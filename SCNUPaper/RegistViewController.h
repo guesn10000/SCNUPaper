@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface RegistViewController : UIViewController
+@interface RegistViewController : UIViewController <UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *username_textField;
 @property (weak, nonatomic) IBOutlet UITextField *nickname_textField;
@@ -20,4 +20,8 @@
 
 - (IBAction)dismissKeyboard:(id)sender;
 
+@property (weak, nonatomic) IBOutlet UILabel *username_label;
+@property (weak, nonatomic) IBOutlet UILabel *nickname_label;
+@property (weak, nonatomic) IBOutlet UILabel *password_label;
+@property (weak, nonatomic) IBOutlet UILabel *confirmPass_label;
 @end

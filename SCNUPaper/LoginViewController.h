@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface LoginViewController : UIViewController
+@interface LoginViewController : UIViewController <UITextFieldDelegate>
 
 /* 选择老师或学生 */
 @property (assign, nonatomic) BOOL isTeacher; // yes is teacher, no is student
@@ -30,9 +30,8 @@
 - (IBAction)remeberPassword:(id)sender;
 - (IBAction)loginAutomatically:(id)sender;
 
-/* 登陆和注册 */
+/* 登陆 */
 - (IBAction)loginToServer:(id)sender;
-- (IBAction)registerAccount:(id)sender;
 
 /* YES表示处于请求打开File URL状态，NO表示处于正常登陆状态 */
 @property (assign, nonatomic) BOOL request_openFileURL;

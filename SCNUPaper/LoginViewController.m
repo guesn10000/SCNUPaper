@@ -28,18 +28,18 @@
 
 @implementation LoginViewController
 
-#pragma mark - Initialization
+#pragma mark - View life cycle
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
     // 获取基本参数
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSString *tempUsername   = [userDefaults objectForKey:LATEST_USERNAME];
-    NSString *tempPassword   = [userDefaults objectForKey:LATEST_PASSWORD];
-    NSString *tempIsTeacher  = [userDefaults objectForKey:IS_LATESTUSER_TEACHER];
-    NSString *tempRemembPass = [userDefaults objectForKey:SHOULD_REMEMBER_PASSWORD];
-    NSString *tempLoginAuto  = [userDefaults objectForKey:SHOULD_LOGIN_AUTOMATICALLY];
+    NSUserDefaults *userDefaults   = [NSUserDefaults standardUserDefaults];
+    NSString       *tempUsername   = [userDefaults objectForKey:LATEST_USERNAME];
+    NSString       *tempPassword   = [userDefaults objectForKey:LATEST_PASSWORD];
+    NSString       *tempIsTeacher  = [userDefaults objectForKey:IS_LATESTUSER_TEACHER];
+    NSString       *tempRemembPass = [userDefaults objectForKey:SHOULD_REMEMBER_PASSWORD];
+    NSString       *tempLoginAuto  = [userDefaults objectForKey:SHOULD_LOGIN_AUTOMATICALLY];
     
     // 老师或学生的单选框
     self.isTeacher = (tempIsTeacher && [tempIsTeacher isEqualToString:@"YES"]) ? YES : NO;
@@ -80,22 +80,29 @@
     }
 }
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.input_username_textField.delegate = self;
+    self.input_password_textField.delegate = self;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
 
-#pragma mark - Login Options
+#pragma mark - View Options
 
 - (IBAction)select_teacher:(id)sender {
     self.isTeacher = YES;
-    [self.isTeacher_button setImage:SEL_RADIO_IMG forState:UIControlStateNormal];
+    [self.isTeacher_button setImage:SEL_RADIO_IMG   forState:UIControlStateNormal];
     [self.isStudent_button setImage:UNSEL_RADIO_IMG forState:UIControlStateNormal];
 }
 
 - (IBAction)select_student:(id)sender {
     self.isTeacher = NO;
     [self.isTeacher_button setImage:UNSEL_RADIO_IMG forState:UIControlStateNormal];
-    [self.isStudent_button setImage:SEL_RADIO_IMG forState:UIControlStateNormal];
+    [self.isStudent_button setImage:SEL_RADIO_IMG   forState:UIControlStateNormal];
 }
 
 - (IBAction)remeberPassword:(id)sender {
@@ -121,11 +128,15 @@
 #pragma mark - Login
 
 - (IBAction)loginToServer:(id)sender {
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    [appDelegate startSpinnerAnimating];
+    
     if ([self.input_username_textField.text isEqual:TEMP_USERNAME] &&
         [self.input_password_textField.text isEqual:TEMP_PASSWORD]) {
         
 #ifdef LOCAL_TEST
         // 设置好参数并保存用户的临时信息
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         URLConnector *urlConnector = [URLConnector sharedInstance];
         urlConnector.isLoginSucceed = YES;
         appDelegate.cookies = [[Cookies alloc] initWithUsername:TEMP_USERNAME Password:TEMP_PASSWORD];
@@ -134,6 +145,7 @@
         
         // push LatestViewController进栈
         [appDelegate.rootViewController pushViewController:appDelegate.latestViewController animated:YES];
+        [appDelegate stopSpinnerAnimating];
 #else
         [[URLConnector sharedInstance] loginWithUsername:self.input_username_textField.text
                                                 Password:self.input_password_textField.text];
@@ -145,13 +157,19 @@
     }
 }
 
-#pragma mark - Regist
+#pragma mark - UITextField Delegate
 
-- (IBAction)registerAccount:(id)sender
-{
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    if (textField == self.input_username_textField) {
+        [self.input_username_textField resignFirstResponder];
+        [self.input_password_textField becomeFirstResponder];
+    }
+    else if (textField == self.input_password_textField) {
+        [self dismissKeyboard:nil];
+    }
+    
+    return YES;
 }
-
-#pragma mark - Dismiss keyboard
 
 - (IBAction)dismissKeyboard:(id)sender {
     [self.input_username_textField resignFirstResponder];

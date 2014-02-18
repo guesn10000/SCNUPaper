@@ -52,7 +52,7 @@
 
 - (void)createNewPDFFile {
     // 1.获取基本参数
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.创建media box
@@ -242,12 +242,12 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
 }
 
 - (void)uploadFilesToServer {
-    if (![URLConnector canConnectToSCNUServer]) {
+    if (![URLConnector isOnline]) {
         return;
     }
     
     // 1.初始化各个参数
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     URLConnector *urlConnector = [URLConnector sharedInstance];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
@@ -276,8 +276,9 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
 - (NSString *)zipFilesInPath:(NSString *)folderPath {
     
     // 1.设置基本参数
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    ZipArchive *zipArchiver = [[ZipArchive alloc] init];
     
     // 压缩步骤（Documents / Username / PureFileName / PDF / 目录下）：
     // (1)先压缩Text文件夹
@@ -303,7 +304,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     // 4.开始压缩所有文件
     NSString *zipFileName = appDelegate.cookies.zipFileName;
     NSString *zipFilePath = [filePersistence getDirectoryOfTmpFileWithName:zipFileName]; // 将zip创建在tmp目录中
-    BOOL isSuccessful = [appDelegate.zipArchiver CreateZipFile2:zipFilePath];
+    BOOL isSuccessful = [zipArchiver CreateZipFile2:zipFilePath];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *keysPlistFilePath = [folderPath stringByAppendingPathComponent:ANNOTATION_KEYS_FILENAME];
@@ -312,32 +313,32 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
     }
     
     if (textZipFilePath && [fileManager fileExistsAtPath:textZipFilePath isDirectory:NO]) {
-        [appDelegate.zipArchiver addFileToZip:textZipFilePath newname:@"Text.zip"];
+        [zipArchiver addFileToZip:textZipFilePath newname:@"Text.zip"];
     }
     
     if (voiceZipFilePath && [fileManager fileExistsAtPath:voiceZipFilePath isDirectory:NO]) {
-        [appDelegate.zipArchiver addFileToZip:voiceZipFilePath newname:@"Voice.zip"];
+        [zipArchiver addFileToZip:voiceZipFilePath newname:@"Voice.zip"];
     }
     
     if (mp3ZipFilePath && [fileManager fileExistsAtPath:mp3ZipFilePath isDirectory:NO]) {
-        [appDelegate.zipArchiver addFileToZip:mp3ZipFilePath newname:@"MP3.zip"];
+        [zipArchiver addFileToZip:mp3ZipFilePath newname:@"MP3.zip"];
     }
     
     if (commentStrokesZipFilePath && [fileManager fileExistsAtPath:commentStrokesZipFilePath isDirectory:NO]) {
-        [appDelegate.zipArchiver addFileToZip:commentStrokesZipFilePath newname:@"CommentStrokes.zip"];
+        [zipArchiver addFileToZip:commentStrokesZipFilePath newname:@"CommentStrokes.zip"];
     }
     
     if (drawStrokesZipFilePath && [fileManager fileExistsAtPath:drawStrokesZipFilePath isDirectory:NO]) {
-        [appDelegate.zipArchiver addFileToZip:drawStrokesZipFilePath newname:@"DrawStrokes.zip"];
+        [zipArchiver addFileToZip:drawStrokesZipFilePath newname:@"DrawStrokes.zip"];
     }
     
     if (keysPlistFilePath && [fileManager fileExistsAtPath:keysPlistFilePath isDirectory:NO]) {
-        [appDelegate.zipArchiver addFileToZip:keysPlistFilePath newname:ANNOTATION_KEYS_FILENAME];
+        [zipArchiver addFileToZip:keysPlistFilePath newname:ANNOTATION_KEYS_FILENAME];
     }
     
     
     // 5.关闭创建的zip文件
-    if (![appDelegate.zipArchiver CloseZipFile2]) {
+    if (![zipArchiver CloseZipFile2]) {
         zipFilePath = @"";
     }
     
@@ -354,8 +355,8 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
 - (NSString *)zipFilesInSubPath:(NSString *)subPath {
     // 1.设置基本参数
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    AppDelegate *appDelegate = APPDELEGATE;
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    ZipArchive *zipArchiver = [[ZipArchive alloc] init];
     
     // 2.获取文件夹中所有文件
     NSArray *filesInFolder = [fileManager contentsOfDirectoryAtPath:subPath error:NULL];
@@ -367,17 +368,17 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
         NSString *zipFilePath = [filePersistence getDirectoryOfTmpFileWithName:zipFileName]; // 创建的子zip文件放在tmp目录下
         
         // 4.开始zip
-        BOOL isSuccessful = [appDelegate.zipArchiver CreateZipFile2:zipFilePath];
+        BOOL isSuccessful = [zipArchiver CreateZipFile2:zipFilePath];
         for (NSString *file in filesInFolder) {
             NSString *eachFilePath = [subPath stringByAppendingPathComponent:file];
             NSString *nFileName = [file stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
             if ([fileManager fileExistsAtPath:eachFilePath isDirectory:NO]) {
-                isSuccessful = [appDelegate.zipArchiver addFileToZip:eachFilePath newname:nFileName];
+                isSuccessful = [zipArchiver addFileToZip:eachFilePath newname:nFileName];
             }
         }
         
         // 5.关闭创建的zip文件
-        if (![appDelegate.zipArchiver CloseZipFile2]) {
+        if (![zipArchiver CloseZipFile2]) {
             zipFilePath = @"";
         }
         
@@ -406,11 +407,12 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
  */
 - (void)unzipFilesInPath:(NSString *)zipFilePath {
     // 1.获取基本参数
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    ZipArchive        *zipArchiver     = [[ZipArchive alloc] init];
     
     // 2.解压文件
-    if (zipFilePath && [appDelegate.zipArchiver UnzipOpenFile:zipFilePath]) {
+    if (zipFilePath && [zipArchiver UnzipOpenFile:zipFilePath]) {
         // 文件解压的目标路径：tmp文件夹
         NSString *unzipPath = [filePersistence getDirectoryOfTmpFolder];
         
@@ -419,7 +421,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
         NSString *pdfFilePath = [filePersistence getDirectoryInDocumentWithName:pdfFileDirectory];
         
         // 开始解压
-        if([appDelegate.zipArchiver UnzipFileTo:unzipPath overWrite:YES]) {
+        if([zipArchiver UnzipFileTo:unzipPath overWrite:YES]) {
             // AnnotationKey.plist
             NSString *srcPlistFilePath = [unzipPath   stringByAppendingPathComponent:ANNOTATION_KEYS_FILENAME];
             NSString *desPlistFilePath = [pdfFilePath stringByAppendingPathComponent:ANNOTATION_KEYS_FILENAME];
@@ -451,7 +453,7 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
             [self unzipFilesInSubPath:commentStrokesFolderPath];
             
             // 关闭zip文件
-            [appDelegate.zipArchiver UnzipCloseFile];
+            [zipArchiver UnzipCloseFile];
         }
     }
 }
@@ -465,23 +467,19 @@ void drawAnnotationViews(CGContextRef context, CGRect rect, NSInteger type) {
  *
  */
 - (void)unzipFilesInSubPath:(NSString *)subFilePath {
-    AppDelegate *appDelegate = APPDELEGATE;
-    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    ZipArchive  *zipArchiver = [[ZipArchive alloc] init];
+    
     NSString *folderName = [subFilePath lastPathComponent];
     folderName = [folderName substringToIndex:folderName.length - 4];
     
-    if (![fileManager fileExistsAtPath:subFilePath isDirectory:NO]) {
-        return;
-    }
-    
-    if ([appDelegate.zipArchiver UnzipOpenFile:subFilePath]) {
+    if ([zipArchiver UnzipOpenFile:subFilePath]) {
         NSString *unzipDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, folderName];
-        NSString *unzipPath = [filePersistence getDirectoryInDocumentWithName:unzipDirectory];
-        if (![appDelegate.zipArchiver UnzipFileTo:unzipPath overWrite:YES]) {
+        NSString *unzipPath = [[JCFilePersistence sharedInstance] getDirectoryInDocumentWithName:unzipDirectory];
+        if (![zipArchiver UnzipFileTo:unzipPath overWrite:YES]) {
             [JCAlert alertWithMessage:@"解压zip文件失败"];
         }
-        [appDelegate.zipArchiver UnzipCloseFile];
+        [zipArchiver UnzipCloseFile];
     }
 }
 

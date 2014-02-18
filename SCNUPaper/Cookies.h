@@ -22,7 +22,7 @@
 
 /* 操作Cookies */
 - (void)saveUserInfo;
-- (void)cookiesQuitLogin;
+- (void)removeCookies;
 
 /* 文件名参数 */
 @property (strong, nonatomic) NSString *docFileName;

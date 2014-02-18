@@ -84,7 +84,7 @@
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) { // 删除批注
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
@@ -181,7 +181,7 @@
 
 + (void)showCommentsWithPage:(size_t)pageIndex Key:(NSInteger)buttonKey {
     // 1.获取基本参数
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 2.初始化Text Comments的数组

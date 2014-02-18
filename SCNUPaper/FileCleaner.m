@@ -7,8 +7,8 @@
 //
 
 #import "FileCleaner.h"
-#import "Constants.h"
 #import "AppDelegate.h"
+#import "Constants.h"
 #import "JCFilePersistence.h"
 #import "Cookies.h"
 
@@ -62,27 +62,19 @@
 
 /* 删除文件夹Username/PureFileName/PDF */
 - (void)clearFilesInPDFFolder:(NSString *)foldername {
-    AppDelegate *appDelegate = APPDELEGATE;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSString *folderPath = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, foldername, PDF_FOLDER_NAME];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     folderPath = [filePersistence getDirectoryInDocumentWithName:folderPath];
-    
-    if ([fileManager fileExistsAtPath:folderPath isDirectory:NO]) {
-        [fileManager removeItemAtPath:folderPath error:NULL];
-    }
+    [filePersistence removeFileAtPath:folderPath];
 }
 
 - (void)clearFolder:(NSString *)foldername {
-    AppDelegate *appDelegate = APPDELEGATE;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSString *folderPath = [NSString stringWithFormat:@"%@/%@", appDelegate.cookies.username, foldername];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     folderPath = [filePersistence getDirectoryInDocumentWithName:folderPath];
-    
-    if ([fileManager fileExistsAtPath:folderPath isDirectory:NO]) {
-        [fileManager removeItemAtPath:folderPath error:NULL];
-    }
+    [filePersistence removeFileAtPath:folderPath];
 }
 
 @end

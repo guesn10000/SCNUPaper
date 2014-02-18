@@ -213,7 +213,7 @@ static const float Record_SampleRateKey    = 44100.0;
 #pragma mark - Handle Recorded Voice
 
 - (void)saveRecordVoiceForPDFAnnotaton:(MyPDFAnnotation *)pdfAnnotation toFolder:(NSString *)folderName {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -287,7 +287,7 @@ static const float Record_SampleRateKey    = 44100.0;
 }
 
 - (void)addNewRecordVoiceToFolder:(NSString *)folderName Page:(size_t)pageIndex Key:(NSInteger)key {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     

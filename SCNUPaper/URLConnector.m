@@ -7,23 +7,25 @@
 //
 
 #import "URLConnector.h"
-#import "Reachability.h"
-#import "Constants.h"
 #import "AppDelegate.h"
-#import "Cookies.h"
-#import "JCFilePersistence.h"
+#import "Constants.h"
 #import "JCAlert.h"
+#import "JCFilePersistence.h"
 #import "APIURL.h"
+#import "Cookies.h"
+#import "Reachability.h"
 #import "LoginHandler.h"
+#import "RegistHandler.h"
 #import "UploadHandler.h"
 #import "DownloadHandler.h"
-#import "AppDelegate.h"
+#import "LatestViewController.h"
 
-static const CGFloat kTimeoutInterval = 60.0;
+#pragma mark - Constants
 
-@interface URLConnector ()
-
-@end
+static const CGFloat kLoginTimeoutInterval    = 10.0;
+static const CGFloat kRegistTimeoutInterval   = 10.0;
+static const CGFloat kUploadTimeoutInterval   = 30.0;
+static const CGFloat kDownloadTimeoutInterval = 30.0;
 
 @implementation URLConnector
 
@@ -60,7 +62,7 @@ static const CGFloat kTimeoutInterval = 60.0;
     return self;
 }
 
-#pragma mark - Network
+#pragma mark - Network connections
 
 + (BOOL)canConnectToSCNUServer {
     BOOL isExistenceNetwork = YES;
@@ -83,6 +85,40 @@ static const CGFloat kTimeoutInterval = 60.0;
             break;
     }
     
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    [appDelegate stopSpinnerAnimating];
+    
+    return isExistenceNetwork;
+}
+
++ (BOOL)isOnline {
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    BOOL isExistenceNetwork = YES;
+    NSString *testURLString = SHOW_DOWNLOADLIST_URL(appDelegate.cookies.username);
+    Reachability *reach = [Reachability reachabilityWithHostName:testURLString];
+    switch ([reach currentReachabilityStatus]) {
+        case NotReachable:
+            isExistenceNetwork = NO;
+            [JCAlert alertWithMessage:@"登陆超时，请重新登陆"];
+            break;
+            
+        case ReachableViaWiFi:
+            break;
+            
+        case ReachableViaWWAN:
+            break;
+            
+        default:
+            isExistenceNetwork = NO;
+            [JCAlert alertWithMessage:@"登陆超时，请重新登陆"];
+            break;
+    }
+    
+    // 如果登陆超时，那么要求用户重新登陆
+    if (!isExistenceNetwork) {
+        [appDelegate.latestViewController quitLogin:nil];
+    }
+    
     return isExistenceNetwork;
 }
 
@@ -96,7 +132,7 @@ static const CGFloat kTimeoutInterval = 60.0;
     NSURL *loginURL = [NSURL URLWithString:LOGIN_URL];
     NSMutableURLRequest *requestForLogin = [[NSMutableURLRequest alloc] initWithURL:loginURL];
     [requestForLogin setHTTPMethod:@"POST"];
-    [requestForLogin setTimeoutInterval:kTimeoutInterval];
+    [requestForLogin setTimeoutInterval:kLoginTimeoutInterval];
     NSString *paramUsername = [NSString stringWithFormat:@"%@=%@", kUsername, username];
     NSString *paramPassword = [NSString stringWithFormat:@"%@=%@", kPassword, password];
     NSString *parameters = [NSString stringWithFormat:@"%@&%@", paramUsername, paramPassword];
@@ -111,13 +147,61 @@ static const CGFloat kTimeoutInterval = 60.0;
 
 #pragma mark - Register
 
-- (void)registerWithUsername:(NSString *)username Nickname:(NSString *)nickname Password:(NSString *)password
+- (void)registWithUsername:(NSString *)aUsername
+                  Nickname:(NSString *)aNickname
+                  Password:(NSString *)aPass
+                   Confirm:(NSString *)confirmPass
 {
     if (![URLConnector canConnectToSCNUServer]) {
         return;
     }
+    
+    // 检查用户名
+    if ([aUsername isEqualToString:@""]) {
+        [JCAlert alertWithMessage:@"注册失败，您输入的用户名为空"];
+        return;
+    }
+    
+    // 检查昵称
+    if ([aNickname isEqualToString:@""]) {
+        [JCAlert alertWithMessage:@"注册失败，您输入的昵称为空"];
+        return;
+    }
+    
+    // 检查密码
+    if ([aPass isEqualToString:@""]) {
+        [JCAlert alertWithMessage:@"注册失败，您输入的密码为空"];
+        return;
+    }
+    if ([confirmPass isEqualToString:@""]) {
+        [JCAlert alertWithMessage:@"注册失败，请确认您输入的密码"];
+        return;
+    }
+    
+    // 检查两次输入的密码是否一致
+    if (![aPass isEqualToString:confirmPass]) {
+        [JCAlert alertWithMessage:@"注册失败，两次输入的密码不一致"];
+        return;
+    }
+    
+    // 通过合法性检查，发送网络注册请求
+    NSURL *registURL = [NSURL URLWithString:REGISTER_URL];
+    NSMutableURLRequest *requestForRegist = [[NSMutableURLRequest alloc] initWithURL:registURL];
+    [requestForRegist setHTTPMethod:@"POST"];
+    [requestForRegist setTimeoutInterval:kRegistTimeoutInterval];
+    NSString *paramUsername = [NSString stringWithFormat:@"%@=%@", kUsername, aUsername];
+    NSString *paramNickname = [NSString stringWithFormat:@"%@=%@", kNickname, aNickname];
+    NSString *paramPassword = [NSString stringWithFormat:@"%@=%@", kPassword, aPass];
+    NSString *parameters = [NSString stringWithFormat:@"%@&%@&%@", paramUsername, paramNickname, paramPassword];
+    [requestForRegist setHTTPBody:[parameters dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    RegistHandler *registHandler = [[RegistHandler alloc] initWithUsername:aUsername Nickname:aNickname Password:aPass];
+    
+    NSURLConnection *registConnection = [[NSURLConnection alloc] initWithRequest:requestForRegist delegate:registHandler];
+    if (registConnection) {
+        [registConnection start];
+    }
 }
-
 
 #pragma mark - Upload Files
 
@@ -129,11 +213,11 @@ static const CGFloat kTimeoutInterval = 60.0;
  *
  */
 - (void)uploadFileInPath:(NSString *)filepath toServerInFolder:(NSString *)foldername {
-    if (![URLConnector canConnectToSCNUServer]) {
+    if (![URLConnector isOnline]) {
         return;
     }
     
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSURL *uploadRequestURL = [NSURL URLWithString:UPLOAD_FILES_URL(appDelegate.cookies.username)];
     [self uploadFileInPath:filepath ToFolder:foldername ServerURL:uploadRequestURL NeedConvert:NO];
 }
@@ -161,9 +245,10 @@ static const CGFloat kTimeoutInterval = 60.0;
     CFRelease(uuid);
     NSString *stringBoundary = [NSString stringWithFormat:@"0xKhTmLbOuNdArY-%@",uuidString];
     NSString *endItemBoundary = [NSString stringWithFormat:@"\r\n--%@\r\n",stringBoundary];
+    
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:serverURL];
     [request setHTTPMethod:@"POST"];
-    [request setTimeoutInterval:kTimeoutInterval];
+    [request setTimeoutInterval:kUploadTimeoutInterval];
     [request setValue:[NSString stringWithFormat:@"multipart/form-data; charset=%@; boundary=%@", charset, stringBoundary] forHTTPHeaderField:@"Content-Type"];
     
     
@@ -174,7 +259,7 @@ static const CGFloat kTimeoutInterval = 60.0;
     [postData appendData:[[NSString stringWithFormat:@"--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
     
     // source参数对应的key和内容:
-    // Content-disposition: form-data; name="source"
+    // Content-disposition: form-data; name="folder"
     //
     // AppKey对应的内容
     NSString *kFolder = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"folder\"\r\n\r\n"];
@@ -188,7 +273,7 @@ static const CGFloat kTimeoutInterval = 60.0;
     
     
     // image参数对应的key和内容:
-    // content-disposition: form-data; name="file"; filename="filename"
+    // content-disposition: form-data; name="data01"; filename="filename"
     // Content-Type: file
     //
     // ... contents of filename.zip ...
@@ -211,8 +296,8 @@ static const CGFloat kTimeoutInterval = 60.0;
     
     
     // 4.建立URL连接
-    UploadHandler *uploadHanler = [[UploadHandler alloc] initWithNeedConvert:need];
-    NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:uploadHanler];
+    UploadHandler   *uploadHanler = [[UploadHandler alloc] initWithNeedConvert:need];
+    NSURLConnection *connection   = [[NSURLConnection alloc] initWithRequest:request delegate:uploadHanler];
     if (connection) {
         [connection start];
     }
@@ -228,11 +313,11 @@ static const CGFloat kTimeoutInterval = 60.0;
  *
  */
 - (void)convertDocFileInPath:(NSString *)filepath toPDFFileInFolder:(NSString *)foldername {
-    if (![URLConnector canConnectToSCNUServer]) {
+    if (![URLConnector isOnline]) {
         return;
     }
     
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSURL *convertRequestURL = [NSURL URLWithString:CONVERT_DOC_TO_PDF_URL(appDelegate.cookies.username)];
     [self uploadFileInPath:filepath ToFolder:foldername ServerURL:convertRequestURL NeedConvert:YES];
 }
@@ -240,12 +325,12 @@ static const CGFloat kTimeoutInterval = 60.0;
 #pragma mark - Show download list
 
 - (NSArray *)getDownloadList {
-    if (![URLConnector canConnectToSCNUServer]) {
+    if (![URLConnector isOnline]) {
         return nil;
     }
     
     // 首先对url进行编码
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSString *showDownloadListURLString = SHOW_DOWNLOADLIST_URL(appDelegate.cookies.username);
     showDownloadListURLString = [showDownloadListURLString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSURL *showDownloadListURL = [NSURL URLWithString:showDownloadListURLString];
@@ -273,27 +358,27 @@ static const CGFloat kTimeoutInterval = 60.0;
  *
  */
 - (void)downloadFile:(NSString *)filename Type:(NSString *)fileType FromServerInFolder:(NSString *)foldername {
-    if (![URLConnector canConnectToSCNUServer]) {
+    if (![URLConnector isOnline]) {
         return;
     }
     
     // 1.设置下载接口的URL
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSString *downloadURLString = DOWNLOAD_FILES_URL(appDelegate.cookies.username);
-    downloadURLString = [downloadURLString stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]; // 对下载URL进行编码，字符集为utf-8，防止受到中文URL的影响
+    downloadURLString = [downloadURLString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]; // 对下载URL进行编码，字符集为utf-8，防止受到中文URL的影响
     NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
     
     // 2.开始下载数据
     NSMutableURLRequest *requestForDownload = [[NSMutableURLRequest alloc] initWithURL:downloadURL];
     [requestForDownload setHTTPMethod:@"POST"];
-    [requestForDownload setTimeoutInterval:kTimeoutInterval];
+    [requestForDownload setTimeoutInterval:kDownloadTimeoutInterval];
     NSString *paramFolderName = [NSString stringWithFormat:@"%@=%@", kFoldername, foldername];
     NSString *paramFileName   = [NSString stringWithFormat:@"%@=%@", kFilename, filename];
     NSString *parameters      = [NSString stringWithFormat:@"%@&%@", paramFolderName, paramFileName];
     [requestForDownload setHTTPBody:[parameters dataUsingEncoding:NSUTF8StringEncoding]];
     
     // 3.建立连接
-    DownloadHandler *downloadHandler = [[DownloadHandler alloc] initWithFileType:fileType];
+    DownloadHandler *downloadHandler    = [[DownloadHandler alloc] initWithFileType:fileType];
     NSURLConnection *downloadConnection = [[NSURLConnection alloc] initWithRequest:requestForDownload delegate:downloadHandler];
     if (downloadConnection) {
         [downloadConnection start];

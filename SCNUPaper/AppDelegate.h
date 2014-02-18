@@ -11,18 +11,21 @@
 
 @class Cookies;
 @class KeyGeneraton;
-@class ZipArchive;
 @class LoginViewController;
+@class RegistViewController;
 @class LatestViewController;
 @class MainPDFViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
+
++ (instancetype)sharedDelegate;
 
 @property (strong, nonatomic) UIWindow *window;
 
 /* View Controllers */
 @property (strong, nonatomic) UINavigationController *rootViewController;
 @property (strong, nonatomic) LoginViewController    *loginViewController;
+@property (strong, nonatomic) RegistViewController   *registViewController;
 @property (strong, nonatomic) LatestViewController   *latestViewController;
 @property (strong, nonatomic) MainPDFViewController  *mainPDFViewController;
 
@@ -32,13 +35,13 @@
 /* 产生和管理KeyNumber，用于管理PDF Page上的Annotation */
 @property (strong, nonatomic) KeyGeneraton *keyGeneration;
 
-/* 用于压缩和解压缩文件夹 */
-@property (strong, nonatomic) ZipArchive *zipArchiver;
-
 /* 全局的spinner，用于指示正在进行数据处理 */
 @property (strong, nonatomic) UIActivityIndicatorView *app_spinner;
+- (void)startSpinnerAnimating;
+- (void)stopSpinnerAnimating;
 
 /* 要打开的文件的file url */
 @property (strong, nonatomic) NSURL *fileURL;
+@property (assign, nonatomic) BOOL fromInboxFile; // 文件是否来自Inbox文件夹
 
 @end

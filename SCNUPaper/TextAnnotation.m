@@ -17,7 +17,7 @@
 @implementation TextAnnotation
 
 + (void)saveInputText:(NSString *)inputText PDFAnnotation:(MyPDFAnnotation *)pdfAnnotation toFolder:(NSString *)folderName {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 1.获取文件路径，文件名：PageIndex_CommentAnnotationKey_text.plist
@@ -43,7 +43,7 @@
 }
 
 + (void)addNewInputText:(NSString *)inputText toFolder:(NSString *)foldername Page:(size_t)pageIndex Key:(NSInteger)annoKey {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 1.获取文件路径，文件名：PageIndex_CommentAnnotationKey_text.plist
@@ -65,7 +65,7 @@
 }
 
 + (void)editInputText:(NSString *)inputText toFolder:(NSString *)foldername Page:(size_t)pageIndex Key:(NSInteger)annoKey Row:(NSInteger)row {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 1.获取文件路径，文件名：PageIndex_CommentAnnotationKey_text.plist

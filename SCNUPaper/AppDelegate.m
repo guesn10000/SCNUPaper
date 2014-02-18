@@ -9,17 +9,51 @@
 #import "AppDelegate.h"
 #import "Constants.h"
 #import "JCAlert.h"
+#import "JCFilePersistence.h"
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFCreator.h"
 #import "FileCleaner.h"
-#import "JCFilePersistence.h"
-#import "ZipArchive/ZipArchive.h"
 #import "LoginViewController.h"
+#import "RegistViewController.h"
 #import "LatestViewController.h"
 #import "MainPDFViewController.h"
 
 @implementation AppDelegate
+
++ (instancetype)sharedDelegate {
+    return [UIApplication sharedApplication].delegate;
+}
+
+- (void)startSpinnerAnimating {
+    if (!self.app_spinner.hidden) {
+        return;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.window.alpha = UNABLE_VIEW_ALPHA;
+        self.window.userInteractionEnabled = NO;
+        
+        [self.window addSubview:self.app_spinner];
+        [self.app_spinner startAnimating];
+    });
+}
+
+- (void)stopSpinnerAnimating {
+    if (self.app_spinner.hidden) {
+        self.window.alpha = DEFAULT_VIEW_ALPHA;
+        self.window.userInteractionEnabled = YES;
+        return;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.app_spinner stopAnimating];
+        [self.app_spinner removeFromSuperview];
+        
+        self.window.alpha = DEFAULT_VIEW_ALPHA;
+        self.window.userInteractionEnabled = YES;
+    });
+}
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     if (url && [url isFileURL]) { // 如果是file url
@@ -28,6 +62,7 @@
         
         // 记录当前文件的URL
         self.fileURL = url;
+        self.fromInboxFile = YES;
         
         URLConnector *urlConnector = [URLConnector sharedInstance];
         if (urlConnector.isLoginSucceed) {
@@ -57,6 +92,9 @@
     self.loginViewController   = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
                                   instantiateViewControllerWithIdentifier:LOGINVIEWCONTROLLER_ID];
     
+    self.registViewController  = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
+                                  instantiateViewControllerWithIdentifier:REGISTVIEWCONTROLLER_ID];
+    
     self.latestViewController  = [[UIStoryboard storyboardWithName:STORYBOARD_NAME bundle:nil]
                                   instantiateViewControllerWithIdentifier:LATESTVIEWCONTROLLER_ID];
     
@@ -72,11 +110,9 @@
     // 2.设置好全局的spinner，先不要add subview，否则会被后面的views遮住
     self.app_spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     self.app_spinner.hidesWhenStopped = YES;
-    self.app_spinner.frame = CGRectMake(0.0, 0.0, 60.0, 60.0);
     self.app_spinner.center = self.window.center;
     
-    // 3.初始化基本参数
-    self.zipArchiver = [[ZipArchive alloc] init];
+    self.fromInboxFile = NO;
     
     return YES;
 }
@@ -103,8 +139,7 @@
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application
-{
+- (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     
     // 当程序将要终止时，清空冗余的文件，注意在调试时直接按stop是不会启用本方法的，必须在后台中退出

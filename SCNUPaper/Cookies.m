@@ -42,10 +42,14 @@
 
 /* 保存登陆用户的信息到UserDefaults中 */
 - (void)saveUserInfo {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate    *appDelegate  = [AppDelegate sharedDelegate];
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSString *isTeacher = (appDelegate.loginViewController.isTeacher) ? @"YES" : @"NO";
-    if (appDelegate.loginViewController.shouldRememberPassword) {
+    
+    self.isTeacher = appDelegate.loginViewController.isTeacher;
+    NSString *isTeacher = (self.isTeacher) ? @"YES" : @"NO";
+    
+    BOOL shouldRembPass = appDelegate.loginViewController.shouldRememberPassword;
+    if (shouldRembPass) {
         NSString *loginAuto = (appDelegate.loginViewController.shouldLoginAutomatically) ? @"YES" : @"NO";
         [userDefaults setObject:self.username forKey:LATEST_USERNAME];
         [userDefaults setObject:self.password forKey:LATEST_PASSWORD];
@@ -65,11 +69,11 @@
 }
 
 /* 退出登陆，清空参数 */
-- (void)cookiesQuitLogin {
-    self.isTeacher = NO;
-    self.username = @"";
-    self.password = @"";
-    self.nickname = @"";
+- (void)removeCookies {
+    self.isTeacher    = NO;
+    self.username     = @"";
+    self.password     = @"";
+    self.nickname     = @"";
     self.pureFileName = @"";
     self.docFileName  = @"";
     self.pdfFileName  = @"";

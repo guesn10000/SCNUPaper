@@ -64,7 +64,7 @@ enum AlertDelegate {
     self.alertDelegate_ = kDefaultAlert;
     
     // 产生管理Annotation key的序列号生成器
-    AppDelegate *appDelegate  = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     appDelegate.keyGeneration = [[KeyGeneraton alloc] initWithDocumentName:appDelegate.cookies.pureFileName];
     
     
@@ -97,7 +97,7 @@ enum AlertDelegate {
     NSArray *nibToolbars = [[NSBundle mainBundle] loadNibNamed:nibName owner:self options:nil];
     
     // 设置工具栏和导航栏按钮
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     if (appDelegate.cookies.isTeacher && IS_IPAD) { // 登陆的用户是老师，并且用iPad登陆
         self.mainOptions_Toolbar    = (UIToolbar *)nibToolbars[0];
         self.strokeOptions_Toolbar  = (UIToolbar *)nibToolbars[1];
@@ -194,7 +194,7 @@ enum AlertDelegate {
 
 /* 设置展示批注的视图 */
 - (void)setViewsForCheckComments {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     
     // 设置展现comments列表视图
     NSString *commNibname = (IS_IPAD) ? IPAD_COMMENT_TABLE_XIB : IPHONE_COMMENT_TABLE_XIB;
@@ -267,7 +267,7 @@ enum AlertDelegate {
 
 /* 返回最近打开列表 */
 - (IBAction)goBack_latestList:(id)sender {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     if (self.hasEdited && appDelegate.cookies.isTeacher) {
         self.alertDelegate_ = kSyncronAlert;
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"注意" message:@"是否保存修改？本操作将使用您的流量"
@@ -284,7 +284,7 @@ enum AlertDelegate {
 /* 发送邮件，将文件与服务器同步 */
 - (IBAction)performActions:(id)sender {
     // 1.创建视图控制器
-    AppDelegate       *appDelegate     = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     MyPDFCreator      *pdfCreator      = [MyPDFCreator sharedInstance];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
@@ -692,7 +692,7 @@ enum AlertDelegate {
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (self.alertDelegate_ == kSyncronAlert) { // 同步对话框
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         if (buttonIndex == 1) { // 保存修改并返回
             appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
             appDelegate.window.userInteractionEnabled = NO;

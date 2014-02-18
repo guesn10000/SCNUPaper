@@ -12,13 +12,9 @@
 
 /* 声明本地测试的宏 */
 
-#if 1
+#if 0
 #define LOCAL_TEST
 #endif
-
-/* 程序常量 */
-
-#define APPDELEGATE [[UIApplication sharedApplication] delegate]
 
 
 /* 系统参数 */
@@ -47,6 +43,7 @@
 #define STORYBOARD_NAME ((IS_IPHONE) ? IPHONE_STORYBOARD_NAME : IPAD_STORYBOARD_NAME)
 
 #define LOGINVIEWCONTROLLER_ID   @"LoginViewController"
+#define REGISTVIEWCONTROLLER_ID  @"RegistViewController"
 #define LATESTVIEWCONTROLLER_ID  @"LatestViewController"
 #define MAINPDFVIEWCONTROLLER_ID @"MainPDFViewController"
 
@@ -100,7 +97,6 @@
 
 #define PDF_SUFFIX @".pdf"
 #define DOC_SUFFIX @".doc"
-#define PPT_SUFFIX @".ppt"
 #define ZIP_SUFFIX @".zip"
 #define MP3_SUFFIX @".mp3"
 #define CAF_SUFFIX @".caf"

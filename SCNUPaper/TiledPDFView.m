@@ -138,7 +138,7 @@ enum AddVoiceType {
         [self addSubview:self.commentsMenu];
         
         // 设置添加文字批注的输入视图
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         NSArray *text_nibs = [[NSBundle mainBundle] loadNibNamed:@"InputTextView" owner:self options:nil];
         self.inputTextView = [text_nibs objectAtIndex:0];
         self.inputTextView.layer.cornerRadius = 6.0;
@@ -272,7 +272,7 @@ enum AddVoiceType {
     
     
     // 3.写入文件中
-    AppDelegate        *appDelegate    = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [[JCFilePersistence alloc] init];
     NSString *drawStrokesFileName      = [NSString stringWithFormat:@"%zu_drawStrokes.plist", self.myPDFPage_.pageIndex];
     NSString *drawStrokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@",
@@ -339,7 +339,7 @@ enum AddVoiceType {
     [self quit_addingComments];
     
     /* 2.添加本次添加的所有批注到数组中 */
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     NSInteger key = [appDelegate.keyGeneration getCommentAnnotationKeyWithPageIndex:self.myPDFPage_.pageIndex];
     CommentStroke *stroke = [[CommentStroke alloc] initWithFrame:self.tempCommentFrame_ Key:key];
     [stroke setAnnotationType:commentType];
@@ -382,7 +382,7 @@ enum AddVoiceType {
 
 /* 保存批注到文件中 */
 - (void)saveCommentStrokes {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 保存笔画和笔画按钮的边界到文件中
@@ -417,7 +417,7 @@ enum AddVoiceType {
     self.annoViewsInView_ = [[NSMutableArray alloc] init];
     
     // 清空之前的PDFAnnotation数组，然后遍历本页的CommentStroke，在本页添加更新后的所有标记
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     self.myPDFPage_.previousAnnotationsForComments = nil;
     self.myPDFPage_.previousAnnotationsForComments = [[NSMutableArray alloc] init];
     for (CommentStroke *stroke in self.myPDFPage_.previousStrokesForComments) {
@@ -492,14 +492,14 @@ enum AddVoiceType {
 }
 
 - (void)editTextComments {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     [self prepareToAddText:kTxtEdit PreviousText:appDelegate.mainPDFViewController.allComments.currentText];
 }
 
 /* 完成并保存输入的文字批注 */
 - (IBAction)done_inputText:(id)sender {
     if (self.input_textView.text && ![self.input_textView.text isEqualToString:@""]) {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         NSString *filename = appDelegate.cookies.pureFileName;
         
         if (self.addTextType_ == kTxtNew) { // 添加新的文字批注
@@ -561,7 +561,7 @@ enum AddVoiceType {
 
 /* 取消输入的文字批注 */
 - (IBAction)cancel_inputText:(id)sender {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     
     [self cancelAddingCommentsToPDFView];
     [self.containerScrollView unlockPDFScrollView];
@@ -601,7 +601,7 @@ enum AddVoiceType {
 
 /* 进行录音动作 */
 - (IBAction)doRecording:(id)sender {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:NO];
     
     if (self.recorder.isRecording) { // YES to NO，关闭录音
@@ -628,7 +628,7 @@ enum AddVoiceType {
 
 /* 完成录音并保存语音批注 */
 - (IBAction)done_record:(id)sender {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     
     if (self.addVoiceType_ == kVocNew) {
         [self finishAddingCommentsToPDFView:kAddVoiceComments]; // 保存批注并添加批注到页面上
@@ -677,7 +677,7 @@ enum AddVoiceType {
     
     [self cancelAddingCommentsToPDFView];
     [self.containerScrollView unlockPDFScrollView];
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     [appDelegate.mainPDFViewController main_finishAddingComments];
     
     if (self.addVoiceType_ == kVocAdd) {

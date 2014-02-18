@@ -26,7 +26,7 @@
     self = [super init];
     
     if (self) {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         
         self.playing_spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
         self.playing_spinner.frame            = CGRectMake(0.0, 0.0, 60.0, 60.0);
@@ -44,7 +44,7 @@
 #pragma mark - Play Voice
 
 - (void)playRecordVoice:(NSString *)mp3FileName {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
@@ -80,7 +80,7 @@
     [self.player stop]; // 停止播放
     self.player = nil;  // 释放player
     
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     appDelegate.mainPDFViewController.stopPlaying_button.hidden = YES;
     appDelegate.mainPDFViewController.view.userInteractionEnabled = YES;
     appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;

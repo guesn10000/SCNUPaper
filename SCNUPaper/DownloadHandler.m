@@ -7,12 +7,12 @@
 //
 
 #import "DownloadHandler.h"
-#import "APIURL.h"
-#import "Constants.h"
 #import "AppDelegate.h"
-#import "Cookies.h"
+#import "Constants.h"
 #import "JCAlert.h"
 #import "JCFilePersistence.h"
+#import "APIURL.h"
+#import "Cookies.h"
 #import "LatestViewController.h"
 
 @interface DownloadHandler ()
@@ -22,8 +22,6 @@
 
 /* 下载的数据 */
 @property (strong, nonatomic) NSMutableData *download_data_;
-
-@property (assign, nonatomic) NSUInteger responseStatusCode_;
 
 @end
 
@@ -41,20 +39,19 @@
     return self;
 }
 
-
 #pragma mark - NSURLConnnection Delegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-    self.responseStatusCode_ = [httpResponse statusCode];
-    if (self.responseStatusCode_ == REDIRECT_STATUS_CODE || self.responseStatusCode_ == REQUEST_SUCCEED_STATUS_CODE) {
+    NSInteger responseStatusCode = [httpResponse statusCode];
+    
+    if (responseStatusCode == REDIRECT_STATUS_CODE || responseStatusCode == REQUEST_SUCCEED_STATUS_CODE) {
         self.download_data_ = [[NSMutableData alloc] initWithLength:0];
     }
-    else if (self.responseStatusCode_ == FILE_NOT_FOUND_CODE) {
+    else if (responseStatusCode == FILE_NOT_FOUND_CODE) {
         self.download_data_ = nil;
         [JCAlert alertWithMessage:@"该文件不曾被老师修改过，找不到任何批改意见"];
-        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-        [filePersistence removeFilesAtInboxFolder];
+        [[JCFilePersistence sharedInstance] removeFilesAtInboxFolder];
     }
     else {
         [JCAlert alertWithMessage:@"发送网络请求失败"];
@@ -70,7 +67,7 @@
 /* 下载文件操作完成 */
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     if (self.download_data_ && self.download_data_.length > 0) {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         
         // 将下载的数据回传到LatestViewController
         if ([self.fileType_ isEqualToString:ZIP_SUFFIX]) {
@@ -80,7 +77,7 @@
             [appDelegate.latestViewController getDownload_PDF_Data:self.download_data_];
         }
         else {
-            [JCAlert alertWithMessage:@"从服务器下载数据失败"];
+            [[AppDelegate sharedDelegate] stopSpinnerAnimating];
         }
     }
 }
@@ -88,6 +85,7 @@
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     self.download_data_ = nil;
     [JCAlert alertWithMessage:@"下载文件出错，请检查您的网络" Error:error];
+    [[AppDelegate sharedDelegate] stopSpinnerAnimating];
 }
 
 @end

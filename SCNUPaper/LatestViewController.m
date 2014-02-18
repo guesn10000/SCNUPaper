@@ -52,9 +52,13 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 #ifdef LOCAL_TEST
     self.navigationItem.rightBarButtonItem.title = @"本地测试";
 #endif
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
-    // 记载登陆用户最近打开的文件列表
-    AppDelegate *appDelegate = APPDELEGATE;
+    // 加载登陆用户最近打开的文件列表
+    AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     self.userslist_ = [filePersistence loadMutableDictionaryFromDocumentFile:LATEST_OPEN_FILENAME];
     if (self.userslist_) {
@@ -64,30 +68,22 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
         }
     }
     else {
-        self.userslist_ = [[NSMutableDictionary alloc] init];
+        self.userslist_       = [[NSMutableDictionary alloc] init];
         self.latestOpenArray_ = [[NSMutableArray alloc] init];
     }
 }
 
-/* 当视图将要消失时移除窗口中的spinner */
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     
-    // 视图消失后移除spinner
-    dispatch_async(dispatch_get_main_queue(), ^{
-        AppDelegate *appDelegate = APPDELEGATE;
-        [appDelegate.app_spinner stopAnimating];
-        [appDelegate.app_spinner removeFromSuperview];
-        
-        appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
-        appDelegate.window.userInteractionEnabled = YES;
-    });
+    // 当视图将要消失时移除窗口中的spinners
+    [[AppDelegate sharedDelegate] stopSpinnerAnimating];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
-    self.userslist_ = nil;
+    self.userslist_       = nil;
     self.latestOpenArray_ = nil;
 }
 
@@ -108,7 +104,6 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CELL_IDENTIFIER];
     }
     
-    // configuring cell
     NSDictionary *latestInfo  = [self.latestOpenArray_ objectAtIndex:indexPath.row];
     cell.textLabel.text       = [latestInfo objectForKey:kLatest_FileName]; // 文件名
     cell.detailTextLabel.text = [latestInfo objectForKey:kLatest_OpenTime]; // 打开时间
@@ -120,11 +115,12 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 
 /* 点击表格后，打开对应的doc或pdf文件 */
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AppDelegate *appDelegate = APPDELEGATE;
-    NSDictionary *openInfo = [self.latestOpenArray_ objectAtIndex:indexPath.row];
-    NSString *filename = [openInfo objectForKey:kLatest_FileName];
-    NSString *pureFileName = [filename substringToIndex:filename.length - 4];
-    NSString *fileDirect;
+    AppDelegate  *appDelegate  = [AppDelegate sharedDelegate];
+    NSDictionary *openInfo     = self.latestOpenArray_[indexPath.row];
+    NSString     *filename     = openInfo[kLatest_FileName];
+    NSString     *pureFileName = [filename substringToIndex:filename.length - 4];
+    NSString     *fileDirect   = nil;
+    
     if ([filename hasSuffix:DOC_SUFFIX]) {
         fileDirect = [NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, pureFileName, DOC_FOLDER_NAME];
     }
@@ -138,8 +134,7 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSString *filePath = [filePersistence getDirectoryInDocumentWithName:fileDirect];
     filePath = [filePath stringByAppendingPathComponent:filename];
-    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-    appDelegate.fileURL = fileURL;
+    appDelegate.fileURL = [NSURL fileURLWithPath:filePath];
     [self openFileURL];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -158,10 +153,12 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     int i;
     for (i = 0; i < self.latestOpenArray_.count; i++) {
         info = [self.latestOpenArray_ objectAtIndex:i];
-        lastFileName = [info     objectForKey:kLatest_FileName];
-        openFileName = [openInfo objectForKey:kLatest_FileName];
-        if ([lastFileName isEqualToString:openFileName]) {
-            break;
+        if (info) {
+            lastFileName = info[kLatest_FileName];
+            openFileName = openInfo[kLatest_FileName];
+            if ([lastFileName isEqualToString:openFileName]) {
+                break;
+            }
         }
     }
     
@@ -171,11 +168,9 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
         if (self.latestOpenArray_.count == kMaximum_LatestOpen) {
             // 清空最后一项对应的文件夹
             NSDictionary *tempInfo = [self.latestOpenArray_ lastObject];
-            NSString *tempFileName = [tempInfo objectForKey:kLatest_FileName];
+            NSString *tempFileName = tempInfo[kLatest_FileName];
             tempFileName = [tempFileName substringToIndex:tempFileName.length - 4];
-            
-            FileCleaner *fileCleaner = [FileCleaner sharedInstance];
-            [fileCleaner clearFolder:tempFileName];
+            [[FileCleaner sharedInstance] clearFolder:tempFileName];
             
             // 移除数组中的元素
             [self.latestOpenArray_ removeLastObject];
@@ -193,16 +188,15 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     });
     
     // 保存记录到文件中
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     [self.userslist_ setObject:self.latestOpenArray_ forKey:appDelegate.cookies.username];
-    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-    [filePersistence saveMutableDictionary:self.userslist_ toDocumentFile:LATEST_OPEN_FILENAME];
+    [[JCFilePersistence sharedInstance] saveMutableDictionary:self.userslist_ toDocumentFile:LATEST_OPEN_FILENAME];
 }
 
 #pragma mark - Open File
 
 - (void)openFileURL {
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     
 #ifdef LOCAL_TEST
 //    NSString *filename = @"中国的绘画精神（长篇）.pdf";
@@ -210,15 +204,16 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     [appDelegate.cookies setFileNamesWithPDFFileName:filename];
     [self openPDFFile];
 #else
+    // 关闭打开文件请求
+    appDelegate.loginViewController.request_openFileURL = NO;
+    
     // 1.获取文件名
     NSString *filename = [appDelegate.fileURL lastPathComponent];
     
     // 2.打开从邮箱打开的或最近打开列表中的文件
     if ([filename hasSuffix:DOC_SUFFIX]) {
         [appDelegate.cookies setFileNamesWithDOCFileName:filename];
-        
-        // 上传doc文件到服务器进行转换
-        [self uploadFileWithSuffix:DOC_SUFFIX];
+        [self uploadFileWithSuffix:DOC_SUFFIX]; // 上传doc文件到服务器进行转换
     }
     else if ([filename hasSuffix:PDF_SUFFIX]) {
         [appDelegate.cookies setFileNamesWithPDFFileName:filename];
@@ -236,34 +231,30 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 /* 上传suffix格式的文件到服务器 */
 - (void)uploadFileWithSuffix:(NSString *)suffix {
     // 获取基本参数
-    AppDelegate *appDelegate  = APPDELEGATE;
-    NSString *pureFilename = appDelegate.cookies.pureFileName;
-    NSString *postFilename = [pureFilename stringByAppendingString:suffix];
-    
-    appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
-    appDelegate.window.userInteractionEnabled = NO;
+    AppDelegate *appDelegate  = [AppDelegate sharedDelegate];
+    NSString    *pureFilename = appDelegate.cookies.pureFileName;
+    NSString    *postFilename = [pureFilename stringByAppendingString:suffix];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
     // 进入等待打开文件提示状态
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [appDelegate.window addSubview:appDelegate.app_spinner];
-        [appDelegate.app_spinner startAnimating];
-    });
+    [appDelegate startSpinnerAnimating];
     
     if ([suffix isEqualToString:DOC_SUFFIX]) { // 打开doc文件
+        appDelegate.fromInboxFile = NO;
+        
         // 获取文件的源路径
-        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
         NSString *srcFileDirectory = [filePersistence getDirectoryOfInboxFolder];
-        NSString *srcFilePath = [srcFileDirectory stringByAppendingPathComponent:postFilename];
+        NSString *srcFilePath      = [srcFileDirectory stringByAppendingPathComponent:postFilename];
         
         // 获取文件的目标路径
         NSString *desFileDirectory = [appDelegate.cookies getDOCFolderDirectory];
-        NSString *desFilePath = [filePersistence getDirectoryInDocumentWithName:desFileDirectory];
+        NSString *desFilePath      = [filePersistence getDirectoryInDocumentWithName:desFileDirectory];
         desFilePath = [desFilePath stringByAppendingPathComponent:postFilename];
         
         // 将从邮箱或网页或其它应用下载的doc文件移动到指username/purefilename/DOC目录下
         [filePersistence moveFileFromPath:srcFilePath toPath:desFilePath];
         
-        // 3.将doc文件上传到服务器进行转换
+        // 将doc文件上传到服务器进行转换
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if ([fileManager fileExistsAtPath:desFilePath]) {
             URLConnector *urlConnector = [URLConnector sharedInstance];
@@ -273,9 +264,14 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     else if ([suffix isEqualToString:PDF_SUFFIX]) {
         [self downloadZipFile];
         [self downloadPDFFile];
+        
+        if (appDelegate.fromInboxFile) {
+            [filePersistence removeFilesAtInboxFolder];
+            appDelegate.fromInboxFile = NO;
+        }
     }
     else {
-        [JCAlert alertWithMessage:@"请检查您的文件格式"];
+        appDelegate.fromInboxFile = NO;
         return;
     }
 }
@@ -284,29 +280,26 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 
 /* 下载该doc文件在服务器对应的zip包（如果已经存在） */
 - (void)downloadZipFile {
-    AppDelegate *appDelegate = APPDELEGATE;
-    URLConnector *urlConnector = [URLConnector sharedInstance];
-    [urlConnector downloadFile:appDelegate.cookies.zipFileName
-                          Type:ZIP_SUFFIX
-            FromServerInFolder:appDelegate.cookies.pureFileName];
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    [[URLConnector sharedInstance] downloadFile:appDelegate.cookies.zipFileName
+                                           Type:ZIP_SUFFIX
+                             FromServerInFolder:appDelegate.cookies.pureFileName];
 }
 
 /* 获取下载成功的zip数据，zipData : 由DownloadHanler回传 */
 - (void)getDownload_ZIP_Data:(NSMutableData *)zipData {
     if (zipData && zipData.length > 0) {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate       *appDelegate     = [AppDelegate       sharedDelegate];
         JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-        FileCleaner *fileCleaner = [FileCleaner sharedInstance];
-        MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
         
         // 保存zip数据到tmp文件夹中
         if ([filePersistence saveMutableData:zipData toTmpFile:appDelegate.cookies.zipFileName]) {
             // 解压前先清除pureFileName文件夹中的PDF文件夹
-            [fileCleaner clearFilesInPDFFolder:appDelegate.cookies.pureFileName];
+            [[FileCleaner sharedInstance] clearFilesInPDFFolder:appDelegate.cookies.pureFileName];
             
             // 解压zip包并将zip包中的数据移动到对应位置
             NSString *zipFilePath = [filePersistence getDirectoryOfTmpFileWithName:appDelegate.cookies.zipFileName];
-            [pdfCreator unzipFilesInPath:zipFilePath];
+            [[MyPDFCreator sharedInstance] unzipFilesInPath:zipFilePath];
             
             // 清空tmp目录下的文件，防止影响后面的解压
             [filePersistence removeFilesAtTmpFolder];
@@ -320,20 +313,18 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 /* 从服务器下载pdf文件数据 */
 - (void)downloadPDFFile {
     // 在转换完成后从服务器的文件夹purefilename中下载pdf文件数据，并保存到username/purefilename/pdf/目录下
-    AppDelegate *appDelegate = APPDELEGATE;
-    URLConnector *urlConnector = [URLConnector sharedInstance];
-    [urlConnector downloadFile:appDelegate.cookies.pdfFileName
-                          Type:PDF_SUFFIX
-            FromServerInFolder:appDelegate.cookies.pureFileName];
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    [[URLConnector sharedInstance] downloadFile:appDelegate.cookies.pdfFileName
+                                           Type:PDF_SUFFIX
+                             FromServerInFolder:appDelegate.cookies.pureFileName];
 }
 
 /* 获取下载成功的pdf数据，pdfData : 由DownloadHanler回传 */
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData {
     if (pdfData && pdfData.length > 0) {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         NSString *pdfFileDirectory = [appDelegate.cookies getPDFFolderDirectory];
-        JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-        [filePersistence saveMutableData:pdfData ToFile:appDelegate.cookies.pdfFileName inDocumentWithDirectory:pdfFileDirectory];
+        [[JCFilePersistence sharedInstance] saveMutableData:pdfData ToFile:appDelegate.cookies.pdfFileName inDocumentWithDirectory:pdfFileDirectory];
     }
     else {
         [JCAlert alertWithMessage:@"打开文件失败，下载的数据为空"];
@@ -346,7 +337,7 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 /* 打开pdf文件 */
 - (void)openPDFFile {
     // 1.获取基本参数
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     
     // 2.保存当前打开的文件到最近打开数组中
     NSMutableDictionary *openInfo = [[NSMutableDictionary alloc] init];
@@ -364,17 +355,15 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     [self updateLatestOpenWithRecord:openInfo];
     
     // 初始化PDF文件
-    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSString *pdfFileDirectory = [appDelegate.cookies getPDFFolderDirectory];
-    NSString *pdfFilePath = [filePersistence getDirectoryInDocumentWithName:pdfFileDirectory];
-    pdfFilePath = [pdfFilePath stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
-    appDelegate.mainPDFViewController.myPDFDocument = [[MyPDFDocument alloc] initWithPDFFilePath:pdfFilePath];
-    
-    // 关闭打开文件请求
-    appDelegate.loginViewController.request_openFileURL = NO;
-    
-    // 将main pdf viewcontroller压入栈中
-    [appDelegate.rootViewController pushViewController:appDelegate.mainPDFViewController animated:YES];
+    NSString *pdfFilePath = [[JCFilePersistence sharedInstance] getDirectoryInDocumentWithName:pdfFileDirectory];
+    if (pdfFilePath) {
+        pdfFilePath = [pdfFilePath stringByAppendingPathComponent:appDelegate.cookies.pdfFileName];
+        appDelegate.mainPDFViewController.myPDFDocument = [[MyPDFDocument alloc] initWithPDFFilePath:pdfFilePath];
+        
+        // 将main pdf viewcontroller压入栈中
+        [appDelegate.rootViewController pushViewController:appDelegate.mainPDFViewController animated:YES];
+    }
 }
 
 #pragma mark - Quit Login
@@ -386,12 +375,13 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     [self openFileURL];
 #else
     // 重置cookies和urlconnector的参数，并返回登陆页面
-    AppDelegate *appDelegate = APPDELEGATE;
+    AppDelegate  *appDelegate  = [AppDelegate sharedDelegate];
+    appDelegate.fileURL = nil;
+    appDelegate.fromInboxFile = NO;
     URLConnector *urlConnector = [URLConnector sharedInstance];
-    [appDelegate.cookies cookiesQuitLogin];
     urlConnector.isLoginSucceed = NO;
+    [appDelegate.cookies removeCookies];
     [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
-
 #endif
     
 }

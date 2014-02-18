@@ -13,7 +13,6 @@
 #import "APIURL.h"
 #import "JCFilePersistence.h"
 #import "LatestViewController.h"
-#import "MainPDFViewController.h"
 
 @interface UploadHandler ()
 
@@ -41,13 +40,12 @@
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     NSUInteger responseStatusCode = [httpResponse statusCode];
-    if (responseStatusCode == REDIRECT_STATUS_CODE || responseStatusCode == REQUEST_SUCCEED_STATUS_CODE) {
-        // 上传文件请求成功
+    if (responseStatusCode == REDIRECT_STATUS_CODE || responseStatusCode == REQUEST_SUCCEED_STATUS_CODE) { // 上传文件请求成功
         self.responseData_ = [[NSMutableData alloc] initWithLength:0];
     }
     else {
         self.responseData_ = nil;
-        [JCAlert alertWithMessage:@"发送网络请求失败"];
+        [[AppDelegate sharedDelegate] stopSpinnerAnimating];
     }
 }
 
@@ -69,7 +67,7 @@
         return;
     }
     else {
-        AppDelegate *appDelegate = APPDELEGATE;
+        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         if (self.needConvert) { // 转换成功
             LatestViewController *latestViewController = appDelegate.latestViewController;
             
@@ -79,10 +77,9 @@
             // 下载pdf文件，顺序不可互换
             [latestViewController downloadPDFFile];
         }
-        else { // 上传文件操作
+        else { // 上传文件成功
             // 清理本地tmp文件夹中残留的zip文件
-            JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-            [filePersistence removeFilesAtTmpFolder];
+            [[JCFilePersistence sharedInstance] removeFilesAtTmpFolder];
         }
     }
 }
@@ -91,6 +88,7 @@
     [[JCFilePersistence sharedInstance] removeFilesAtTmpFolder];
     self.responseData_ = nil;
     [JCAlert alertWithMessage:@"上传文件失败，请检查您的网络" Error:error];
+    [[AppDelegate sharedDelegate] stopSpinnerAnimating];
 }
 
 @end
