@@ -273,7 +273,7 @@ enum AddVoiceType {
     
     // 3.写入文件中
     AppDelegate *appDelegate = [AppDelegate sharedDelegate];
-    JCFilePersistence *filePersistence = [[JCFilePersistence alloc] init];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSString *drawStrokesFileName      = [NSString stringWithFormat:@"%zu_drawStrokes.plist", self.myPDFPage_.pageIndex];
     NSString *drawStrokesFileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@",
                                           appDelegate.cookies.username,
@@ -283,6 +283,20 @@ enum AddVoiceType {
     [filePersistence saveMutableData:mdata
                               ToFile:drawStrokesFileName
              inDocumentWithDirectory:drawStrokesFileDirectory];
+    
+    // 保存编辑后的页码
+    NSString *pdfFolderDirect = [NSString stringWithFormat:@"%@/%@/%@",
+                                 appDelegate.cookies.username,
+                                 appDelegate.cookies.pureFileName,
+                                 PDF_FOLDER_NAME];
+    NSMutableDictionary *annoPages = [filePersistence loadMutableDictionaryFromFile:COM_STRK_PAGES_FILENAME
+                                                            inDocumentWithDirectory:pdfFolderDirect];
+    if (!annoPages) {
+        annoPages = [[NSMutableDictionary alloc] init];
+    }
+    NSString *pageNumStr = [NSString stringWithFormat:@"%zu", self.myPDFPage_.pageIndex];
+    [annoPages setObject:@"YES" forKey:pageNumStr];
+    [filePersistence saveMutableDictionary:annoPages toFile:COM_STRK_PAGES_FILENAME inDocumentWithDirectory:pdfFolderDirect];
     
     
     // 4.清空数组

@@ -256,7 +256,22 @@ static const float Record_SampleRateKey    = 44100.0;
     [appDelegate.keyGeneration updateAnnotationKeysWithDocumentName:appDelegate.cookies.pureFileName];
     
     
-    // 6.重置参数
+    // 6.保存编辑后的页码
+    NSString *pdfFolderDirect = [NSString stringWithFormat:@"%@/%@/%@",
+                                 appDelegate.cookies.username,
+                                 appDelegate.cookies.pureFileName,
+                                 PDF_FOLDER_NAME];
+    NSMutableDictionary *annoPages = [filePersistence loadMutableDictionaryFromFile:COM_STRK_PAGES_FILENAME
+                                                            inDocumentWithDirectory:pdfFolderDirect];
+    if (!annoPages) {
+        annoPages = [[NSMutableDictionary alloc] init];
+    }
+    NSString *pageNumStr = [NSString stringWithFormat:@"%zu", pdfAnnotation.inPageIndex];
+    [annoPages setObject:@"YES" forKey:pageNumStr];
+    [filePersistence saveMutableDictionary:annoPages toFile:COM_STRK_PAGES_FILENAME inDocumentWithDirectory:pdfFolderDirect];
+    
+    
+    // 7.重置参数
     [self resetDefaults];
 }
 

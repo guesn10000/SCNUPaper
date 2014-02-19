@@ -104,6 +104,7 @@
 #define PDF_MIME_TYPE  @"application/pdf"
 
 #define ANNOTATION_KEYS_FILENAME @"AnnotationKeys.plist"
+#define COM_STRK_PAGES_FILENAME  @"ComStrkPages.plist"
 
 // 保存最近打开文件记录的文件
 #define LATEST_OPEN_FILENAME @"LatestOpen.plist"

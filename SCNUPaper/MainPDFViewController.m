@@ -81,6 +81,12 @@ enum AlertDelegate {
     [self buildThesisPages];
 }
 
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    [self.thesisPagesView removeFromSuperview];
+}
+
 /* 根据权限设置工具条和导航栏 */
 - (void)setBarsWithAuthority {
     // 隐藏返回按钮
@@ -702,7 +708,9 @@ enum AlertDelegate {
             // 创建pdf文件并上传到服务器
             MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
             [pdfCreator createNewPDFFile];
+#ifndef LOCAL_TEST
             [pdfCreator uploadFilesToServer];
+#endif
         }
         
         // 返回最近打开列表

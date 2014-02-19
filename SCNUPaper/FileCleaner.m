@@ -38,7 +38,7 @@
 
 /* 删除残留在Documents目录下的suffix后缀的文件 */
 - (void)clearFilesWithSuffix:(NSString *)suffix {
-    JCFilePersistence *filePersistence = [[JCFilePersistence alloc] init];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSString *documentPath = [filePersistence getDirectoryOfDocumentFolder];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];

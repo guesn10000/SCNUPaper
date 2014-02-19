@@ -36,7 +36,7 @@
 - (IBAction)goBack_latestList:(id)sender;
 
 /* 执行发邮件，上传文件到服务器等操作的按钮 */
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *performActions_barButtonItem;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *performActions_barButtonItem;
 
 /* 发邮件，上传文件到服务器 */
 - (IBAction)performActions:(id)sender;
@@ -46,8 +46,8 @@
 
 /* 页面跳转 */
 - (IBAction)turnToPage:(id)sender;
-@property (weak, nonatomic) IBOutlet UIView *pageInputView;
-@property (weak, nonatomic) IBOutlet UITextField *inputPageIndex_textField;
+@property (strong, nonatomic) IBOutlet UIView *pageInputView;
+@property (strong, nonatomic) IBOutlet UITextField *inputPageIndex_textField;
 - (IBAction)turnToPage_Action:(id)sender;
 - (IBAction)cancelTurnPage_Action:(id)sender;
 
@@ -58,11 +58,11 @@
 
 /* 直接添加笔注 */
 - (IBAction)addStrokes:(id)sender;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *addStroke_barButtonItem;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *addStroke_barButtonItem;
 
 /* 先选择文字，再添加文字或语音批注 */
 - (IBAction)selectText:(id)sender;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *selectText_barButtonItem;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *selectText_barButtonItem;
 
 #pragma mark - Add Strokes
 
@@ -97,7 +97,7 @@
 - (void)checkComments;
 
 @property (strong, nonatomic) IBOutlet UIView *viewForCheckComments;/* 查看批注视图的容器 */
-@property (weak, nonatomic) IBOutlet UITableView *checkCommentsTable;
+@property (strong, nonatomic) IBOutlet UITableView *checkCommentsTable;
 @property (strong, nonatomic) IBOutlet UIToolbar *checkCommentsOptions_Toolbar;/* 查看批注的主要选项的工具栏 */
 - (IBAction)dismissCommentsView:(id)sender;/* 取消添加批注 */
 
@@ -116,7 +116,7 @@
 
 /* 文字批注细节视图 */
 @property (strong, nonatomic) IBOutlet UIView *viewForCommentDetails;
-@property (weak, nonatomic) IBOutlet UITextView *commentDetailsView;
+@property (strong, nonatomic) IBOutlet UITextView *commentDetailsView;
 
 /* 查看文字批注细节时底部的工具栏 */
 @property (strong, nonatomic) IBOutlet UIToolbar *commentDetailOption_Toolbar;
@@ -125,7 +125,7 @@
 - (IBAction)gobackToCommentsTable:(id)sender;
 
 /* 编辑文字批注细节的按钮 */
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *edit_barButtonItem;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *edit_barButtonItem;
 
 /* 直接编辑当前查看的文字批注细节 */
 - (IBAction)editCommentDetails:(id)sender;

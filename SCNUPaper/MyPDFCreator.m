@@ -26,6 +26,18 @@
 #define ADD_VOICE_IMG [UIImage imageNamed:@"addVoice.jpg"]
 #define ANNO_SIZE 30.0
 
+static NSComparator gComparator = ^(id obj1, id obj2){
+    if ([obj1 intValue] > [obj2 intValue]) {
+        return (NSComparisonResult)NSOrderedDescending;
+    }
+    else if ([obj1 intValue] < [obj2 intValue]) {
+        return (NSComparisonResult)NSOrderedAscending;
+    }
+    else {
+        return (NSComparisonResult)NSOrderedSame;
+    }
+};
+
 @implementation MyPDFCreator
 
 #pragma mark - Singleton
@@ -55,11 +67,13 @@
     AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
-    NSString *keyFileDirectory = [NSString stringWithFormat:@"%@/%@/%@",
-                                  appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME];
-    NSMutableDictionary *annoKeys = [filePersistence loadMutableDictionaryFromFile:ANNOTATION_KEYS_FILENAME inDocumentWithDirectory:keyFileDirectory];
-    NSArray *pageKeys = annoKeys.allKeys;
-    if (!pageKeys || pageKeys.count == 0) {
+    NSString *pdfFolderDirect = [NSString stringWithFormat:@"%@/%@/%@",
+                                 appDelegate.cookies.username,
+                                 appDelegate.cookies.pureFileName,
+                                 PDF_FOLDER_NAME];
+    NSMutableDictionary *annoPages = [filePersistence loadMutableDictionaryFromFile:COM_STRK_PAGES_FILENAME
+                                                            inDocumentWithDirectory:pdfFolderDirect];
+    if (!annoPages || annoPages.count == 0) {
         return NO;
     }
     
@@ -102,11 +116,13 @@
     CGContextRef myPDFContext = MyPDFContextCreate(&mediaBox, pathRef);
     
     
-    
     // 6.开始绘图
+    NSArray *pageKeys = annoPages.allKeys;
+    NSArray *sortedArray = [pageKeys sortedArrayUsingComparator:gComparator];
+    
     // 设置scroll view中的内容
-//    for (int j = 1; j <= tempDocument.totalPages; j++) {
-    for (NSString *keyStr in pageKeys) {
+    for (int index = 0; index < sortedArray.count; index++) {
+        NSString *keyStr = sortedArray[index];
         int j = keyStr.intValue;
         CGRect tempRect = tempFrame;
         tempRect.origin.x = (j - 1) * tempFrame.size.width;
