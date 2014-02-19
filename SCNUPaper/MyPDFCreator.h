@@ -14,7 +14,7 @@
 + (instancetype)sharedInstance;
 
 /* 创建新的pdf文件，包含批改的涂鸦 */
-- (void)createNewPDFFile;
+- (BOOL)createNewPDFFile;
 
 /* 上传文件到服务器：同步 */
 - (void)uploadFilesToServer;

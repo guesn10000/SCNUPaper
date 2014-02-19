@@ -50,10 +50,19 @@
 
 #pragma mark - Create PDF file and upload files
 
-- (void)createNewPDFFile {
+- (BOOL)createNewPDFFile {
     // 1.获取基本参数
-    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    
+    NSString *keyFileDirectory = [NSString stringWithFormat:@"%@/%@/%@",
+                                  appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME];
+    NSMutableDictionary *annoKeys = [filePersistence loadMutableDictionaryFromFile:ANNOTATION_KEYS_FILENAME inDocumentWithDirectory:keyFileDirectory];
+    NSArray *pageKeys = annoKeys.allKeys;
+    if (!pageKeys || pageKeys.count == 0) {
+        return NO;
+    }
+    
     
     // 2.创建media box
     PDFScrollView *tempPDFScrollView = [appDelegate.mainPDFViewController.viewsForThesisPages objectForKey:@"cur"];
@@ -64,6 +73,7 @@
     CGFloat myPageWidth  = originRect.size.width;
     CGFloat myPageHeight = originRect.size.height;
     CGRect  mediaBox     = CGRectMake(0, 0, myPageWidth, myPageHeight);
+    
     
     // 3.设置pdf文档存储的路径
     
@@ -92,9 +102,12 @@
     CGContextRef myPDFContext = MyPDFContextCreate(&mediaBox, pathRef);
     
     
+    
     // 6.开始绘图
-    // 设置scroll view中的内容s
-    for (int j = 1; j <= tempDocument.totalPages; j++) {
+    // 设置scroll view中的内容
+//    for (int j = 1; j <= tempDocument.totalPages; j++) {
+    for (NSString *keyStr in pageKeys) {
+        int j = keyStr.intValue;
         CGRect tempRect = tempFrame;
         tempRect.origin.x = (j - 1) * tempFrame.size.width;
         PDFScrollView *pdfScrollView = [[PDFScrollView alloc] initWithFrame:tempRect
@@ -152,6 +165,8 @@
     CGContextRelease(myPDFContext);
     CFRelease(myValues[0]);
     CFRelease(pathRef);
+    
+    return YES;
 }
 
 CGContextRef MyPDFContextCreate(const CGRect *inMediaBox, CFStringRef path) {
