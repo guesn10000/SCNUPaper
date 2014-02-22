@@ -157,7 +157,9 @@
                     stroke.hasVoiceAnnotation = NO;
                 }
                 [strokesArray removeObjectAtIndex:i];
-                [strokesArray insertObject:stroke atIndex:i];
+                if (stroke) {
+                    [strokesArray insertObject:stroke atIndex:i];
+                }
             }
             
             // 保存CommentStroke数据到文件中
