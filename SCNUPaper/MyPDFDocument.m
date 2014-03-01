@@ -21,8 +21,8 @@
     if (self) {
         NSURL *pdfFileURL = [NSURL fileURLWithPath:pdfFilePath];
         self.pdfDocumentRef = CGPDFDocumentCreateWithURL((__bridge CFURLRef)(pdfFileURL));
-        
         self.totalPages = CGPDFDocumentGetNumberOfPages(self.pdfDocumentRef);
+        
         
         if (self.totalPages == 0) {
             [JCAlert alertWithMessage:@"打开的文件已经损坏或内容为空"];

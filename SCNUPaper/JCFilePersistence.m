@@ -523,4 +523,31 @@
     }
 }
 
+- (void)copyFileFromPath:(NSString *)srcFilePath toPath:(NSString *)desFilePath {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:srcFilePath]) {
+        if ([fileManager fileExistsAtPath:desFilePath]) { // 如果文件存在于目标路径中，先将其移除
+            NSError *removeError = nil;
+            [fileManager removeItemAtPath:desFilePath error:&removeError];
+            if (removeError) {
+                [JCAlert alertWithMessage:@"移除目标文件失败" Error:removeError];
+                return;
+            }
+        }
+        
+        // 从源路径移动文件到目标路径
+        NSError *copyError = nil;
+        [fileManager copyItemAtPath:srcFilePath toPath:desFilePath error:&copyError];
+        if (copyError) {
+            [JCAlert alertWithMessage:@"移动文件出错" Error:copyError];
+        }
+    }
+    else {
+#ifdef LOG_DEBUG
+        NSLog(@"复制文件失败，源文件不存在");
+#endif
+    }
+}
+
 @end

@@ -52,10 +52,6 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 #ifdef LOCAL_TEST
     self.navigationItem.rightBarButtonItem.title = @"本地测试";
 #endif
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
     
     // 加载登陆用户最近打开的文件列表
     AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
@@ -73,6 +69,10 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     }
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     
@@ -82,9 +82,6 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    
-    self.userslist_       = nil;
-    self.latestOpenArray_ = nil;
 }
 
 #pragma mark - Table view data source
@@ -206,7 +203,7 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     NSString *srcFilePath = [[NSBundle mainBundle] pathForResource:filename ofType:nil];
     NSString *desFilePath = [filePersistence getDirectoryInDocumentWithName:[NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME]];
     desFilePath = [desFilePath stringByAppendingPathComponent:filename];
-    [filePersistence moveFileFromPath:srcFilePath toPath:desFilePath];
+    [filePersistence copyFileFromPath:srcFilePath toPath:desFilePath];
     
     [self openPDFFile];
 #else

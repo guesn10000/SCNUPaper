@@ -163,18 +163,6 @@ enum AlertDelegate {
     self.checkCommentsTable.delegate   = self;
     self.checkCommentsTable.dataSource = self.allComments;
     
-    // 添加批注的菜单
-    if (IS_IPAD) {
-        self.addNewComments_Menu = [commNibs objectAtIndex:1];
-        self.addNewComments_Menu.layer.cornerRadius = 6.0;
-        self.addNewComments_Menu.layer.masksToBounds = YES;
-        CGFloat menuHeight = self.addNewComments_Menu.bounds.size.height / 2 + TOOLBAR_HEIGHT;
-        self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.bounds.size.width / 2,
-                                                      self.view.bounds.size.height - menuHeight);
-        self.addNewComments_Menu.hidden = YES;
-        [appDelegate.window addSubview:self.addNewComments_Menu];
-    }
-    
     CGFloat height = self.viewForCheckComments.bounds.size.height;
     CGPoint center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height - height / 2);
     self.viewForCheckComments.center = center;
@@ -202,6 +190,18 @@ enum AlertDelegate {
     self.viewForCommentDetails.center = center;
     self.viewForCommentDetails.hidden = YES;
     [appDelegate.window addSubview:self.viewForCommentDetails];
+    
+    // 添加批注的菜单
+    if (IS_IPAD) {
+        self.addNewComments_Menu = [commNibs objectAtIndex:1];
+        self.addNewComments_Menu.layer.cornerRadius = 6.0;
+        self.addNewComments_Menu.layer.masksToBounds = YES;
+        CGFloat menuHeight = self.addNewComments_Menu.bounds.size.height / 2 + TOOLBAR_HEIGHT;
+        self.addNewComments_Menu.center = CGPointMake(self.addNewComments_Menu.bounds.size.width / 2,
+                                                      self.view.bounds.size.height - menuHeight);
+        self.addNewComments_Menu.hidden = YES;
+        [appDelegate.window addSubview:self.addNewComments_Menu];
+    }
 }
 
 /* 建立显示论文内容的视图 */
@@ -325,7 +325,9 @@ enum AlertDelegate {
 
 /* MailComposer Delegate */
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+#ifndef LOCAL_TEST
     MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
+#endif
     
     switch (result) {
         case MFMailComposeResultCancelled:
@@ -333,12 +335,16 @@ enum AlertDelegate {
             break;
             
         case MFMailComposeResultSaved:
+#ifndef LOCAL_TEST
             [pdfCreator uploadFilesToServer];
+#endif
             [JCAlert alertWithMessage:@"邮件已保存"];
             break;
             
         case MFMailComposeResultSent:
+#ifndef LOCAL_TEST
             [pdfCreator uploadFilesToServer];
+#endif
             [JCAlert alertWithMessage:@"邮件已发送"];
             break;
             

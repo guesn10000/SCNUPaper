@@ -88,4 +88,7 @@
 /* 将文件从源路径移动到目标路径 */
 - (void)moveFileFromPath:(NSString *)srcFilePath toPath:(NSString *)desFilePath;
 
+/* 将文件从源路径复制到目标路径 */
+- (void)copyFileFromPath:(NSString *)srcFilePath toPath:(NSString *)desFilePath;
+
 @end
