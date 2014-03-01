@@ -14,6 +14,8 @@
 		181680FC188BA6FF008DE61F /* PageInputView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 181680FB188BA6FF008DE61F /* PageInputView.xib */; };
 		181680FE188BA71A008DE61F /* iPhone_PageInput.xib in Resources */ = {isa = PBXBuildFile; fileRef = 181680FD188BA71A008DE61F /* iPhone_PageInput.xib */; };
 		1817E7FD18B3B8D7001019CB /* RegistHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 1817E7FC18B3B8D7001019CB /* RegistHandler.m */; };
+		1821AFB718C19ABA000D5244 /* 中国的绘画精神.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 1821AFB518C19ABA000D5244 /* 中国的绘画精神.pdf */; };
+		1821AFB818C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 1821AFB618C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf */; };
 		1826757918B24DD900EEFDF3 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1826757818B24DD900EEFDF3 /* Reachability.m */; };
 		1839856A188E9F770097FB3C /* AnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18398569188E9F770097FB3C /* AnnotationView.m */; };
 		184F3C14183CBFA4006DCAC3 /* MyPDFButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 184F3C13183CBFA4006DCAC3 /* MyPDFButton.m */; };
@@ -108,6 +110,8 @@
 		181680FD188BA71A008DE61F /* iPhone_PageInput.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = iPhone_PageInput.xib; sourceTree = "<group>"; };
 		1817E7FB18B3B8D7001019CB /* RegistHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistHandler.h; sourceTree = "<group>"; };
 		1817E7FC18B3B8D7001019CB /* RegistHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistHandler.m; sourceTree = "<group>"; };
+		1821AFB518C19ABA000D5244 /* 中国的绘画精神.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "中国的绘画精神.pdf"; sourceTree = "<group>"; };
+		1821AFB618C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "中国的绘画精神（长篇）.pdf"; sourceTree = "<group>"; };
 		1826757718B24DD900EEFDF3 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		1826757818B24DD900EEFDF3 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		18398568188E9F770097FB3C /* AnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnnotationView.h; sourceTree = "<group>"; };
@@ -285,6 +289,15 @@
 			name = Images;
 			sourceTree = "<group>";
 		};
+		1821AFB418C19AAE000D5244 /* PDFs */ = {
+			isa = PBXGroup;
+			children = (
+				1821AFB518C19ABA000D5244 /* 中国的绘画精神.pdf */,
+				1821AFB618C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf */,
+			);
+			name = PDFs;
+			sourceTree = "<group>";
+		};
 		185F2566183898B100347214 = {
 			isa = PBXGroup;
 			children = (
@@ -370,6 +383,7 @@
 		185F25AA183898B700347214 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				1821AFB418C19AAE000D5244 /* PDFs */,
 				1815F81018393E0A0007B92B /* Images */,
 			);
 			name = Sources;
@@ -738,6 +752,7 @@
 				18C46FE9184224070093CA29 /* iPad_ToolBars.xib in Resources */,
 				18E3CD0E1889559800D02BA2 /* addVoice.jpg in Resources */,
 				185F258E183898B200347214 /* Images.xcassets in Resources */,
+				1821AFB818C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf in Resources */,
 				186FD6FE183DF138001C0B92 /* AppDocument.rtf in Resources */,
 				18E3CD14188961C000D02BA2 /* CommentDetail.xib in Resources */,
 				1815F826183941D20007B92B /* Toolbar-Cancel.png in Resources */,
@@ -745,6 +760,7 @@
 				18B44754184793950074D669 /* cb_glossy_on.png in Resources */,
 				181680FE188BA71A008DE61F /* iPhone_PageInput.xib in Resources */,
 				18E3CD0D1889559800D02BA2 /* addText.png in Resources */,
+				1821AFB718C19ABA000D5244 /* 中国的绘画精神.pdf in Resources */,
 				185F2586183898B200347214 /* Main_iPhone.storyboard in Resources */,
 				185F257D183898B200347214 /* InfoPlist.strings in Resources */,
 				188DE21D188A73D10065F428 /* InputTextView.xib in Resources */,

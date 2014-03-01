@@ -202,6 +202,12 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
 //    NSString *filename = @"中国的绘画精神（长篇）.pdf";
     NSString *filename = @"中国的绘画精神.pdf";
     [appDelegate.cookies setFileNamesWithPDFFileName:filename];
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    NSString *srcFilePath = [[NSBundle mainBundle] pathForResource:filename ofType:nil];
+    NSString *desFilePath = [filePersistence getDirectoryInDocumentWithName:[NSString stringWithFormat:@"%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME]];
+    desFilePath = [desFilePath stringByAppendingPathComponent:filename];
+    [filePersistence moveFileFromPath:srcFilePath toPath:desFilePath];
+    
     [self openPDFFile];
 #else
     // 关闭打开文件请求
