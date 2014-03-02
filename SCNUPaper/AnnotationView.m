@@ -7,7 +7,6 @@
 //
 
 #import "AnnotationView.h"
-#import "Constants.h"
 
 @implementation AnnotationView
 

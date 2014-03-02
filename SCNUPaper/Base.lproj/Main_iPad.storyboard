@@ -173,6 +173,11 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="最近打开论文" id="ayj-Bm-PCN">
+                        <barButtonItem key="leftBarButtonItem" title="退出登录" id="Qzv-tH-Wh1">
+                            <connections>
+                                <action selector="quitLogin_localTest:" destination="EJa-EB-SaV" id="uwn-IF-Nxi"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="退出登录" id="F9H-mC-H3q">
                             <connections>
                                 <action selector="quitLogin:" destination="EJa-EB-SaV" id="1iP-3K-QYK"/>
@@ -180,6 +185,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="quitLogin_localTestButtonItem" destination="Qzv-tH-Wh1" id="dRg-eI-Ad6"/>
                         <segue destination="6Le-OY-xKm" kind="push" identifier="push_MainViewController" id="og1-mM-kDr"/>
                     </connections>
                 </tableViewController>

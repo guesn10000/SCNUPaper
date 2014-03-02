@@ -7,7 +7,6 @@
 //
 
 #import "PDFScrollView.h"
-#import "Constants.h"
 #import "AppDelegate.h"
 #import "Cookies.h"
 #import "KeyGeneraton.h"

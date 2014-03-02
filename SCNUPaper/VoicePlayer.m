@@ -9,9 +9,6 @@
 #import "VoicePlayer.h"
 #import "AppDelegate.h"
 #import "Cookies.h"
-#import "Constants.h"
-#import "JCFilePersistence.h"
-#import "JCAlert.h"
 #import "MainPDFViewController.h"
 
 @interface VoicePlayer ()
@@ -44,11 +41,10 @@
 #pragma mark - Play Voice
 
 - (void)playRecordVoice:(NSString *)mp3FileName {
-    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     
-    appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
-    appDelegate.mainPDFViewController.view.userInteractionEnabled = NO;
+    [appDelegate.mainPDFViewController unenableViewAndBarsInteraction];
     
     NSError *error = nil;
     NSString *mp3FileDirectory = [NSString stringWithFormat:@"%@/%@/%@/%@", appDelegate.cookies.username, appDelegate.cookies.pureFileName, PDF_FOLDER_NAME, MP3_FOLDER_NAME];
@@ -82,8 +78,7 @@
     
     AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     appDelegate.mainPDFViewController.stopPlaying_button.hidden = YES;
-    appDelegate.mainPDFViewController.view.userInteractionEnabled = YES;
-    appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
+    [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
 }
 
 #pragma mark - Audio player delegate

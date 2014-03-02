@@ -9,9 +9,7 @@
 #import "TextAnnotation.h"
 #import "AppDelegate.h"
 #import "Cookies.h"
-#import "Constants.h"
 #import "KeyGeneraton.h"
-#import "JCFilePersistence.h"
 #import "MyPDFAnnotation.h"
 
 @implementation TextAnnotation

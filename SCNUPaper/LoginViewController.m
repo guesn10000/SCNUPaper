@@ -8,8 +8,6 @@
 
 #import "LoginViewController.h"
 #import "AppDelegate.h"
-#import "Constants.h"
-#import "JCAlert.h"
 #import "URLConnector.h"
 #import "Cookies.h"
 
@@ -131,15 +129,14 @@
     AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     [appDelegate startSpinnerAnimating];
     
-    if ([self.input_username_textField.text isEqual:TEMP_USERNAME] &&
-        [self.input_password_textField.text isEqual:TEMP_PASSWORD]) {
+    if ([self loginVerify]) {
         
 #ifdef LOCAL_TEST
         // 设置好参数并保存用户的临时信息
-        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         URLConnector *urlConnector = [URLConnector sharedInstance];
         urlConnector.isLoginSucceed = YES;
-        appDelegate.cookies = [[Cookies alloc] initWithUsername:TEMP_USERNAME Password:TEMP_PASSWORD];
+        appDelegate.cookies = [[Cookies alloc] initWithUsername:self.input_username_textField.text
+                                                       Password:self.input_password_textField.text];
         appDelegate.cookies.isTeacher = appDelegate.loginViewController.isTeacher;
         [appDelegate.cookies saveUserInfo];
         // push LatestViewController进栈
@@ -153,6 +150,25 @@
     }
     else {
         [JCAlert alertWithMessage:@"登陆失败，请检查您的用户名密码是否正确"];
+        [appDelegate stopSpinnerAnimating];
+    }
+}
+
+- (BOOL)loginVerify {
+    if ([self.input_username_textField.text isEqual:TEMP_USERNAME] &&
+        [self.input_password_textField.text isEqual:TEMP_PASSWORD]) {
+        return YES;
+    }
+    else if ([self.input_username_textField.text isEqual:ROOT_USERNAME] &&
+             [self.input_password_textField.text isEqual:ROOT_PASSWORD]) {
+        return YES;
+    }
+    else if ([self.input_username_textField.text isEqualToString:STUDENT_USERNAME] &&
+             [self.input_password_textField.text isEqualToString:STUDENT_PASSWORD]) {
+        return YES;
+    }
+    else {
+        return NO;
     }
 }
 

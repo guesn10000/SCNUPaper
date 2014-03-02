@@ -16,6 +16,10 @@
 #define LOCAL_TEST
 #endif
 
+#if 0
+#define DEBUG_MODE
+#endif
+
 
 /* 系统参数 */
 
@@ -117,5 +121,11 @@
 /* 临时信息 */
 #define TEMP_USERNAME @"qwe"
 #define TEMP_PASSWORD @"123"
+
+#define ROOT_USERNAME @"admin"
+#define ROOT_PASSWORD @"admin"
+
+#define STUDENT_USERNAME @"student"
+#define STUDENT_PASSWORD @"123"
 
 #endif

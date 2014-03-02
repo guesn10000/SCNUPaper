@@ -25,4 +25,7 @@
 - (void)getDownload_ZIP_Data:(NSMutableData *)zipData;
 - (void)getDownload_PDF_Data:(NSMutableData *)pdfData;
 
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *quitLogin_localTestButtonItem;
+- (IBAction)quitLogin_localTest:(id)sender;
+
 @end

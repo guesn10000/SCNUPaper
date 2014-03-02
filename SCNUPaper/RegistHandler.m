@@ -8,7 +8,6 @@
 
 #import "RegistHandler.h"
 #import "AppDelegate.h"
-#import "JCAlert.h"
 #import "APIURL.h"
 #import "RegistViewController.h"
 

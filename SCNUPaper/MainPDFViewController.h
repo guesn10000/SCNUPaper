@@ -30,6 +30,9 @@
 
 @property (strong, nonatomic) NSMutableArray *tempViews;
 
+- (void)unenableViewAndBarsInteraction;
+- (void)enableViewAndBarsInteraction;
+
 #pragma mark - NavigationBar
 
 /* 返回最近打开列表 */

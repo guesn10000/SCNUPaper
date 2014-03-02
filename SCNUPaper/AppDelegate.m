@@ -7,9 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import "Constants.h"
-#import "JCAlert.h"
-#import "JCFilePersistence.h"
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFCreator.h"
@@ -25,14 +22,23 @@
     return [UIApplication sharedApplication].delegate;
 }
 
+- (void)unenableWindowInteraction {
+    self.window.alpha = UNABLE_VIEW_ALPHA;
+    self.window.userInteractionEnabled = NO;
+}
+
+- (void)enableWindowInteraction {
+    self.window.alpha = DEFAULT_VIEW_ALPHA;
+    self.window.userInteractionEnabled = YES;
+}
+
 - (void)startSpinnerAnimating {
     if (self.app_spinner.isAnimating) {
         return;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.window.alpha = UNABLE_VIEW_ALPHA;
-        self.window.userInteractionEnabled = NO;
+        [self unenableWindowInteraction];
         
         [self.window addSubview:self.app_spinner];
         [self.app_spinner startAnimating];
@@ -44,8 +50,7 @@
         [self.app_spinner stopAnimating];
         [self.app_spinner removeFromSuperview];
         
-        self.window.alpha = DEFAULT_VIEW_ALPHA;
-        self.window.userInteractionEnabled = YES;
+        [self enableWindowInteraction];
     });
 }
 
@@ -60,8 +65,7 @@
         
         URLConnector *urlConnector = [URLConnector sharedInstance];
         if (urlConnector.isLoginSucceed) {
-            self.window.alpha = UNABLE_VIEW_ALPHA;
-            [self.window setUserInteractionEnabled:NO];
+            [self unenableWindowInteraction];
             [self.loginViewController.navigationController pushViewController:self.latestViewController animated:YES];
             [self.latestViewController openFileURL]; // 已登陆，直接打开file url
         }

@@ -8,9 +8,6 @@
 
 #import "URLConnector.h"
 #import "AppDelegate.h"
-#import "Constants.h"
-#import "JCAlert.h"
-#import "JCFilePersistence.h"
 #import "APIURL.h"
 #import "Cookies.h"
 #import "Reachability.h"

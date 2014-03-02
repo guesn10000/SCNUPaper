@@ -11,8 +11,6 @@
 #import "AppDelegate.h"
 #import "Cookies.h"
 #import "KeyGeneraton.h"
-#import "Constants.h"
-#import "JCFilePersistence.h"
 #import "CommentStroke.h"
 
 @implementation MyPDFPage
@@ -42,7 +40,9 @@
                 self.previousDrawStrokes = [NSKeyedUnarchiver unarchiveObjectWithData:mdata];
             }
             @catch (NSException *exception) {
+#ifdef DEBUG_MODE
                 NSLog(@"%@", exception);
+#endif
             }
             @finally {
                 

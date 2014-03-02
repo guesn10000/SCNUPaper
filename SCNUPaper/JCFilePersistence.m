@@ -489,7 +489,6 @@
         [fileManager removeItemAtPath:filePath error:&error];
         if (error) {
             [JCAlert alertWithMessage:@"移除文件失败" Error:error];
-            return;
         }
     }
 }

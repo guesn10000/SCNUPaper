@@ -64,6 +64,7 @@
 		18904D11183A83D200F0DF63 /* JCFilePersistence.m in Sources */ = {isa = PBXBuildFile; fileRef = 18904D10183A83D200F0DF63 /* JCFilePersistence.m */; };
 		18909AC4188FEF6000845307 /* JCTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 18909AC3188FEF6000845307 /* JCTimer.m */; };
 		1890D17B1887DEF600462055 /* FileCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1890D17A1887DEF600462055 /* FileCleaner.m */; };
+		189BB20B18C2D86000C7C50F /* 一页纸工程.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 189BB20A18C2D86000C7C50F /* 一页纸工程.pdf */; };
 		18B4474718473DD20074D669 /* Stroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B4474618473DD20074D669 /* Stroke.m */; };
 		18B4474A184792020074D669 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B44749184792020074D669 /* LoginViewController.m */; };
 		18B44752184793950074D669 /* cb_glossy_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 18B4474C184793950074D669 /* cb_glossy_off.png */; };
@@ -194,6 +195,7 @@
 		18909AC3188FEF6000845307 /* JCTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCTimer.m; sourceTree = "<group>"; };
 		1890D1791887DEF600462055 /* FileCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileCleaner.h; sourceTree = "<group>"; };
 		1890D17A1887DEF600462055 /* FileCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileCleaner.m; sourceTree = "<group>"; };
+		189BB20A18C2D86000C7C50F /* 一页纸工程.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "一页纸工程.pdf"; sourceTree = "<group>"; };
 		18B4474518473DD20074D669 /* Stroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stroke.h; sourceTree = "<group>"; };
 		18B4474618473DD20074D669 /* Stroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Stroke.m; sourceTree = "<group>"; };
 		18B44748184792020074D669 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
@@ -292,6 +294,7 @@
 		1821AFB418C19AAE000D5244 /* PDFs */ = {
 			isa = PBXGroup;
 			children = (
+				189BB20A18C2D86000C7C50F /* 一页纸工程.pdf */,
 				1821AFB518C19ABA000D5244 /* 中国的绘画精神.pdf */,
 				1821AFB618C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf */,
 			);
@@ -749,6 +752,7 @@
 				1815F824183941D20007B92B /* Toolbar-Done.png in Resources */,
 				18E3CCF6188934DF00D02BA2 /* RecorderView.xib in Resources */,
 				181680FC188BA6FF008DE61F /* PageInputView.xib in Resources */,
+				189BB20B18C2D86000C7C50F /* 一页纸工程.pdf in Resources */,
 				18C46FE9184224070093CA29 /* iPad_ToolBars.xib in Resources */,
 				18E3CD0E1889559800D02BA2 /* addVoice.jpg in Resources */,
 				185F258E183898B200347214 /* Images.xcassets in Resources */,

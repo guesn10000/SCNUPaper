@@ -8,7 +8,6 @@
 
 #import "RegistViewController.h"
 #import "AppDelegate.h"
-#import "Constants.h"
 #import "URLConnector.h"
 
 @interface RegistViewController () {

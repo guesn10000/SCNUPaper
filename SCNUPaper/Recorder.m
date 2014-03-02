@@ -11,10 +11,7 @@
 #import "AppDelegate.h"
 #import "Cookies.h"
 #import "KeyGeneraton.h"
-#import "Constants.h"
 #import "Comments.h"
-#import "JCAlert.h"
-#import "JCFilePersistence.h"
 #import "MyPDFAnnotation.h"
 #import "MainPDFViewController.h"
 
@@ -277,13 +274,14 @@ static const float Record_SampleRateKey    = 44100.0;
 
 /* 删除当前的录音文件 */
 - (void)unsaveRecordVoice {
-    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    NSString *mp3FilePath = [filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
-    if ([fileManager fileExistsAtPath:mp3FilePath]) {
-        [fileManager removeItemAtPath:mp3FilePath error:nil];
+    if (!self.mp3FileName || [self.mp3FileName isEqualToString:@""]) {
+        [self resetDefaults];
+        return;
     }
+    
+    JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
+    NSString          *mp3FilePath     = [filePersistence getDirectoryOfDocumentFileWithName:self.mp3FileName];
+    [filePersistence removeFileAtPath:mp3FilePath];
     
     [self resetDefaults];
 }

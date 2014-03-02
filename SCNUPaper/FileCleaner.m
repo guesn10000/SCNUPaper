@@ -8,8 +8,6 @@
 
 #import "FileCleaner.h"
 #import "AppDelegate.h"
-#import "Constants.h"
-#import "JCFilePersistence.h"
 #import "Cookies.h"
 
 @implementation FileCleaner

@@ -44,4 +44,7 @@
 @property (strong, nonatomic) NSURL *fileURL;
 @property (assign, nonatomic) BOOL fromInboxFile; // 文件是否来自Inbox文件夹
 
+- (void)unenableWindowInteraction;
+- (void)enableWindowInteraction;
+
 @end

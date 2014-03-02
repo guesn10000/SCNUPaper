@@ -8,10 +8,7 @@
 
 #import "TiledPDFView.h"
 #import "AppDelegate.h"
-#import "Constants.h"
 #import "Cookies.h"
-#import "JCAlert.h"
-#import "JCFilePersistence.h"
 #import "Comments.h"
 #import "MyPDFPage.h"
 #import "MyPDFAnnotation.h"
@@ -484,16 +481,14 @@ enum AddVoiceType {
 #pragma mark - Add Text Comments
 
 - (void)prepareToAddText:(NSInteger)addTextType PreviousText:(NSString *)preText {
-    self.addTextType_          = addTextType;
+    self.addTextType_         = addTextType;
     self.editType_            = kAddEmpty;
     self.commentsMenu.hidden  = YES;
     self.inputTextView.hidden = NO;
     self.input_textView.text  = preText;
     [self.input_textView becomeFirstResponder];
     
-    // 暂时解锁pdf scroll view的滚动，方便用户查看页面内容
-    // 不能解锁缩放视图，否则缩放后视图的笔画可能错乱
-    [self.containerScrollView setScrollEnabled:YES];
+    [[AppDelegate sharedDelegate].mainPDFViewController unenableViewAndBarsInteraction];
 }
 
 /* 点击了菜单中的添加文字选项后的响应方法 */
@@ -512,8 +507,9 @@ enum AddVoiceType {
 
 /* 完成并保存输入的文字批注 */
 - (IBAction)done_inputText:(id)sender {
+    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
+    
     if (self.input_textView.text && ![self.input_textView.text isEqualToString:@""]) {
-        AppDelegate *appDelegate = [AppDelegate sharedDelegate];
         NSString *filename = appDelegate.cookies.pureFileName;
         
         if (self.addTextType_ == kTxtNew) { // 添加新的文字批注
@@ -569,8 +565,9 @@ enum AddVoiceType {
     }
     else {
         [JCAlert alertWithMessage:@"输入的文字内容为空，请重新输入"];
-        return;
     }
+    
+    [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
 }
 
 /* 取消输入的文字批注 */
@@ -585,28 +582,28 @@ enum AddVoiceType {
         [Comments showCommentsWithPage:self.myPDFPage_.pageIndex
                                    Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
     }
+    
+    [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
 }
 
 #pragma mark - Add Voice Comments
 
 /* 点击了菜单中的添加语音选项后的响应方法 */
 - (IBAction)addVoiceComments:(id)sender {
-    self.editType_ = kAddEmpty;
-    self.addVoiceType_ = kVocNew;
-    self.commentsMenu.hidden = YES;
-    self.recorderView.hidden = NO;
-    
-    // 暂时解锁pdf scroll view的滚动，方便用户查看页面内容
-    // 不能解锁缩放视图，否则缩放后该视图将变为nil
-    [(UIScrollView *)self.superview setScrollEnabled:YES];
+    [self addVoiceCommentsWithType:kVocNew];
 }
 
 /* 给表格添加新的语音批注 */
 - (void)addNewVoiceComments {
-    self.editType_ = kAddEmpty;
-    self.addVoiceType_ = kVocAdd;
-    self.commentsMenu.hidden = YES;
-    self.recorderView.hidden = NO;
+    [self addVoiceCommentsWithType:kVocAdd];
+}
+
+- (void)addVoiceCommentsWithType:(NSUInteger)voiceType {
+    self.editType_                 = kAddEmpty;
+    self.addVoiceType_             = voiceType;
+    self.commentsMenu.hidden       = YES;
+    self.recorderView.hidden       = NO;
+    self.doneRecord_button.enabled = NO;
     
     // 暂时解锁pdf scroll view的滚动，方便用户查看页面内容
     // 不能解锁缩放视图，否则缩放后该视图将变为nil
@@ -616,24 +613,22 @@ enum AddVoiceType {
 /* 进行录音动作 */
 - (IBAction)doRecording:(id)sender {
     AppDelegate *appDelegate = [AppDelegate sharedDelegate];
-    [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:NO];
+    [appDelegate.mainPDFViewController unenableViewAndBarsInteraction];
     
     if (self.recorder.isRecording) { // YES to NO，关闭录音
         [self.recorder doRecording];
         
         [self.record_button setTitle:@"重新录音" forState:UIControlStateNormal];
-        self.doneRecord_button.enabled = YES;
+        self.doneRecord_button.enabled   = YES;
         self.cancelRecord_button.enabled = YES;
-        [appDelegate.mainPDFViewController.view setUserInteractionEnabled:YES];
-        [appDelegate.window                     setAlpha:DEFAULT_VIEW_ALPHA];
+        [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
         [self.recording_spinner stopAnimating];
     }
     else { // No to YES，开始录音
         [self.recording_spinner startAnimating];
-        [appDelegate.mainPDFViewController.view setUserInteractionEnabled:NO];
-        [appDelegate.window                     setAlpha:UNABLE_VIEW_ALPHA];
+        [appDelegate.mainPDFViewController unenableViewAndBarsInteraction];
         [self.record_button setTitle:@"完成录音" forState:UIControlStateNormal];
-        self.doneRecord_button.enabled = NO;
+        self.doneRecord_button.enabled   = NO;
         self.cancelRecord_button.enabled = NO;
         
         [self.recorder doRecording];
@@ -681,7 +676,7 @@ enum AddVoiceType {
     
     [self.record_button setTitle:@"开始录音" forState:UIControlStateNormal];
     
-    [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:YES];
+    [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
 }
 
 /* 取消录音 */
@@ -699,7 +694,7 @@ enum AddVoiceType {
                                    Key:appDelegate.mainPDFViewController.allComments.currentButtonKey]; // 显示批注表格
     }
     
-    [appDelegate.mainPDFViewController.navigationController.view setUserInteractionEnabled:YES];
+    [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
 }
 
 #pragma mark - Touches

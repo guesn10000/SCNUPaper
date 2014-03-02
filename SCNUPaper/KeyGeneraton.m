@@ -9,8 +9,6 @@
 #import "KeyGeneraton.h"
 #import "AppDelegate.h"
 #import "Cookies.h"
-#import "Constants.h"
-#import "JCFilePersistence.h"
 
 @interface KeyGeneraton ()
 

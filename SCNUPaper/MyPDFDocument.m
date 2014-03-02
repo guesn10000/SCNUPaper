@@ -7,7 +7,6 @@
 //
 
 #import "MyPDFDocument.h"
-#import "JCAlert.h"
 
 @interface MyPDFDocument ()
 

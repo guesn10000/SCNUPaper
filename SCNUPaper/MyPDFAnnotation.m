@@ -7,7 +7,6 @@
 //
 
 #import "MyPDFAnnotation.h"
-#import "Constants.h"
 #import "MyPDFButton.h"
 #import "AnnotationView.h"
 

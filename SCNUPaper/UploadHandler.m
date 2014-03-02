@@ -8,10 +8,7 @@
 
 #import "UploadHandler.h"
 #import "AppDelegate.h"
-#import "JCAlert.h"
-#import "Constants.h"
 #import "APIURL.h"
-#import "JCFilePersistence.h"
 #import "LatestViewController.h"
 
 @interface UploadHandler ()

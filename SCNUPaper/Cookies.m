@@ -8,7 +8,6 @@
 
 #import "Cookies.h"
 #import "AppDelegate.h"
-#import "Constants.h"
 #import "LoginViewController.h"
 
 @implementation Cookies

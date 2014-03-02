@@ -8,9 +8,6 @@
 
 #import "MainPDFViewController.h"
 #import "AppDelegate.h"
-#import "Constants.h"
-#import "JCAlert.h"
-#import "JCFilePersistence.h"
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFDocument.h"
@@ -59,15 +56,17 @@ enum AlertDelegate {
     
     [self setBarsWithAuthority];
     [self setViewsForCheckComments];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
     
     /* 初始化一些基本参数 */
     self.isEditing_ = NO;
     self.hasEdited  = NO;
     self.alertDelegate_ = kDefaultAlert;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    self.mainOptions_Toolbar.hidden = NO;
     
     // 产生管理Annotation key的序列号生成器
     AppDelegate *appDelegate  = [AppDelegate sharedDelegate];
@@ -85,6 +84,15 @@ enum AlertDelegate {
     [super viewDidDisappear:animated];
     
     [self.thesisPagesView removeFromSuperview];
+    
+    self.mainOptions_Toolbar.hidden    = YES;
+    self.strokeOptions_Toolbar.hidden  = YES;
+    self.commentOptions_Toolbar.hidden = YES;
+    self.pageInputView.hidden          = YES;
+    self.viewForCheckComments.hidden   = YES;
+    self.stopPlaying_button.hidden     = YES;
+    self.viewForCommentDetails.hidden  = YES;
+    self.addNewComments_Menu.hidden    = YES;
 }
 
 /* 根据权限设置工具条和导航栏 */
@@ -239,7 +247,8 @@ enum AlertDelegate {
     }
     
     self.tempFrame_ = CGRectMake(0, 0, self.thesisPagesView.bounds.size.width, self.thesisPagesView.bounds.size.height);
-    for (int i = 1; i <= 2; i++) {
+    NSUInteger pages = (self.myPDFDocument.totalPages == 1) ? 1 : 2;
+    for (int i = 1; i <= pages; i++) {
         CGRect rect = self.tempFrame_;
         rect.origin.x = (i - 1) * self.thesisPagesView.bounds.size.width;
         PDFScrollView *pdfScrollView = [[PDFScrollView alloc] initWithFrame:rect
@@ -261,6 +270,18 @@ enum AlertDelegate {
     [super didReceiveMemoryWarning];
 }
 
+- (void)unenableViewAndBarsInteraction {
+    self.view.alpha = UNABLE_VIEW_ALPHA;
+    self.navigationController.navigationBar.userInteractionEnabled = NO;
+    self.view.userInteractionEnabled = NO;
+}
+
+- (void)enableViewAndBarsInteraction {
+    self.view.userInteractionEnabled = YES;
+    self.navigationController.navigationBar.userInteractionEnabled = YES;
+    self.view.alpha = DEFAULT_VIEW_ALPHA;
+}
+
 - (void)lockThesisPagesView {
     self.thesisPagesView.scrollEnabled = NO;
 }
@@ -278,7 +299,7 @@ enum AlertDelegate {
         self.alertDelegate_ = kSyncronAlert;
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"注意" message:@"是否保存修改？本操作将使用您的流量"
                                                            delegate:self
-                                                  cancelButtonTitle:@"返回但不保存" otherButtonTitles:@"保存并返回", nil];
+                                                  cancelButtonTitle:@"取消" otherButtonTitles:@"保存并返回", @"返回但不保存", nil];
         [alertView show];
     }
     else {
@@ -361,7 +382,7 @@ enum AlertDelegate {
 
 /* 跳转到指定页 */
 - (IBAction)turnToPage:(id)sender {
-    self.view.userInteractionEnabled = NO;
+    [self unenableViewAndBarsInteraction];
     self.inputPageIndex_textField.text = @"";
     self.pageInputView.hidden = NO;
     [self.inputPageIndex_textField becomeFirstResponder];
@@ -377,7 +398,7 @@ enum AlertDelegate {
         int temp = pageIndex - self.myPDFDocument.currentIndex;
         self.myPDFDocument.currentIndex = pageIndex;
         if (temp == 0) {
-            self.view.userInteractionEnabled = YES;
+            [self enableViewAndBarsInteraction];
             return;
         }
         else if (temp == 1) {
@@ -394,10 +415,10 @@ enum AlertDelegate {
         
         
         self.thesisPagesView.contentOffset = CGPointMake((pageIndex - 1) * self.thesisPagesView.frame.size.width, 0.0);
-        self.view.userInteractionEnabled = YES;
+        [self enableViewAndBarsInteraction];
     }
     else {
-        [JCAlert alertWithMessage:@"您输入的页码出错"];
+        [JCAlert alertWithMessage:@"您输入的页码出错，请重新输入"];
     }
 }
 
@@ -405,7 +426,7 @@ enum AlertDelegate {
 - (IBAction)cancelTurnPage_Action:(id)sender {
     [self.inputPageIndex_textField resignFirstResponder];
     self.pageInputView.hidden = YES;
-    self.view.userInteractionEnabled = YES;
+    [self enableViewAndBarsInteraction];
 }
 
 #pragma mark - Add Strokes
@@ -707,22 +728,23 @@ enum AlertDelegate {
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (self.alertDelegate_ == kSyncronAlert) { // 同步对话框
         AppDelegate *appDelegate = [AppDelegate sharedDelegate];
-        if (buttonIndex == 1) { // 保存修改并返回
-            appDelegate.window.alpha = UNABLE_VIEW_ALPHA;
-            appDelegate.window.userInteractionEnabled = NO;
+        if (buttonIndex == 0) { // 取消
+            return;
+        }
+        else if (buttonIndex == 1) { // 保存修改并返回
+            [appDelegate unenableWindowInteraction];
             
+#ifndef LOCAL_TEST
             // 创建pdf文件并上传到服务器
             MyPDFCreator *pdfCreator = [MyPDFCreator sharedInstance];
             [pdfCreator createNewPDFFile];
-#ifndef LOCAL_TEST
             [pdfCreator uploadFilesToServer];
 #endif
         }
         
         // 返回最近打开列表
         [self.navigationController popToViewController:appDelegate.latestViewController animated:YES];
-        appDelegate.window.alpha = DEFAULT_VIEW_ALPHA;
-        appDelegate.window.userInteractionEnabled = YES;
+        [appDelegate enableWindowInteraction];
     }
     else if (self.alertDelegate_ == kRemvStkAlert) { // 移除当前页面所有笔注对话框
         if (buttonIndex == 1) { // 确定删除本页所有笔画

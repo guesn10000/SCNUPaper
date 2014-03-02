@@ -8,10 +8,6 @@
 
 #import "LatestViewController.h"
 #import "AppDelegate.h"
-#import "Constants.h"
-#import "JCAlert.h"
-#import "JCTimer.h"
-#import "JCFilePersistence.h"
 #import "Cookies.h"
 #import "URLConnector.h"
 #import "MyPDFDocument.h"
@@ -51,7 +47,14 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     
 #ifdef LOCAL_TEST
     self.navigationItem.rightBarButtonItem.title = @"本地测试";
+#else
+    self.navigationItem.leftBarButtonItem.title   = @"";
+    self.navigationItem.leftBarButtonItem.enabled = NO;
 #endif
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
     // 加载登陆用户最近打开的文件列表
     AppDelegate       *appDelegate     = [AppDelegate sharedDelegate];
@@ -67,10 +70,8 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
         self.userslist_       = [[NSMutableDictionary alloc] init];
         self.latestOpenArray_ = [[NSMutableArray alloc] init];
     }
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+    
+    [self.tableView reloadData];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -196,8 +197,19 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     AppDelegate *appDelegate = [AppDelegate sharedDelegate];
     
 #ifdef LOCAL_TEST
-//    NSString *filename = @"中国的绘画精神（长篇）.pdf";
-    NSString *filename = @"中国的绘画精神.pdf";
+    NSString *filename;
+    if ([appDelegate.cookies.username isEqualToString:TEMP_USERNAME]) {
+        filename = @"中国的绘画精神.pdf";
+//        filename = @"一页纸工程.pdf";
+    }
+    else if ([appDelegate.cookies.username isEqualToString:ROOT_USERNAME]) {
+        filename = @"中国的绘画精神（长篇）.pdf";
+    }
+    else {
+        [JCAlert alertWithMessage:@"本地测试：登陆的是学生，不能进入本地测试功能"];
+        return;
+    }
+    
     [appDelegate.cookies setFileNamesWithPDFFileName:filename];
     JCFilePersistence *filePersistence = [JCFilePersistence sharedInstance];
     NSString *srcFilePath = [[NSBundle mainBundle] pathForResource:filename ofType:nil];
@@ -387,6 +399,16 @@ static const NSUInteger kMaximum_LatestOpen = 10; // 最近打开历史记录最
     [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
 #endif
     
+}
+
+- (IBAction)quitLogin_localTest:(id)sender {
+    AppDelegate  *appDelegate  = [AppDelegate sharedDelegate];
+    appDelegate.fileURL = nil;
+    appDelegate.fromInboxFile = NO;
+    URLConnector *urlConnector = [URLConnector sharedInstance];
+    urlConnector.isLoginSucceed = NO;
+    [appDelegate.cookies removeCookies];
+    [appDelegate.latestViewController.navigationController popToViewController:appDelegate.loginViewController animated:YES];
 }
 
 @end
