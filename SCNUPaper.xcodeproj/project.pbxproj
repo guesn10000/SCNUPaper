@@ -65,6 +65,8 @@
 		18909AC4188FEF6000845307 /* JCTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 18909AC3188FEF6000845307 /* JCTimer.m */; };
 		1890D17B1887DEF600462055 /* FileCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1890D17A1887DEF600462055 /* FileCleaner.m */; };
 		189BB20B18C2D86000C7C50F /* 一页纸工程.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 189BB20A18C2D86000C7C50F /* 一页纸工程.pdf */; };
+		189BB20E18C3868A00C7C50F /* addVoice.png in Resources */ = {isa = PBXBuildFile; fileRef = 189BB20C18C3868A00C7C50F /* addVoice.png */; };
+		189BB20F18C3868A00C7C50F /* addText.png in Resources */ = {isa = PBXBuildFile; fileRef = 189BB20D18C3868A00C7C50F /* addText.png */; };
 		18B4474718473DD20074D669 /* Stroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B4474618473DD20074D669 /* Stroke.m */; };
 		18B4474A184792020074D669 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18B44749184792020074D669 /* LoginViewController.m */; };
 		18B44752184793950074D669 /* cb_glossy_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 18B4474C184793950074D669 /* cb_glossy_off.png */; };
@@ -79,8 +81,6 @@
 		18E3CCF6188934DF00D02BA2 /* RecorderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CCF5188934DF00D02BA2 /* RecorderView.xib */; };
 		18E3CCF91889399800D02BA2 /* Recorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E3CCF81889399800D02BA2 /* Recorder.m */; };
 		18E3CCFB188953B500D02BA2 /* CommentsMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CCFA188953B500D02BA2 /* CommentsMenu.xib */; };
-		18E3CD0D1889559800D02BA2 /* addText.png in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD0B1889559800D02BA2 /* addText.png */; };
-		18E3CD0E1889559800D02BA2 /* addVoice.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD0C1889559800D02BA2 /* addVoice.jpg */; };
 		18E3CD121889617B00D02BA2 /* CommentsTable.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD111889617B00D02BA2 /* CommentsTable.xib */; };
 		18E3CD14188961C000D02BA2 /* CommentDetail.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD13188961C000D02BA2 /* CommentDetail.xib */; };
 		18E3CD1B1889642500D02BA2 /* CheckCommTable.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18E3CD1A1889642500D02BA2 /* CheckCommTable.xib */; };
@@ -196,6 +196,8 @@
 		1890D1791887DEF600462055 /* FileCleaner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileCleaner.h; sourceTree = "<group>"; };
 		1890D17A1887DEF600462055 /* FileCleaner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileCleaner.m; sourceTree = "<group>"; };
 		189BB20A18C2D86000C7C50F /* 一页纸工程.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "一页纸工程.pdf"; sourceTree = "<group>"; };
+		189BB20C18C3868A00C7C50F /* addVoice.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addVoice.png; sourceTree = "<group>"; };
+		189BB20D18C3868A00C7C50F /* addText.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addText.png; sourceTree = "<group>"; };
 		18B4474518473DD20074D669 /* Stroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stroke.h; sourceTree = "<group>"; };
 		18B4474618473DD20074D669 /* Stroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Stroke.m; sourceTree = "<group>"; };
 		18B44748184792020074D669 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
@@ -213,8 +215,6 @@
 		18E3CCF71889399800D02BA2 /* Recorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Recorder.h; sourceTree = "<group>"; };
 		18E3CCF81889399800D02BA2 /* Recorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Recorder.m; sourceTree = "<group>"; };
 		18E3CCFA188953B500D02BA2 /* CommentsMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CommentsMenu.xib; sourceTree = "<group>"; };
-		18E3CD0B1889559800D02BA2 /* addText.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addText.png; sourceTree = "<group>"; };
-		18E3CD0C1889559800D02BA2 /* addVoice.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = addVoice.jpg; sourceTree = "<group>"; };
 		18E3CD111889617B00D02BA2 /* CommentsTable.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CommentsTable.xib; sourceTree = "<group>"; };
 		18E3CD13188961C000D02BA2 /* CommentDetail.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CommentDetail.xib; sourceTree = "<group>"; };
 		18E3CD1A1889642500D02BA2 /* CheckCommTable.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CheckCommTable.xib; sourceTree = "<group>"; };
@@ -597,8 +597,8 @@
 		18E3CD0A1889558100D02BA2 /* Comment */ = {
 			isa = PBXGroup;
 			children = (
-				18E3CD0B1889559800D02BA2 /* addText.png */,
-				18E3CD0C1889559800D02BA2 /* addVoice.jpg */,
+				189BB20C18C3868A00C7C50F /* addVoice.png */,
+				189BB20D18C3868A00C7C50F /* addText.png */,
 			);
 			name = Comment;
 			sourceTree = "<group>";
@@ -754,7 +754,7 @@
 				181680FC188BA6FF008DE61F /* PageInputView.xib in Resources */,
 				189BB20B18C2D86000C7C50F /* 一页纸工程.pdf in Resources */,
 				18C46FE9184224070093CA29 /* iPad_ToolBars.xib in Resources */,
-				18E3CD0E1889559800D02BA2 /* addVoice.jpg in Resources */,
+				189BB20E18C3868A00C7C50F /* addVoice.png in Resources */,
 				185F258E183898B200347214 /* Images.xcassets in Resources */,
 				1821AFB818C19ABA000D5244 /* 中国的绘画精神（长篇）.pdf in Resources */,
 				186FD6FE183DF138001C0B92 /* AppDocument.rtf in Resources */,
@@ -763,10 +763,10 @@
 				18E3CD1B1889642500D02BA2 /* CheckCommTable.xib in Resources */,
 				18B44754184793950074D669 /* cb_glossy_on.png in Resources */,
 				181680FE188BA71A008DE61F /* iPhone_PageInput.xib in Resources */,
-				18E3CD0D1889559800D02BA2 /* addText.png in Resources */,
 				1821AFB718C19ABA000D5244 /* 中国的绘画精神.pdf in Resources */,
 				185F2586183898B200347214 /* Main_iPhone.storyboard in Resources */,
 				185F257D183898B200347214 /* InfoPlist.strings in Resources */,
+				189BB20F18C3868A00C7C50F /* addText.png in Resources */,
 				188DE21D188A73D10065F428 /* InputTextView.xib in Resources */,
 				18B44752184793950074D669 /* cb_glossy_off.png in Resources */,
 			);

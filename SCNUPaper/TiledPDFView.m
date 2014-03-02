@@ -605,28 +605,21 @@ enum AddVoiceType {
     self.recorderView.hidden       = NO;
     self.doneRecord_button.enabled = NO;
     
-    // 暂时解锁pdf scroll view的滚动，方便用户查看页面内容
-    // 不能解锁缩放视图，否则缩放后该视图将变为nil
-    [(UIScrollView *)self.superview setScrollEnabled:YES];
+    [[AppDelegate sharedDelegate].mainPDFViewController unenableViewAndBarsInteraction];
 }
 
 /* 进行录音动作 */
 - (IBAction)doRecording:(id)sender {
-    AppDelegate *appDelegate = [AppDelegate sharedDelegate];
-    [appDelegate.mainPDFViewController unenableViewAndBarsInteraction];
-    
     if (self.recorder.isRecording) { // YES to NO，关闭录音
         [self.recorder doRecording];
         
         [self.record_button setTitle:@"重新录音" forState:UIControlStateNormal];
         self.doneRecord_button.enabled   = YES;
         self.cancelRecord_button.enabled = YES;
-        [appDelegate.mainPDFViewController enableViewAndBarsInteraction];
         [self.recording_spinner stopAnimating];
     }
     else { // No to YES，开始录音
         [self.recording_spinner startAnimating];
-        [appDelegate.mainPDFViewController unenableViewAndBarsInteraction];
         [self.record_button setTitle:@"完成录音" forState:UIControlStateNormal];
         self.doneRecord_button.enabled   = NO;
         self.cancelRecord_button.enabled = NO;

@@ -115,7 +115,7 @@
 
 // 常用图片
 #define TEXT_ANNOTATION_IMAGE  [UIImage imageNamed:@"addText.png"]
-#define VOICE_ANNOTATION_IMAGE [UIImage imageNamed:@"addVoice.jpg"]
+#define VOICE_ANNOTATION_IMAGE [UIImage imageNamed:@"addVoice.png"]
 
 
 /* 临时信息 */

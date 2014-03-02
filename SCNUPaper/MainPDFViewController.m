@@ -80,8 +80,8 @@ enum AlertDelegate {
     [self buildThesisPages];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
     
     [self.thesisPagesView removeFromSuperview];
     
@@ -273,11 +273,13 @@ enum AlertDelegate {
 - (void)unenableViewAndBarsInteraction {
     self.view.alpha = UNABLE_VIEW_ALPHA;
     self.navigationController.navigationBar.userInteractionEnabled = NO;
+    self.checkCommentsOptions_Toolbar.userInteractionEnabled = NO;
     self.view.userInteractionEnabled = NO;
 }
 
 - (void)enableViewAndBarsInteraction {
     self.view.userInteractionEnabled = YES;
+    self.checkCommentsOptions_Toolbar.userInteractionEnabled = YES;
     self.navigationController.navigationBar.userInteractionEnabled = YES;
     self.view.alpha = DEFAULT_VIEW_ALPHA;
 }
